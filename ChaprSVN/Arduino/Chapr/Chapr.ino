@@ -1,6 +1,6 @@
-#include <VDIPSPI.h>
-#include <VDIP.h>
-#include <BT.h>
+#include "VDIPSPI.h"
+#include "VDIP.h"
+#include "BT.h"
 
 // it is really strange, but BT.h won't compile correctly unless this .ino
 // file also includes SoftwareSerial.h...really weird...
