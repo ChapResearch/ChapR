@@ -36,6 +36,7 @@ BT	 bt(12,13,11);
 #define SWITCH		A0
 #define TONEPIN		5
 
+// snv test
 
 void confirmTone(int pin)
 {
