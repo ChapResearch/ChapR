@@ -28,6 +28,8 @@
 //     bt(RX,TX, RESET)
 //
 
+//hello
+
 VDIP	 vdip(6,7,8,9,10);
 BT	 bt(12,13,11);
 
