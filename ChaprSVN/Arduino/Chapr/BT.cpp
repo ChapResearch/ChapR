@@ -6,14 +6,50 @@
 //
 // constructor
 //
-BT::BT(uint8_t receive, uint8_t transmit, uint8_t reset) :
+BT::BT(uint8_t receive,
+       uint8_t transmit, 
+       uint8_t reset, 		// TO BT> used to reset the BT module (necessary?)
+       uint8_t automode,	// TO BT> sets auto connect mode - off when pairing
+       uint8_t baud,		// TO BT> sets 9600 baud mode
+       uint8_t connect)	:	// FROM BT< high when connected
      SoftwareSerial(receive,transmit),
-     _rxPin(receive),
-     _txPin(transmit),
-     _rstPin(reset)
+     _rstPin(reset),
+     _autoModePin(automode),
+     _9600BaudPin(baud),
+     _connectPin(connect)
 {
-     pinMode(_rxPin,INPUT);
-     pinMode(_txPin,OUTPUT);
+     pinMode(_connectPin,INPUT);
+
+     // the following pins are wrong on the board - they use a 1 resistor
+     // mechanism that needs to be replaced by a 2 resistor voltage divider
+     // like that used on the TX pin.  when that is fixed, the following
+     // will be used:
+     //
+     //		pinMode(_rstPin,OUTPUT);
+     //		pinMode(_autoModePin,OUTPUT);
+     //		pinMode(_9600BaudPin,OUTPUT);
+
+
+     pinMode(_rstPin,INPUT);
+     pinMode(_autoModePin,INPUT);
+     pinMode(_9600BaudPin,INPUT);
+}
+
+//
+// btSpecialPin() - the three pins above need to be fixed on the board
+//			to a voltage divider.  Until then, this call
+//			needs to be used for these pins.  when that is
+//			fixed, blow away this routine.
+//
+void BT::specialPin(int pin, int value)
+{
+     if (value == HIGH) {
+	  pinMode(pin,INPUT);		// lets the pull-up resistor take over
+	                                // high-impedance mode
+     } else {
+	  digitalWrite(pin,LOW);	// drive the low first
+	  pinMode(pin,OUTPUT);		// then turn it into an output
+     }
 }
 
 //
@@ -24,57 +60,194 @@ BT::BT(uint8_t receive, uint8_t transmit, uint8_t reset) :
 //
 void BT::reset()
 {
-     // to do a reset, take the _rstPin out of tri-state and low
-     // then pull it back tri-state - this allows us to be cheap
-     // relative to the 3.3v reset pin which has a pull-up.
-     // note that ATMEGA pins default to INPUT (hi-imped) so
-     // it is assumed that they are set as INPUT pins before
-     // this routine.
-
-     digitalWrite(_rstPin,LOW);	// ensure it has a low in output buffer
-     pinMode(_rstPin,OUTPUT);	// generate the output 
+     specialPin(_rstPin,LOW);		// to be changed to digitalWrite(_rstPin,LOW)
 
      // needs to be low for min 160us, but 10 ms works great
 
      delay(10);
 
-     pinMode(_rstPin,INPUT);	// then put it back where it was
+     specialPin(_rstPin,HIGH);		// to be changed to digitalWrite(_rstPin,HIGH)
+
+     // reset seems to need a nice long wait before the RN-42 will respond well
+     // to serial input - I'm seeing a weird immediate echo on the TX line if I
+     // don't wait for this long
+
+     delay(500);
 }
 
 //
-// sync() - assuming that the bt has been reset, sync-up with it
-//		and get prepared for further communication.
+// BT MODES -------------------------------------------------------
 //
-void BT::sync()
+//   The BT RN-42 module only has a UART connection, so getting the
+// thing up and running requires that you connect with the RN-42 at
+// the same speed.  The devices always comes from the factory set at
+// 115200 baud.  This would be a fine speed to communicate at, EXCEPT
+// that we need to use the SoftwareSerial Arduino library to talk to
+// it, and that thing can't reliably do 115200 on a 16MHz Uno R3.
+// From all reports, it can do 38400 reliably (send and recv).
+//
+//   So, we, instead, operate the RN-42 in two modes "configation"
+// mode and "operational" mode.  The configuration mode is only
+// entered when needed, and the "operational" mode is the normal mode
+// of operation.  Here how it works:
+//
+//   CONFIG mode is entered whenever the ChapR needs to pair with a
+// brick.  CONFIG mode is entered by pressing and holding the button
+// upon boot.
+//
+// NOTE that the following pins are defined:
+//
+//	GPIO6	- the _autoModePin
+//	GPIO7	- the _9600BaudPin
+//	GPIO2	- the _connetPin 
+//
+// When CONFIG mode is requested, the following things occur:
+//	
+//	pull LOW GPIO6	  // disconnects and terminates auto connect mode (has pull-up)
+//	allow HIGH GPIO7  // (normally held low) sets 9600 baud
+//	send "$$$"	  // enters command mode (after each command, wait)
+// 	SU,38		  // sets baud to 38400 into firmware for next time
+//	SN,<name>	  // sets the name (use the EEPROM stored value)
+//	SM,4		  // sets the auto connect mode for next time
+//	U,38.4,N	  // switches to 38400 and exits command mode
+//	pull LOW GPIO7	  // removes 9600 baud mode
+//
+//
+// At this point, wait for a connect just like normal.  HOWEVER,
+// we are discoverable because we've left GPIO6 LOW.  This means
+// that it may not try to reconnect after the first time with a
+// connection.  We MAY want to change this to notice the connection
+// the first time, and re-enter auto mode.
+//
+// If no CONFIG mode requested, enter OPERATIONAL MODE
+//
+//		pull LOW GPIO7	  // this should be the boot-up default
+//		allow HIGH GPIO6  // turns on auto-connect mode
+//
+// then wait for a connect just like normal
+
+void BT::configMode(char *name)
 {
-      // enter command mode at 115200 baud - the default upon reset
+     // get out of auto connect mode and set 9600 baud
 
-     begin(115200);
-     delay(320);		// can this be smaller?
-     write("$$$");
-     delay(15);			// 
+     autoConnectMode(false);
+     baud9600mode(true);
+     begin(9600);		// set the SoftwareSerial baud rate appropriately
 
-     // first pull it out of slave mode - put it back later if it is appropriate
+     // each mode configuration starts with a reset() to ensure that
+     // the latest modes are enabled and baud rates set
 
-     println("SN,ChapR-1");
-     delay(100);
-     println("SM,1");
-     delay(100);
-     println("R,1");
+     reset();
 
-//     println("Q");
-//     delay(100);
-//     println("W");
+     delay(10);
 
+     btSend("$$$");		// get into command mode
 
-//     delay(5000);		// for testing, wait 5 seconds and exit command mode
+     delay(30);
 
-//     write("---\r");
+     btSend("SU,");		// set appropriate baud
+     btSend(BT_SU_BAUD);
+     btSend("\r");
 
-     // reduce speed to 57600 - then start programming the thing
+     delay(30);
+
+     btSend("SN,");		// set the appropriate name
+     btSend(name);
+     btSend("\r");
+
+     delay(30);
+
+     btSend("SM,4");		// auto connect mode
+     btSend("\r");
+
+     delay(30);
+
+     btSend("SR,Z");		// erased previously stored connection
+     btSend("\r");
+
+     delay(30);
+
+     btSend("SX,1");		// set bonding mode (only stored device can attach)
+     btSend("\r");
+
+     delay(30);
+
+     btSend("S?,1");		// attempt master/slave flip
+     btSend("\r");
+
+     delay(30);
+
+     btSend("U,");		// do an immediate baud rate setting
+     btSend(BT_U_BAUD);		// to eliminate the need for a reboot
+     btSend(",N\r");		// (exits command mode too)
+
+     baud9600mode(false);	// get out of 9600 mode, but leave auto connect off
+}
+
+void BT::opMode()
+{
+     // fire-up auto connect mode and kill 9600 baud
+
+     autoConnectMode(true);
+     baud9600mode(false);
+     begin(BT_OP_BAUD);		// set the SoftwareSerial baud rate appropriately
+
+     // each mode configuration starts with a reset() to ensure that
+     // the latest modes are enabled and baud rates set
+
+     reset();
+
+     // we're in 38400 baud in this case, or should be
+
+     btSend("$$$");		// get into command mode
+
+     delay(30);
+
+     btSend("Q,1");		// make the chapr undiscoverable (don't know if this works)
+     btSend("\r");
+
+     delay(30);
+
+     btSend("---");		// and out of command mode
+     btSend("\r");
 
 }
 
+void BT::autoConnectMode(bool turnOn)
+{
+     if (turnOn) {
+	  specialPin(_autoModePin,HIGH);	// will change to a digitalWrite
+     } else {
+	  specialPin(_autoModePin,LOW);		// will change to a digitalWrite
+     }
+}
+
+void BT::baud9600mode(bool turnOn)
+{
+     if (turnOn) {
+	  specialPin(_9600BaudPin,HIGH);	// will change to a digitalWrite
+     } else {
+	  specialPin(_9600BaudPin,LOW);		// will change to a digitalWrite
+     }
+}
+
+//
+// connected() - returns true if the BT is connected, false otherwise
+//
+bool BT::connected()
+{
+     return(digitalRead(_connectPin) == HIGH);
+}
+
+void BT::btSend(char *string)
+{
+     write(string);		// may end-up with a delay in here
+}
+
+void BT::btWrite(byte *buffer, int size)
+{
+     write(buffer,size);
+}
 
 //
 // getResponse() - this routine knows about all of the potential responses from the RN-42
@@ -102,8 +275,3 @@ void BT::sync()
 //     do {
 //	  if( read(
      
-
-
-//
-// private methods
-//

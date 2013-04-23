@@ -1,136 +1,176 @@
 #include "VDIPSPI.h"
 #include "VDIP.h"
 #include "BT.h"
+#include "blinky.h"
+#include "sound.h"
+#include "nxt.h"
 
 // it is really strange, but BT.h won't compile correctly unless this .ino
 // file also includes SoftwareSerial.h...really weird...
 
 #include <SoftwareSerial.h>
 
+// LIGHTS
+//	- Power Light	- slow flash during boot
+//			- solid when operational
+//			- fast flash means battery is low
+//			- off means the ChapR is off or battery dead
 //
-// The VDIP is set-up to use 5 lines for control, 4 of which are for
-//   the SPI interface and one for reset:
-//
-//     CLOCK - the SPI clock (output)
-//     MOSI - master out slave in (output)
-//     MISO - master in slave out (intput)
-//     CS - chip select
-//     RESET - VDIP reset pin
-//
-//   These pins are given to the VDIP constructor as follows in order:
-//
-//     vdip(CLOCK, MOSI, MISO, CS, RESET)
-//  
-//
-// The bluetooth module uses a UART for communication along with a reset
-// line.  They are given in the order:
-//
-//     bt(RX,TX, RESET)
+//	- BT Light	- off during boot
+//			- solid when BT connected
+//			- fast flash when discoverable (NEW BRICK MODE)
+//			- slow flash when trying to connect to a brick (AUTO CONNECTION MODE)
 //
 
-//hello
+#define BT_9600BAUD 	A5
+#define BT_CONNECTED	A4
+#define BT_MODE		A3
+#define BT_RX		12
+#define BT_TX		13
+#define BT_RESET	11
 
-VDIP	 vdip(6,7,8,9,10);
-BT	 bt(12,13,11);
+#define VDIP_CLOCK	6
+#define VDIP_MOSI	7
+#define VDIP_MISO	8
+#define VDIP_CS		9
+#define VDIP_RESET	10
 
-#define POWERLED	A2
-#define INDICATELED	A1
-#define SWITCH		A0
+#define LED_POWER	A2
+#define LED_INDICATE	A1
+
+#define BUTTON		A0
 #define TONEPIN		5
 
-// snv test
+VDIP	 vdip(VDIP_CLOCK, VDIP_MOSI, VDIP_MISO, VDIP_CS, VDIP_RESET);
+BT	 bt(BT_RX, BT_TX, BT_RESET, BT_MODE, BT_9600BAUD, BT_CONNECTED);
 
-void confirmTone(int pin)
-{
-  tone(pin,440,50);
-  delay(50);
-  tone(pin,880,50);
-}
+blinky	powerLED(LED_POWER);
+blinky	indicateLED(LED_INDICATE);
 
-void squeepTone(int pin)
-{
-     noTone(pin);
-     for (int i = 880; i < 3520; i += 20) {
-	  tone(pin,i);
-	  delay(1);
-     }
-     for (int i = 3520; i > 880; i -= 20) {
-	  tone(pin,i);
-	  delay(1);
-     }
-     noTone(pin);
-}
+sound  	beeper(TONEPIN);
+
+#define LOCAL_SERIAL_BAUD	38400
 
 void setup()
 {
-  Serial.begin(115200);
-  Serial.println("hola");
-  noTone(11);			// turn off default tone
+     // standard init needs to occur here
+     // NOTE though, that the init from the VDIP and BT objects has already occured
 
-  pinMode(POWERLED,OUTPUT);	// flashing during reset
-  pinMode(INDICATELED,OUTPUT);	// flashing during reset
+     Serial.begin(LOCAL_SERIAL_BAUD);	// the serial monitor operates at this BAUD
+     Serial.write("ChapR v0.1 up!\n");
 
-  digitalWrite(POWERLED,HIGH);
+     powerLED.slow();			// flash the power LED during boot
 
-  // first, reset the BT - it takes a little bit to settle so start it before
-  //  the VDIP reset, then sync-up afterwards
+     // check the button to see if it was pressed upon boot, if so, enter config mode
 
-  Serial.println("doing BT reset");
-  bt.reset();
+     if (digitalRead(BUTTON) == HIGH) {		// the button has a pull-down, so normally LOW
+	  bt.configMode("Chapr-1");
+	  powerLED.slow();
+     } else {
+	  bt.opMode();
+	  powerLED.on();
+     }
 
-  vdip.reset(POWERLED);		// reset and sync-up with the VDIP
-  vdip.flush();			// consume incoming messages
-  vdip.deviceUpdate();		// update device connections if necessary
+     vdip.reset(LED_POWER);		// reset and sync-up with the VDIP
+     vdip.flush();			// consume incoming messages
+     vdip.deviceUpdate();		// update device connections if necessary
 
-  Serial.println("doing BT sync");
-  bt.sync();
-
-  digitalWrite(POWERLED,HIGH);
-
-//  squeepTone(TONEPIN);
-  confirmTone(TONEPIN);
-
-  digitalWrite(INDICATELED,HIGH);
-
-  Serial.println("just reset");
-
-  // bt.setup();      // reset and sync-up with the BT module
-
+     beeper.confirm();
 }
 
-void loop()
+byte emptyJSData[] = { 0x13, 0x80, 0x80, 0x80, 0x80, 0x08, 0x00, 0x04 };
+byte joy1data[] = { 0x13, 0x80, 0x80, 0x80, 0x80, 0x08, 0x00, 0x04 };
+byte joy2data[] = { 0x13, 0x80, 0x80, 0x80, 0x80, 0x08, 0x00, 0x04 };
+
+void jsprint(byte *js,char *label)
 {
-     unsigned char	joy1data[100];
-     unsigned char	joy2data[8];
-
-     // check each joystick that is connected, and grab a packet of information from it
-     // the joysticks return 8 bytes of info
-
-     if (vdip.getJoystick(1,joy1data) == 8) {
 	  Serial.print("(1):");
 	  for (int i=0; i < 8; i++) {
 	       Serial.print(joy1data[i],HEX);
 	       Serial.print(" ");
 	  }
 	  Serial.println("");
+}
+
+void loop()
+{
+     static int		wasConnected = false;
+//     unsigned char	joy1data[10];
+//     unsigned char	joy2data[10];
+     bool		js1 = false;
+     bool		js2 = false;
+
+     // check each joystick that is connected, and grab a packet of information from it
+     // the joysticks return 8 bytes of info
+
+     if (vdip.getJoystick(1,joy1data) == 8) {
+	  js1 = true;
+//	  jsprint(joy1data,"(1):");
      }
 
-     delay(30);
+     delay(5);
 
      if (vdip.getJoystick(2,joy2data) == 8) {
-	  Serial.print("(2):");
-	  for (int i=0; i < 8; i++) {
-	       Serial.print(joy2data[i],HEX);
-	       Serial.print(" ");
-	  }
-	  Serial.println("");
+	  js2 = true;
+//	  jsprint(joy2data,"(2):");
      }
 
-     delay(30);
+     delay(5);
 
      vdip.flush();
      vdip.deviceUpdate();	// update device connections if necessary
 
-//     Serial.print(".");
+     // check to see if we're connected to the brick - turn on the light if so
+     // if not connected, blink the thing
+
+     if(bt.connected()) {
+	  indicateLED.on();
+	  powerLED.on();
+	  if (!wasConnected) {
+	       wasConnected = true;
+	       beeper.squeep();
+	  }
+     } else {
+	  if (wasConnected) {
+	       wasConnected = false;
+	  }
+	  indicateLED.slow();
+     }
+
+     // if we're connected, send out a joystick update
+
+     
+
+//     if (bt.connected() && (js1 || js2 || digitalRead(BUTTON) == HIGH)) {
+     if(bt.connected()) {
+	  byte	outbuff[25];
+	  int	size;
+	  int	UserMode = 0;
+	  int	StopPgm = (digitalRead(BUTTON) == HIGH)?0:1;
+
+	  size = nxtMsgCompose(outbuff,
+			       UserMode,
+			       StopPgm,
+//			       (js1)?joy1data:emptyJSData,
+//			       (js2)?joy2data:emptyJSData);
+			       joy1data,
+			       joy2data);
+	  (void)bt.btWrite(outbuff,size);
+     }
+
+     // clear the joystick read data
+
+     js1 = false;
+     js2 = false;
+
+     // update the state of the LEDs - this should always be here
+
+     powerLED.update();
+     indicateLED.update();
+
+     // allow only a certain number of updates - saves battery
+
+     delay(40);
+
 }
      
