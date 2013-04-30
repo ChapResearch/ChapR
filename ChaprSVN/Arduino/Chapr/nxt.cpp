@@ -36,11 +36,14 @@ void nxtGamepadUSBTranslate(byte *usbdata, byte *output)
      output[2] = usbdata[2]-128;				// joystick 2 (right) X axis 
      output[3] = usbdata[3]-128;				// joystick 2 (right) Y axis 
 
-     output[4] = (usbdata[4]&0xf0)>>4 | (usbdata[5]&0x0f<<4);	// buttons 1-8
+     output[4] = (usbdata[4]&0xf0)>>4 | (usbdata[5]&0x0f)<<4;	// buttons 1-8
      output[5] = (usbdata[5]&0xf0)>>4;				// buttons 9-12
      output[6] = usbdata[4] & 0x0f;				// tophat
+     if (output[6] & 0x08) {					//   NXT expects -1 if no tophat pressed
+	  output[6] = 0xff;
+     }
 
-     // we don't track the last byte that is mode and controller data
+     // we don't send the last byte that is mode and controller data
 }
 
 //
