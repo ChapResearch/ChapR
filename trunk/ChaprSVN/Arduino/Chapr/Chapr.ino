@@ -170,7 +170,7 @@ void loop()
 
      // allow only a certain number of updates - saves battery
 
-     delay(40);
+     delay(10);
 
 }
      
