@@ -4,7 +4,8 @@
 #include "blinky.h"
 #include "sound.h"
 #include "nxt.h"
-
+#include "ChapRName.h"
+#include <EEPROM.h>
 // it is really strange, but BT.h won't compile correctly unless this .ino
 // file also includes SoftwareSerial.h...really weird...
 
@@ -47,6 +48,8 @@ BT	 bt(BT_RX, BT_TX, BT_RESET, BT_MODE, BT_9600BAUD, BT_CONNECTED);
 blinky	powerLED(LED_POWER);
 blinky	indicateLED(LED_INDICATE);
 
+ChapRName myName; //myName() doesn't work because it thinks it's declaring a function with return type ChapRName
+
 sound  	beeper(TONEPIN);
 
 #define LOCAL_SERIAL_BAUD	38400
@@ -58,19 +61,22 @@ void setup()
 
      Serial.begin(LOCAL_SERIAL_BAUD);	// the serial monitor operates at this BAUD
      Serial.write("ChapR v0.1 up!\n");
+     //myName.setFromString("hello");
+     Serial.println(myName.get());
+     Serial.write("ChapR v0.1 up!\n");
 
      powerLED.slow();			// flash the power LED during boot
-
+     
      // check the button to see if it was pressed upon boot, if so, enter config mode
 
      if (digitalRead(BUTTON) == HIGH) {		// the button has a pull-down, so normally LOW
 	  bt.configMode("Chapr-1");
+          //bt.configMode(myName.get());
 	  powerLED.slow();
      } else {
 	  bt.opMode();
 	  powerLED.on();
      }
-
      vdip.reset(LED_POWER);		// reset and sync-up with the VDIP
      vdip.flush();			// consume incoming messages
      vdip.deviceUpdate();		// update device connections if necessary
