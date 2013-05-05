@@ -1,7 +1,7 @@
 *Software
 Power Saver Mode
 	After 5 min, the LEDs turn off signaling a low power mode (must be rebooted to escape)
-Method of renaming ChapR
+Method of renaming ChapR (integrate the NameReset into the main program)
 USB pairing for competitions
 	plug uSB into ChapR and NXT to learn BT address, then unplug the USB and plug in the controllers
 Fix the reboot needed after first BT pairing (master/slave issue)
