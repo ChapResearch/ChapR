@@ -1,8 +1,21 @@
+#include "../ChapRName.h"
+
+ChapRName myName;
+
 void setup()
 {
-  Serial.begin(115200);
-  //Serial1.begin(115200);
-  Serial.println("Hit space then enter if you want to rename your ChapR.");
+  Serial.begin(38400);
+  Serial.println("Enter the name for your ChapR: ");
+  int index = 0;
+  char buffer[15];
+  while (index < 15){
+    if (Serial.available() > 0){
+      buffer[index] = Serial.read)();
+      index++;
+    }
+  }
+  index[15] = '\0';
+  myName.setFromString(buffer);
 }
 
 void resetName(){
@@ -49,5 +62,4 @@ void resetName(){
 
 void loop()
 {
- resetName();
 }
