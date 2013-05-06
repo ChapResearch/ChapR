@@ -61,17 +61,14 @@ void setup()
 
      Serial.begin(LOCAL_SERIAL_BAUD);	// the serial monitor operates at this BAUD
      Serial.write("ChapR v0.1 up!\n");
-     //myName.setFromString("hello");
      Serial.println(myName.get());
-     Serial.write("ChapR v0.1 up!\n");
 
      powerLED.slow();			// flash the power LED during boot
      
      // check the button to see if it was pressed upon boot, if so, enter config mode
 
      if (digitalRead(BUTTON) == HIGH) {		// the button has a pull-down, so normally LOW
-	  bt.configMode("Chapr-1");
-          //bt.configMode(myName.get());
+          bt.configMode(myName.get());
 	  powerLED.slow();
      } else {
 	  bt.opMode();
