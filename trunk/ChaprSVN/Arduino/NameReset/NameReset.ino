@@ -17,7 +17,7 @@ void setup()
   while (true){
     if (Serial.available() > 0){
       byte val = Serial.read();
-      if (val != '\r'){
+      if (val != '\r' && index != 14){
         buffer[index] = val;
       } else {
         buffer[index] = '\0';
