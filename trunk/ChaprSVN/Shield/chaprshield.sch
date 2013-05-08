@@ -5593,6 +5593,64 @@ In this library the device names are the same as the pin names of the symbols, t
 </deviceset>
 </devicesets>
 </library>
+<library name="con-molex">
+<description>&lt;b&gt;Molex Connectors&lt;/b&gt;&lt;p&gt;
+&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
+<packages>
+<package name="22-23-2021">
+<description>.100" (2.54mm) Center Headers - 2 Pin</description>
+<wire x1="-2.54" y1="3.175" x2="2.54" y2="3.175" width="0.254" layer="21"/>
+<wire x1="2.54" y1="3.175" x2="2.54" y2="1.27" width="0.254" layer="21"/>
+<wire x1="2.54" y1="1.27" x2="2.54" y2="-3.175" width="0.254" layer="21"/>
+<wire x1="2.54" y1="-3.175" x2="-2.54" y2="-3.175" width="0.254" layer="21"/>
+<wire x1="-2.54" y1="-3.175" x2="-2.54" y2="1.27" width="0.254" layer="21"/>
+<wire x1="-2.54" y1="1.27" x2="-2.54" y2="3.175" width="0.254" layer="21"/>
+<wire x1="-2.54" y1="1.27" x2="2.54" y2="1.27" width="0.254" layer="21"/>
+<pad name="1" x="-1.27" y="0" drill="1" shape="long" rot="R90"/>
+<pad name="2" x="1.27" y="0" drill="1" shape="long" rot="R90"/>
+<text x="-2.54" y="3.81" size="1.016" layer="25" ratio="10">&gt;NAME</text>
+<text x="-2.54" y="-5.08" size="1.016" layer="27" ratio="10">&gt;VALUE</text>
+</package>
+</packages>
+<symbols>
+<symbol name="MV">
+<wire x1="1.27" y1="0" x2="0" y2="0" width="0.6096" layer="94"/>
+<text x="2.54" y="-0.762" size="1.524" layer="95">&gt;NAME</text>
+<text x="-0.762" y="1.397" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="S" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
+</symbol>
+<symbol name="M">
+<wire x1="1.27" y1="0" x2="0" y2="0" width="0.6096" layer="94"/>
+<text x="2.54" y="-0.762" size="1.524" layer="95">&gt;NAME</text>
+<pin name="S" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="22-23-2021" prefix="X">
+<description>.100" (2.54mm) Center Header - 2 Pin</description>
+<gates>
+<gate name="-1" symbol="MV" x="0" y="0" addlevel="always" swaplevel="1"/>
+<gate name="-2" symbol="M" x="0" y="-2.54" addlevel="always" swaplevel="1"/>
+</gates>
+<devices>
+<device name="" package="22-23-2021">
+<connects>
+<connect gate="-1" pin="S" pad="1"/>
+<connect gate="-2" pin="S" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MF" value="MOLEX" constant="no"/>
+<attribute name="MPN" value="22-23-2021" constant="no"/>
+<attribute name="OC_FARNELL" value="1462926" constant="no"/>
+<attribute name="OC_NEWARK" value="25C3832" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
 </libraries>
 <attributes>
 </attributes>
@@ -5630,6 +5688,8 @@ In this library the device names are the same as the pin names of the symbols, t
 <part name="GND4" library="supply1" deviceset="GND" device=""/>
 <part name="R9" library="resistor" deviceset="R-US_" device="0207/10" value="100"/>
 <part name="GND7" library="supply1" deviceset="GND" device=""/>
+<part name="-" library="con-molex" deviceset="22-23-2021" device="" value="9v power"/>
+<part name="GND6" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -5642,8 +5702,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="-83.82" y1="-25.4" x2="25.4" y2="-25.4" width="0.1524" layer="97"/>
 <wire x1="25.4" y1="-25.4" x2="25.4" y2="-76.2" width="0.1524" layer="97"/>
 <wire x1="25.4" y1="-76.2" x2="-83.82" y2="-76.2" width="0.1524" layer="97"/>
-<wire x1="-83.82" y1="-76.2" x2="-83.82" y2="-68.58" width="0.1524" layer="97"/>
-<wire x1="-83.82" y1="-68.58" x2="-83.82" y2="-25.4" width="0.1524" layer="97"/>
+<wire x1="-83.82" y1="-76.2" x2="-83.82" y2="-25.4" width="0.1524" layer="97"/>
 <text x="-78.74" y="-30.48" size="2.54" layer="97">Arduino Interface Connections</text>
 <text x="-78.74" y="-38.1" size="1.778" layer="97">VDIP.Reset &lt;=  10</text>
 <text x="-78.74" y="-58.42" size="1.778" layer="97">VDIP.Clock &lt;=  6</text>
@@ -5667,6 +5726,8 @@ In this library the device names are the same as the pin names of the symbols, t
 <text x="-7.62" y="-48.26" size="1.778" layer="97">Connect LED  &lt;=  A1</text>
 <text x="-7.62" y="-53.34" size="1.778" layer="97">Power LED  &lt;=  A2</text>
 <text x="111.76" y="5.08" size="1.778" layer="91">Connected</text>
+<text x="-22.098" y="92.964" size="1.778" layer="91">+</text>
+<text x="-22.098" y="96.012" size="1.778" layer="91">-</text>
 </plain>
 <instances>
 <instance part="U$1" gate="G$1" x="-55.88" y="50.8"/>
@@ -5695,6 +5756,11 @@ In this library the device names are the same as the pin names of the symbols, t
 <instance part="GND4" gate="1" x="0" y="10.16"/>
 <instance part="R9" gate="G$1" x="-50.8" y="2.54"/>
 <instance part="GND7" gate="1" x="-55.88" y="-20.32"/>
+<instance part="-" gate="-1" x="-17.78" y="96.52" smashed="yes" rot="MR0">
+<attribute name="VALUE" x="-17.018" y="97.917" size="1.778" layer="96" rot="MR0"/>
+</instance>
+<instance part="-" gate="-2" x="-17.78" y="93.98" smashed="yes" rot="MR0"/>
+<instance part="GND6" gate="1" x="-25.4" y="86.36"/>
 </instances>
 <busses>
 </busses>
@@ -5788,6 +5854,14 @@ In this library the device names are the same as the pin names of the symbols, t
 <segment>
 <pinref part="U$2" gate="G$1" pin="-"/>
 <pinref part="GND7" gate="1" pin="GND"/>
+</segment>
+<segment>
+<pinref part="-" gate="-1" pin="S"/>
+<wire x1="-15.24" y1="96.52" x2="-15.24" y2="101.6" width="0.1524" layer="91"/>
+<wire x1="-15.24" y1="101.6" x2="-33.02" y2="101.6" width="0.1524" layer="91"/>
+<wire x1="-33.02" y1="101.6" x2="-33.02" y2="88.9" width="0.1524" layer="91"/>
+<pinref part="GND6" gate="1" pin="GND"/>
+<wire x1="-33.02" y1="88.9" x2="-25.4" y2="88.9" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$1" class="0">
@@ -5939,6 +6013,10 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="17.78" y1="91.44" x2="17.78" y2="68.58" width="0.1524" layer="91"/>
 <pinref part="U$3" gate="G$1" pin="RAWV"/>
 <wire x1="17.78" y1="68.58" x2="15.24" y2="68.58" width="0.1524" layer="91"/>
+<pinref part="-" gate="-2" pin="S"/>
+<wire x1="-15.24" y1="93.98" x2="-15.24" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="-15.24" y1="91.44" x2="12.7" y2="91.44" width="0.1524" layer="91"/>
+<junction x="12.7" y="91.44"/>
 </segment>
 </net>
 <net name="N$3" class="0">
