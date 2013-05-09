@@ -1,0 +1,28 @@
+Notes on 5/9/13 Testing
+
+Trial 1:
+Tried to reset name to NoCreativitySoIntel, and it said it had set it to NoCreativitySo
+When the brick tried to find it, it took a while and only found ChapR-1, which it connected to (the old name)
+waitForStart button didn't release the waitForStart (but worked during boot)
+
+Trial 2:
+Properly named the ChapR ISS Rules: Rob (only difference was having the serial port open upon download)
+Found the ChapR quickly, though I had to close and reopen the search
+waitForStart still isn't working
+
+Trial 3:
+Downloaded button tester onto the 6710 brick
+Tried to connect to the brick using ChapR (while it was connected to my computer), without any results good or bad
+The ChapR went into "zombie mode" (the light flashed)
+Rebooted brick and reconnected
+WFS button worked properly
+
+Trial 4:
+Renamed the ChapR without opening the serial monitor
+Set the power LED to blink slowly when in low power mode
+When I connected it saw the old name, but once it was connected to the ChapR it registered the new one
+The power LED remained solid even though it had been at least 15 seconds (greater than both the thresholds)
+The WFS button didn't work
+
+Trial 5:
+the power LED blinked only when the ChapR had been disconnected from the brick
