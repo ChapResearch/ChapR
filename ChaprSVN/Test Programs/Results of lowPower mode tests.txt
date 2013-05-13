@@ -26,3 +26,25 @@ The WFS button didn't work
 
 Trial 5:
 the power LED blinked only when the ChapR had been disconnected from the brick
+
+
+Notes on 5/10/13 Testing
+
+Trial 1:
+Naming worked without opening the serial monitor for the Chapr.ino file
+Had to abort and reopen the search so the nxt would register the new name
+
+Trial 2:
+WFS start button didn't work, and the lowPower and ZMode lights wouldn't blink until the ChapR had been disconnected from the brick
+
+Trial 3:
+Tried to connect to the ChapR and the nxt brick just kept asking for a passkey, but didn't connect properly
+
+Trial 4:
+Used a new brick (instead of 6710) to connect and it worked fine
+
+
+Results:
+Naming works, but the brick may need to search a few times to register it (normally wouldn't encounter that problem)
+The button works when putting the ChapR into discovery mode, but not when releasing WFS
+The signal lights for the low power modes don't turn on unless the ChapR isn't connected to a brick
