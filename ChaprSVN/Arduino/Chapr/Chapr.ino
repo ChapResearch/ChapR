@@ -100,6 +100,18 @@ void jsprint(byte *js,char *label)
 	  Serial.println("");
 }
 
+void enterZombieMode()
+{
+   powerLED.off();
+   indicateLED.off();
+   
+   bt.zombieMode();
+   
+   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+   sleep_enable();
+   sleep_cpu();
+}
+
 long lastAnyAction = 0;
 long lastJSAction = 0;
 bool isLowPower = false;
@@ -194,11 +206,7 @@ void loop()
          powerLED.slow();
       }
      if (millis() - lastAnyAction >= ZMODETIMEOUT){
-         powerLED.off();
-         indicateLED.off();
-         set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-         sleep_enable();
-         sleep_cpu();
+        enterZombieMode();
       }
      
      // update the state of the LEDs - this should always be done at the end of the loop

@@ -47,6 +47,7 @@ public:
 
      void opMode();
      void configMode(char *);
+     void zombieMode();
      bool connected();		// returns true if connected
      void btWrite(byte *buffer, int size);
 
