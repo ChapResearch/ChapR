@@ -1,23 +1,26 @@
 *Software
-Power Saver Mode
-	After 5 min, the LEDs turn off signaling a low power mode (must be rebooted to escape)
-X Method of renaming ChapR (integrate the NameReset into the main program)
-USB pairing for competitions
+XPower Saver Mode
+	After 5 min, the power LED blinks and the BT module stops sending joystick info (can be escaped by hitting the joysticks)
+	Only saved us 10 mA
+-Zombie Mode
+	After 10 min, everything turns off (must reboot to escape)
+XMethod of renaming ChapR (integrate the NameReset into the main program)
+-USB pairing for competitions
 	plug uSB into ChapR and NXT to learn BT address, then unplug the USB and plug in the controllers
-Fix the reboot needed after first BT pairing (master/slave issue)
-ChapR Library
+-Fix the reboot needed after first BT pairing (master/slave issue)
+-ChapR Library
 	Special ChapR debugging (if a waitForChapR is reached, program waits for a button press if it is connected to a ChapR)
 	Emergency Stop (if the ChapR loses connection, or is diliberately turned off, everything stops)
-Decide on a BT ID
+-Decide on a BT ID
 
 *Hardware
-Design a single board
+-Design a single board
 	Pro-mini, smaller BT device etc. (FTDI Breakout to allow users to reprogram)
-Battery issue (big vs little battery)
-LEDS (blue vs red)
-Speaker
-WaitForStart() button
+-Battery issue (big vs little battery)
+-LEDS (blue vs red)
+-Speaker
+-WaitForStart() button
 
 *Case
-Battery pack on the bottom with the belt clip on the battery cover
-3D printed case on top
+-Battery pack on the bottom with the belt clip on the battery cover
+-3D printed case on top
