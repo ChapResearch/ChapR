@@ -4,6 +4,8 @@ XPower Saver Mode
 	Only saved us 10 mA
 -Zombie Mode
 	After 10 min, everything turns off (must reboot to escape)
+	Saved 30 or 40 mA from putting BT module into deep sleep mode
+	(Saved 30 mA from not having either joystick)
 XMethod of renaming ChapR (integrate the NameReset into the main program)
 -USB pairing for competitions
 	plug uSB into ChapR and NXT to learn BT address, then unplug the USB and plug in the controllers
