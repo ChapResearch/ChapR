@@ -6,6 +6,9 @@
 #include "nxt.h"
 #include "ChapRName.h"
 #include <EEPROM.h>
+#include "button.h"
+#include <avr/sleep.h>
+
 // it is really strange, but BT.h won't compile correctly unless this .ino
 // file also includes SoftwareSerial.h...really weird...
 
@@ -47,6 +50,8 @@ BT	 bt(BT_RX, BT_TX, BT_RESET, BT_MODE, BT_9600BAUD, BT_CONNECTED);
 
 blinky	powerLED(LED_POWER);
 blinky	indicateLED(LED_INDICATE);
+
+button theButton(BUTTON);
 
 ChapRName myName; //myName() doesn't work because it thinks it's declaring a function with return type ChapRName
 
@@ -95,13 +100,25 @@ void jsprint(byte *js,char *label)
 	  Serial.println("");
 }
 
+long lastAnyAction = 0;
+long lastJSAction = 0;
+bool isLowPower = false;
+
+//these two constants define the time before entering power saving mode and are in milliseconds
+
+#define LOWPOWERTIMEOUT 300000
+#define LOWPOWERTIMEOUT 10000
+#define ZMODETIMEOUT 600000
+#define ZMODETIMEOUT 20000
+
 void loop()
 {
-     static int		wasConnected = false;
+     static bool	wasConnected = false;
 //     unsigned char	joy1data[10];
 //     unsigned char	joy2data[10];
      bool		js1 = false;
      bool		js2 = false;
+     bool               wfs = false;
 
      // check each joystick that is connected, and grab a packet of information from it
      // the joysticks return 8 bytes of info
@@ -119,6 +136,10 @@ void loop()
      }
 
      delay(5);
+
+     if (theButton.hasChanged()){
+       wfs = true;
+     }
 
      vdip.flush();
      vdip.deviceUpdate();	// update device connections if necessary
@@ -142,14 +163,11 @@ void loop()
 
      // if we're connected, send out a joystick update
 
-     
-
-//     if (bt.connected() && (js1 || js2 || digitalRead(BUTTON) == HIGH)) {
-     if(bt.connected()) {
+     if(bt.connected() && (!isLowPower || wfs)) {
 	  byte	outbuff[25];
 	  int	size;
 	  int	UserMode = 0;
-	  int	StopPgm = (digitalRead(BUTTON) == HIGH)?0:1;
+	  int	StopPgm = (theButton.isPressed())?0:1;
 
 	  size = nxtMsgCompose(outbuff,
 			       UserMode,
@@ -160,20 +178,37 @@ void loop()
 			       joy2data);
 	  (void)bt.btWrite(outbuff,size);
      }
-
-     // clear the joystick read data
-
-     js1 = false;
-     js2 = false;
-
-     // update the state of the LEDs - this should always be here
+     
+     //checks to see if we should enter a power saving mode (if 5 min has passed)
+     
+     if (js1 || js2 || wfs){ //if something has happened, make note of the time since boot
+        lastAnyAction = millis();
+     }
+     if (js1 || js2) { //if a joystick changed
+        lastJSAction = millis();
+        isLowPower = false;
+     }
+     
+     if (millis() - lastJSAction >= LOWPOWERTIMEOUT){
+         isLowPower = true;
+         powerLED.slow();
+      }
+     if (millis() - lastAnyAction >= ZMODETIMEOUT){
+         powerLED.off();
+         indicateLED.off();
+         set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+         sleep_enable();
+         sleep_cpu();
+      }
+     
+     // update the state of the LEDs - this should always be done at the end of the loop
 
      powerLED.update();
      indicateLED.update();
-
+     
      // allow only a certain number of updates - saves battery
-
-     delay(10);
+     
+     delay(5); //ends up as a delay of 100
 
 }
      

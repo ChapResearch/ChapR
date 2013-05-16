@@ -138,8 +138,8 @@ void BT::configMode(char *name)
      // the latest modes are enabled and baud rates set
 
      reset();
-
-     delay(10);
+     
+     delay(100); //was at 10, which worked fine, but when it mysteriously stopped replying, 100 worked better
 
      btSend("$$$");		// get into command mode
 
@@ -197,6 +197,8 @@ void BT::opMode()
 
      reset();
 
+     delay(100); //gives time for the reset to occur (things didn't work without it)
+     
      // we're in 38400 baud in this case, or should be
 
      btSend("$$$");		// get into command mode
