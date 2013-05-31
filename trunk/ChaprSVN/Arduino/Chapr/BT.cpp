@@ -1,5 +1,5 @@
 #include <Arduino.h>
-
+#include "config.h"
 #include "BT.h"
 #include "SoftwareSerial.h"
 
@@ -29,10 +29,19 @@ BT::BT(uint8_t receive,
      //		pinMode(_autoModePin,OUTPUT);
      //		pinMode(_9600BaudPin,OUTPUT);
 
-
+     
      pinMode(_rstPin,INPUT);
+     
+#ifdef V01
      pinMode(_autoModePin,INPUT);
      pinMode(_9600BaudPin,INPUT);
+#endif
+
+#ifdef V02
+    pinMode(_autoModePin,OUTPUT);
+    pinMode(_9600BaudPin,OUTPUT);
+#endif
+
 }
 
 //
@@ -248,20 +257,40 @@ void BT::zombieMode()
 
 void BT::autoConnectMode(bool turnOn)
 {
+#ifdef V01
      if (turnOn) {
-	  specialPin(_autoModePin,HIGH);	// will change to a digitalWrite
+	  specialPin(_autoModePin,HIGH);
      } else {
-	  specialPin(_autoModePin,LOW);		// will change to a digitalWrite
+	  specialPin(_autoModePin,LOW);
      }
+#endif
+
+#ifdef V02
+     if (turnOn) {
+	  digitalWrite(_autoModePin,HIGH);
+     } else {
+	  digitalWrite(_autoModePin,LOW);
+     }
+#endif
 }
 
 void BT::baud9600mode(bool turnOn)
 {
+#ifdef V01
      if (turnOn) {
-	  specialPin(_9600BaudPin,HIGH);	// will change to a digitalWrite
+	  specialPin(_9600BaudPin,HIGH);
      } else {
-	  specialPin(_9600BaudPin,LOW);		// will change to a digitalWrite
+	  specialPin(_9600BaudPin,LOW);
      }
+#endif
+
+#ifdef V02
+     if (turnOn) {
+	  digitalWrite(_9600BaudPin,HIGH);
+     } else {
+	  digitalWrite(_9600BaudPin,LOW);
+     }
+#endif
 }
 
 //
