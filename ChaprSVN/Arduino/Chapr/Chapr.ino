@@ -1,3 +1,4 @@
+#include "config.h"
 #include "VDIPSPI.h"
 #include "VDIP.h"
 #include "BT.h"
@@ -26,6 +27,8 @@
 //			- slow flash when trying to connect to a brick (AUTO CONNECTION MODE)
 //
 
+#ifdef V01
+
 #define BT_9600BAUD 	A5
 #define BT_CONNECTED	A4
 #define BT_MODE		A3
@@ -44,6 +47,31 @@
 
 #define BUTTON		A0
 #define TONEPIN		5
+
+#endif
+
+#ifdef V02
+
+#define BT_9600BAUD 	5
+#define BT_CONNECTED	3
+#define BT_MODE		4
+#define BT_RX		12
+#define BT_TX		13
+#define BT_RESET	11
+
+#define VDIP_CLOCK	6
+#define VDIP_MOSI	7
+#define VDIP_MISO	8
+#define VDIP_CS		9
+#define VDIP_RESET	10
+
+#define LED_POWER	A2
+#define LED_INDICATE	A1
+
+#define BUTTON		A0
+#define TONEPIN		A3
+
+#endif
 
 VDIP	 vdip(VDIP_CLOCK, VDIP_MOSI, VDIP_MISO, VDIP_CS, VDIP_RESET);
 BT	 bt(BT_RX, BT_TX, BT_RESET, BT_MODE, BT_9600BAUD, BT_CONNECTED);
@@ -92,7 +120,7 @@ byte joy2data[] = { 0x13, 0x80, 0x80, 0x80, 0x80, 0x08, 0x00, 0x04 };
 
 void jsprint(byte *js,char *label)
 {
-	  Serial.print("(1):");
+	  Serial.print(label);
 	  for (int i=0; i < 8; i++) {
 	       Serial.print(joy1data[i],HEX);
 	       Serial.print(" ");
@@ -119,9 +147,9 @@ bool isLowPower = false;
 //these two constants define the time before entering power saving mode and are in milliseconds
 
 #define LOWPOWERTIMEOUT 300000
-#define LOWPOWERTIMEOUT 10000
+//#define LOWPOWERTIMEOUT 10000
 #define ZMODETIMEOUT 600000
-#define ZMODETIMEOUT 20000
+//#define ZMODETIMEOUT 20000
 
 void loop()
 {
@@ -137,14 +165,14 @@ void loop()
 
      if (vdip.getJoystick(1,joy1data) == 8) {
 	  js1 = true;
-//	  jsprint(joy1data,"(1):");
+	  //jsprint(joy1data,"(1):");
      }
 
      delay(5);
 
      if (vdip.getJoystick(2,joy2data) == 8) {
 	  js2 = true;
-//	  jsprint(joy2data,"(2):");
+	  //jsprint(joy2data,"(2):");
      }
 
      delay(5);
