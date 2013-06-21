@@ -5790,9 +5790,9 @@ In this library the device names are the same as the pin names of the symbols, t
 <part name="GND2" library="supply1" deviceset="GND" device=""/>
 <part name="+3V1" library="supply1" deviceset="+3V3" device=""/>
 <part name="P+1" library="supply1" deviceset="+5V" device=""/>
-<part name="R1" library="resistor" deviceset="R-US_" device="0207/10" value="20k"/>
-<part name="R2" library="resistor" deviceset="R-US_" device="0207/10" value="20k"/>
-<part name="R3" library="resistor" deviceset="R-US_" device="0207/10" value="20k"/>
+<part name="R1" library="resistor" deviceset="R-US_" device="0207/10" value="19.1k"/>
+<part name="R2" library="resistor" deviceset="R-US_" device="0207/10" value="19.1k"/>
+<part name="R3" library="resistor" deviceset="R-US_" device="0207/10" value="19.1k"/>
 <part name="R4" library="resistor" deviceset="R-US_" device="0207/10" value="10k"/>
 <part name="R5" library="resistor" deviceset="R-US_" device="0207/10" value="10k"/>
 <part name="R6" library="resistor" deviceset="R-US_" device="0207/10" value="10k"/>
