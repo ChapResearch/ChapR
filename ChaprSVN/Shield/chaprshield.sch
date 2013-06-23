@@ -5804,7 +5804,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <part name="LED2" library="led" deviceset="LED" device="3MM"/>
 <part name="R7" library="resistor" deviceset="R-US_" device="0207/10" value="470"/>
 <part name="R8" library="resistor" deviceset="R-US_" device="0207/10" value="470"/>
-<part name="ARD" library="ChapR-Custom" deviceset="PROMINI" device=""/>
+<part name="ARDUINO" library="ChapR-Custom" deviceset="PROMINI" device=""/>
 <part name="SUPPLY2" library="supply2" deviceset="+9V" device=""/>
 <part name="GND4" library="supply1" deviceset="GND" device=""/>
 <part name="R9" library="resistor" deviceset="R-US_" device="0207/10" value="100"/>
@@ -5844,7 +5844,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <text x="-25.4" y="-73.66" size="1.778" layer="97">** RN42.Reset has pull-up - pull-down to reset.</text>
 <text x="121.92" y="91.44" size="1.778" layer="97">*</text>
 <text x="63.5" y="109.22" size="1.778" layer="97">NOTE: 3.3v Comes from VDIP not ARD</text>
-<text x="162.56" y="-68.58" size="2.54" layer="97">V 0.1</text>
+<text x="162.56" y="-68.58" size="2.54" layer="97">V 0.2</text>
 <text x="76.2" y="-48.26" size="2.54" layer="97">Initial ChapR Board</text>
 <text x="-7.62" y="-38.1" size="1.778" layer="97">Button  =&gt;  A0</text>
 <text x="-7.62" y="-43.18" size="1.778" layer="97">Speaker  &lt;=  A3</text>
@@ -5883,7 +5883,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <attribute name="NAME" x="74.93" y="51.8414" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="80.01" y="51.562" size="1.778" layer="96" rot="R180"/>
 </instance>
-<instance part="ARD" gate="G$1" x="2.54" y="55.88"/>
+<instance part="ARDUINO" gate="G$1" x="2.54" y="55.88"/>
 <instance part="SUPPLY2" gate="G$1" x="12.7" y="93.98"/>
 <instance part="GND4" gate="1" x="0" y="-12.7"/>
 <instance part="R9" gate="G$1" x="-50.8" y="2.54"/>
@@ -5963,7 +5963,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <junction x="63.5" y="-7.62"/>
 </segment>
 <segment>
-<pinref part="ARD" gate="G$1" pin="GND"/>
+<pinref part="ARDUINO" gate="G$1" pin="GND"/>
 <wire x1="-12.7" y1="60.96" x2="-25.4" y2="60.96" width="0.1524" layer="91"/>
 <wire x1="-25.4" y1="60.96" x2="-25.4" y2="-5.08" width="0.1524" layer="91"/>
 <wire x1="-25.4" y1="-5.08" x2="0" y2="-5.08" width="0.1524" layer="91"/>
@@ -5973,7 +5973,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="R10" gate="G$1" pin="1"/>
 <wire x1="27.94" y1="7.62" x2="27.94" y2="-5.08" width="0.1524" layer="91"/>
 <wire x1="27.94" y1="-5.08" x2="25.4" y2="-5.08" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="GND2"/>
+<pinref part="ARDUINO" gate="G$1" pin="GND2"/>
 <wire x1="25.4" y1="-5.08" x2="0" y2="-5.08" width="0.1524" layer="91"/>
 <wire x1="15.24" y1="66.04" x2="25.4" y2="66.04" width="0.1524" layer="91"/>
 <wire x1="25.4" y1="66.04" x2="25.4" y2="-5.08" width="0.1524" layer="91"/>
@@ -6022,7 +6022,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <junction x="-83.82" y="63.5"/>
 <wire x1="5.08" y1="121.92" x2="27.94" y2="121.92" width="0.1524" layer="91"/>
 <wire x1="27.94" y1="121.92" x2="27.94" y2="60.96" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="VCC"/>
+<pinref part="ARDUINO" gate="G$1" pin="VCC"/>
 <wire x1="27.94" y1="60.96" x2="15.24" y2="60.96" width="0.1524" layer="91"/>
 <junction x="5.08" y="121.92"/>
 <wire x1="27.94" y1="60.96" x2="27.94" y2="33.02" width="0.1524" layer="91"/>
@@ -6062,7 +6062,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="106.68" y1="68.58" x2="101.6" y2="68.58" width="0.1524" layer="91"/>
 <wire x1="101.6" y1="68.58" x2="33.02" y2="68.58" width="0.1524" layer="91"/>
 <wire x1="33.02" y1="68.58" x2="33.02" y2="45.72" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="D12"/>
+<pinref part="ARDUINO" gate="G$1" pin="D12"/>
 <wire x1="33.02" y1="45.72" x2="15.24" y2="45.72" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -6116,7 +6116,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="-78.74" y1="83.82" x2="-78.74" y2="104.14" width="0.1524" layer="91"/>
 <wire x1="-78.74" y1="104.14" x2="20.32" y2="104.14" width="0.1524" layer="91"/>
 <wire x1="20.32" y1="104.14" x2="20.32" y2="40.64" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="D10"/>
+<pinref part="ARDUINO" gate="G$1" pin="D10"/>
 <wire x1="20.32" y1="40.64" x2="15.24" y2="40.64" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -6125,7 +6125,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="VDIP" gate="G$1" pin="(AD3)CS"/>
 <wire x1="-35.56" y1="73.66" x2="-15.24" y2="73.66" width="0.1524" layer="91"/>
 <wire x1="-15.24" y1="73.66" x2="-15.24" y2="40.64" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="D9"/>
+<pinref part="ARDUINO" gate="G$1" pin="D9"/>
 <wire x1="-15.24" y1="40.64" x2="-12.7" y2="40.64" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -6134,7 +6134,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="VDIP" gate="G$1" pin="(AD2)MISO"/>
 <wire x1="-35.56" y1="71.12" x2="-17.78" y2="71.12" width="0.1524" layer="91"/>
 <wire x1="-17.78" y1="71.12" x2="-17.78" y2="43.18" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="D8"/>
+<pinref part="ARDUINO" gate="G$1" pin="D8"/>
 <wire x1="-17.78" y1="43.18" x2="-12.7" y2="43.18" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -6143,7 +6143,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="VDIP" gate="G$1" pin="(AD1)MOSI"/>
 <wire x1="-35.56" y1="68.58" x2="-20.32" y2="68.58" width="0.1524" layer="91"/>
 <wire x1="-20.32" y1="68.58" x2="-20.32" y2="45.72" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="D7"/>
+<pinref part="ARDUINO" gate="G$1" pin="D7"/>
 <wire x1="-20.32" y1="45.72" x2="-12.7" y2="45.72" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -6152,7 +6152,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="VDIP" gate="G$1" pin="(AD0)SCLK"/>
 <wire x1="-35.56" y1="66.04" x2="-22.86" y2="66.04" width="0.1524" layer="91"/>
 <wire x1="-22.86" y1="66.04" x2="-22.86" y2="48.26" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="D6"/>
+<pinref part="ARDUINO" gate="G$1" pin="D6"/>
 <wire x1="-22.86" y1="48.26" x2="-12.7" y2="48.26" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -6161,7 +6161,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="SUPPLY2" gate="G$1" pin="+9V"/>
 <wire x1="12.7" y1="91.44" x2="17.78" y2="91.44" width="0.1524" layer="91"/>
 <wire x1="17.78" y1="91.44" x2="17.78" y2="68.58" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="RAWV"/>
+<pinref part="ARDUINO" gate="G$1" pin="RAWV"/>
 <wire x1="17.78" y1="68.58" x2="15.24" y2="68.58" width="0.1524" layer="91"/>
 <pinref part="-" gate="-2" pin="S"/>
 <wire x1="-15.24" y1="93.98" x2="-15.24" y2="91.44" width="0.1524" layer="91"/>
@@ -6173,7 +6173,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <segment>
 <pinref part="R6" gate="G$1" pin="2"/>
 <wire x1="63.5" y1="30.48" x2="63.5" y2="48.26" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="D13"/>
+<pinref part="ARDUINO" gate="G$1" pin="D13"/>
 <wire x1="63.5" y1="48.26" x2="15.24" y2="48.26" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -6182,7 +6182,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="M2" gate="G$1" pin="RESET"/>
 <wire x1="106.68" y1="91.44" x2="30.48" y2="91.44" width="0.1524" layer="91"/>
 <wire x1="30.48" y1="91.44" x2="30.48" y2="43.18" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="D11"/>
+<pinref part="ARDUINO" gate="G$1" pin="D11"/>
 <wire x1="30.48" y1="43.18" x2="15.24" y2="43.18" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -6194,7 +6194,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="33.02" y1="40.64" x2="33.02" y2="-15.24" width="0.1524" layer="91"/>
 <wire x1="33.02" y1="-15.24" x2="-30.48" y2="-15.24" width="0.1524" layer="91"/>
 <wire x1="-30.48" y1="-15.24" x2="-30.48" y2="50.8" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="D5"/>
+<pinref part="ARDUINO" gate="G$1" pin="D5"/>
 <wire x1="-30.48" y1="50.8" x2="-12.7" y2="50.8" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -6206,7 +6206,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="35.56" y1="35.56" x2="35.56" y2="-17.78" width="0.1524" layer="91"/>
 <wire x1="35.56" y1="-17.78" x2="-33.02" y2="-17.78" width="0.1524" layer="91"/>
 <wire x1="-33.02" y1="-17.78" x2="-33.02" y2="53.34" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="D4"/>
+<pinref part="ARDUINO" gate="G$1" pin="D4"/>
 <wire x1="-33.02" y1="53.34" x2="-12.7" y2="53.34" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -6217,7 +6217,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="160.02" y1="78.74" x2="160.02" y2="5.08" width="0.1524" layer="91"/>
 <wire x1="160.02" y1="5.08" x2="-27.94" y2="5.08" width="0.1524" layer="91"/>
 <wire x1="-27.94" y1="5.08" x2="-27.94" y2="55.88" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="D3"/>
+<pinref part="ARDUINO" gate="G$1" pin="D3"/>
 <wire x1="-27.94" y1="55.88" x2="-12.7" y2="55.88" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -6235,7 +6235,7 @@ In this library the device names are the same as the pin names of the symbols, t
 </net>
 <net name="N$18" class="0">
 <segment>
-<pinref part="ARD" gate="G$1" pin="A2"/>
+<pinref part="ARDUINO" gate="G$1" pin="A2"/>
 <wire x1="35.56" y1="55.88" x2="15.24" y2="55.88" width="0.1524" layer="91"/>
 <pinref part="R7" gate="G$1" pin="2"/>
 <wire x1="35.56" y1="55.88" x2="48.26" y2="55.88" width="0.1524" layer="91"/>
@@ -6243,7 +6243,7 @@ In this library the device names are the same as the pin names of the symbols, t
 </net>
 <net name="N$20" class="0">
 <segment>
-<pinref part="ARD" gate="G$1" pin="A1"/>
+<pinref part="ARDUINO" gate="G$1" pin="A1"/>
 <wire x1="40.64" y1="53.34" x2="15.24" y2="53.34" width="0.1524" layer="91"/>
 <pinref part="R8" gate="G$1" pin="2"/>
 <wire x1="40.64" y1="53.34" x2="73.66" y2="53.34" width="0.1524" layer="91"/>
@@ -6255,7 +6255,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="-45.72" y1="-20.32" x2="-35.56" y2="-20.32" width="0.1524" layer="91"/>
 <wire x1="-35.56" y1="-20.32" x2="38.1" y2="-20.32" width="0.1524" layer="91"/>
 <wire x1="38.1" y1="-20.32" x2="38.1" y2="58.42" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="A3"/>
+<pinref part="ARDUINO" gate="G$1" pin="A3"/>
 <wire x1="38.1" y1="58.42" x2="15.24" y2="58.42" width="0.1524" layer="91"/>
 <pinref part="R9" gate="G$1" pin="2"/>
 </segment>
@@ -6271,7 +6271,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <pinref part="PB1" gate="G$1" pin="2"/>
 <pinref part="R10" gate="G$1" pin="2"/>
 <wire x1="27.94" y1="17.78" x2="27.94" y2="20.32" width="0.1524" layer="91"/>
-<pinref part="ARD" gate="G$1" pin="A0"/>
+<pinref part="ARDUINO" gate="G$1" pin="A0"/>
 <wire x1="27.94" y1="20.32" x2="27.94" y2="22.86" width="0.1524" layer="91"/>
 <wire x1="15.24" y1="50.8" x2="22.86" y2="50.8" width="0.1524" layer="91"/>
 <wire x1="22.86" y1="50.8" x2="22.86" y2="20.32" width="0.1524" layer="91"/>
