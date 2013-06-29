@@ -26,9 +26,9 @@
 #define DEV_CLASS	11   // Device Class
 #define DEV_SUBCLASS	12   // Device Sub Class
 #define DEV_PROTOCOL	13   // Device Protocol
-#define DEV_VID		14   // VID (MSB on 14, LSB on 15)
-#define DEV_PID		16   // PID (MSB on 16, LSB on 17)
-#define DEV_BCD		18   // BCD (MSB on 18, LSB on 19)
+#define DEV_VID		14   // VID (LSB on 14, MSB on 15)
+#define DEV_PID		16   // PID (LSB on 16, MSB on 17)
+#define DEV_BCD		18   // BCD (LSB on 18, MSB on 19)
 #define DEV_SPEED	20   // Device speed: 1 - Full Speed, 2 - Low Speed,
                              //               4 - Low Speed Device on Hub,
                              //               8 - Device on Low Speed Hub
@@ -56,64 +56,28 @@
 #define CLASS_UNKNOWN   0x40
 #define CLASS_HUB       0x80
 
-  //   Description           Extended         Short & 0x      Note
-  //   -----------------     ---------------- -------------   ----------------------------------
-  //   cmd completion        "D:\>"           ">"  0x3e       Ready for a(nother) incoming cmd
-  //   no disk               "No Disk"        "ND" 0x4e 0x44  In response to a single '\r'
-  //   bad cmd               "Bad Command"    "BC" 0x42 0x43  command not recognized
-  //   
-  //   ASYNC RESPONSES
-  //   Description           Extended               Short & 0x            Note
-  //   -----------------     ----------------       --------------        ----------------------------------
-  //   device into usb 1     "Device Detected P1"   "DD1" 0x44 0x44 0x31  may come up during power-up too
-  //   device removed usb 1  "Device Removed P1"    "DR1" 0x44 0x52 0x31
-  //   device into usb 2     "Device Detected P2"   "DD1" 0x44 0x44 0x32  may come up during power-up too
-  //   device removed usb 2  "Device Removed P2"    "DR1" 0x44 0x52 0x32
-
-
-  //   DISK OPS RESPONSES
-  //   Description           Extended            Short & 0x       Note
-  //   -----------------     ----------------    --------------   ----------------------------------
-  //   file/dir not found    "Command Failed"    "CF" 0x43 0x46   comes up for USB dev # out of range
-  //   disk full             "Disk Full"         "DF" 0x44 0x46   should never come up
-  //   invalid access        "Invalid"           "FI" 0x46 0x49
-  //   read only file        "Read Only"         "RO" 0x52 0x4f
-  //   file open already     "File Open"         "FO" 0x46 0x4f
-  //   dir not empty         "Dir Not Empty"     "NE" 0x4e 0x45
-  //   filename invalid      "Filename Invalid"  "FN" 0x46 0x4e
-  //   no upgrade file found "No Upgrade"        "NU" 0x4e 0x55   may come up during power-up too (only on P2)
-  //
-  //
-  // completion of a command
-
-typedef enum cmd { MONNOP = 0, 
-		   MONDD1 = 1,
-		   MONDR1 = 2,
-		   MONDD2 = 3,
-		   MONDR2 = 4,
-		   MONINIT = 5,
-		   MONPROMPT = 6,
-		   MONND = 7,
-		   MONBC = 8,
-		   MONCF = 9,
-		   MONNU = 10,
-		   MONBLANK = 11,
-		   MONUNKNOWN = 12
-} monmsg;
-
-typedef struct {
-  const char	*message;
-  monmsg	 cmd;
-} monmessage;
-
 typedef enum vcmd {
      VDIP_SC,			// Set Current - takes an arg
-     VDIP_QP1,
-     VDIP_QP2,
-     VDIP_QD,
-     VDIP_DRD			// Data Read
+     VDIP_QP,			// Query Port - arg is port number
+     VDIP_QD,			// Query Device - arg is device
+     VDIP_DRD,			// Data Read from current device
+     VDIP_DSD,			// Data Send to current device
+     VDIP_SUM			// suspend monitor (low power mode)
 } vdipcmd;
 
+typedef enum _deviceType {
+     DEVICE_UNKNOWN,
+     DEVICE_CONTROLLER,
+     DEVICE_DISK,
+     DEVICE_NXT
+} deviceType;
+
+typedef struct {
+     int	port;		// the physical port number for the configuration
+     int	usbDev;		// the USB device associated with this config (-1 means not in use)
+     deviceType	type;		// the type of device in use on the port
+     int	flag;		// the updated/touched flag
+} portConfig;
 
 //
 // BUFFER_SIZE is the size of the VDIP communications buffer
@@ -126,39 +90,31 @@ public:
 
      VDIP(uint8_t clockPin, uint8_t mosiPin, uint8_t misoPin, uint8_t csPin, uint8_t csReset);
      void deviceUpdate();
-     void reset(int);
-     int getJoystick(int, unsigned char *);
-     void flush();
+     bool sync();
+     int getJoystick(int, char *);
+     void zombieMode();
 
 private:
      uint8_t _resetPin;
-     char    _buffer[BUFFER_SIZE+1];
-     int     _count;
 
-  // _p1/2 is set true if the port is connected
-  // _p1/2_dev is set to -1 if the USB device is unknown, otherwise the device number
-  // _p1/2_devtype is the usb type/class
+     portConfig ports[2];	// two physical ports [0] = port1, [1] = port2
 
-  bool _p1;            // true if something is connected to P1
-  int  _p1_dev;        // the USB device number of the thing in P1
-  int  _p1_devtype;    // the type of device in P1
-  bool _p2;            // true if something is connected to P2
-  int  _p2_dev;        // the USB device number of the thing in P2
-  int  _p2_devtype;    // the type of device in P2
+     int  _resetDelay;	// we've been reset, and are still in reset mode (set by reset())
+     long _resetTarget;	// target time before out of reset (set by reset())
 
-  int  _ready;         // true if the monitor is ready for a command
-  int  _diskprocessed; // true if an inserted disk has been processed
-  int  _init;	       // true if the VDIP has returned the initialized string
+     int cmd(vdipcmd, char *rbuf, int timeout, int arg = 0);
 
-  void asyncProcess();
-  int cmd(vdipcmd, unsigned char *rbuf, int timeout, int arg = 0);
-  monmsg matchLine(char *, monmessage *);
-  bool readLine(bool, long = 0);
-  monmsg readLineMatch(bool, monmessage *, long = 0);
-  void updateDevices();
-  void readBytes(int count, unsigned char *, int);
-  void sendBytes(int count, const char *);
-  void processDisk();
+     bool readBytes(int count, char *, int);
+     bool sendBytes(int count, const char *, int);
+     void processDisk();
+     void ejectDisk();
+     void processNXT(portConfig *);
+     void ejectNXT();
+     void flush(int = 100);
+     void init();
+     void reset();
+     void updateDevices();
+     void mapDevice(int, char *, portConfig *);
 
 };
 

@@ -21,7 +21,11 @@
 
 #include "blinky.h"
 
-blinky::blinky(int pin) : _pin(pin), _state(BLINKY_OFF), _shift(false)
+//
+// NOTE that the _shift has been turned on during init - this makes it so that the booting
+//	power LED starts off ON.
+//
+blinky::blinky(int pin) : _pin(pin), _state(BLINKY_OFF), _shift(true)
 {
      pinMode(_pin,OUTPUT);
 }
@@ -30,36 +34,28 @@ void blinky::on()
 {
      _state = BLINKY_ON;
 
-     // note that this DOES go ahead and make the LED go on, although it
-     // easily "could" be up to the update routine to do that...
-
-     digitalWrite(_pin,HIGH);
+     update();
 }
 
 void blinky::off()
 {
      _state = BLINKY_OFF;
 
-     // note that this DOES go ahead and make the LED go off, although it
-     // easily "could" be up to the update routine to do that...
-
-     digitalWrite(_pin,LOW);
+     update();
 }
 
 void blinky::fast()
 {
      _state = BLINKY_FAST;
 
-     // the LED isn't affected immediately - it is up to the update routine
-     // to make the changes to blinking blinky's
+     update();
 }
 
 void blinky::slow()
 {
      _state = BLINKY_SLOW;
 
-     // the LED isn't affected immediately - it is up to the update routine
-     // to make the changes to blinking blinky's
+     update();
 }
 
 //
