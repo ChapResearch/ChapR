@@ -89,15 +89,17 @@ sound  	beeper(TONEPIN);
 
 void setup()
 {
-     // standard init needs to occur here
-     // NOTE though, that the init from the VDIP and BT objects has already occured
-
+     powerLED.fast();			// flash the power LED during boot
+     
      Serial.begin(LOCAL_SERIAL_BAUD);	// the serial monitor operates at this BAUD
-     Serial.write("ChapR v0.1 up!\n");
+     Serial.write("ChapR v0.2 up!\n");
      Serial.println(myName.get());
 
-     powerLED.slow();			// flash the power LED during boot
-     
+     // standard init stuff happens here
+
+     // NOTE, though, that the object init from the VDIP and BT objects has already occured
+     // which is good, because the VDIP takes some time to get up and running
+
      // check the button to see if it was pressed upon boot, if so, enter config mode
 
      if (digitalRead(BUTTON) == HIGH) {		// the button has a pull-down, so normally LOW
@@ -107,9 +109,16 @@ void setup()
 	  bt.opMode();
 	  powerLED.on();
      }
-     vdip.reset(LED_POWER);		// reset and sync-up with the VDIP
-     vdip.flush();			// consume incoming messages
-     vdip.deviceUpdate();		// update device connections if necessary
+
+     Serial.write("Waiting on VDIP sync\n");
+
+     while(!vdip.sync()) {		// while waiting, update the LED status
+	  powerLED.update();
+     }
+
+     Serial.write("Out of VDIP sync\n");
+
+     vdip.deviceUpdate();		// get initial device setup
 
      beeper.confirm();
 }
@@ -118,6 +127,7 @@ byte emptyJSData[] = { 0x13, 0x80, 0x80, 0x80, 0x80, 0x08, 0x00, 0x04 };
 byte joy1data[] = { 0x13, 0x80, 0x80, 0x80, 0x80, 0x08, 0x00, 0x04 };
 byte joy2data[] = { 0x13, 0x80, 0x80, 0x80, 0x80, 0x08, 0x00, 0x04 };
 
+// THIS NEEDS TO BE FIXED!  IT ONLY SHOW JOY1 INFO!!!
 void jsprint(byte *js,char *label)
 {
 	  Serial.print(label);
@@ -134,7 +144,14 @@ void enterZombieMode()
    indicateLED.off();
    
    bt.zombieMode();
-   
+   vdip.zombieMode();
+
+   // turn off the Pro Mini green LED - it is directly connected to pin 13
+   // so turn it off at the very last minute so we don't interfere with whatever
+   // else happens to be connected to pin 13
+
+   digitalWrite(13,LOW);		// turns off the green LED
+
    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
    sleep_enable();
    sleep_cpu();
@@ -145,17 +162,19 @@ long lastJSAction = 0;
 bool isLowPower = false;
 
 //these two constants define the time before entering power saving mode and are in milliseconds
+// (the second commented out versions are for debugging)
 
 #define LOWPOWERTIMEOUT 300000
 //#define LOWPOWERTIMEOUT 10000
 #define ZMODETIMEOUT 600000
 //#define ZMODETIMEOUT 20000
 
+#define DEVICE_UPDATE_LOOP_COUNT	50
+
 void loop()
 {
+     static int		loopCount = 0;
      static bool	wasConnected = false;
-//     unsigned char	joy1data[10];
-//     unsigned char	joy2data[10];
      bool		js1 = false;
      bool		js2 = false;
      bool               wfs = false;
@@ -163,26 +182,23 @@ void loop()
      // check each joystick that is connected, and grab a packet of information from it
      // the joysticks return 8 bytes of info
 
-     if (vdip.getJoystick(1,joy1data) == 8) {
-	  js1 = true;
-	  //jsprint(joy1data,"(1):");
-     }
-
-     delay(5);
-
-     if (vdip.getJoystick(2,joy2data) == 8) {
+     if (vdip.getJoystick(1,(char *)joy2data) == 8) {
 	  js2 = true;
-	  //jsprint(joy2data,"(2):");
+//	  jsprint(joy2data,"(2):");
      }
 
-     delay(5);
+     if (vdip.getJoystick(0,(char *)joy1data) == 8) {
+	  js1 = true;
+//	  jsprint(joy1data,"(1):");
+     }
 
      if (theButton.hasChanged()){
        wfs = true;
      }
 
-     vdip.flush();
-     vdip.deviceUpdate();	// update device connections if necessary
+     if((loopCount % DEVICE_UPDATE_LOOP_COUNT) == 0) {
+	  vdip.deviceUpdate();
+     }
 
      // check to see if we're connected to the brick - turn on the light if so
      // if not connected, blink the thing
@@ -244,7 +260,8 @@ void loop()
      
      // allow only a certain number of updates - saves battery
      
-     delay(5); //ends up as a delay of 100
+     delay(5);
+
+     loopCount++;
 
 }
-     
