@@ -47,9 +47,11 @@ public:
 
      void opMode();
      void configMode(char *);
+     void setRemoteAddress(char *);
      void zombieMode();
      bool connected();		// returns true if connected
      void btWrite(byte *buffer, int size);
+     void reset();
 
 // BIG NOTE - the pins on the RN-42 need voltage dividers - but the current
 //		implementation ** Sun Apr 21 14:47:33 2013 ** doesn't have
@@ -64,7 +66,6 @@ private:
 
      void baud9600mode(bool);
      void autoConnectMode(bool);
-     void reset();
      void specialPin(int,int);
      void btSend(char *string);
 };

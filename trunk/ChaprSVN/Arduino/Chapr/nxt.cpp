@@ -33,6 +33,12 @@ void dumpDataHex(char *buffer, int count)
      }
 }
 
+
+
+
+char hexConverter[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+
 //
 // nxtQueryDevice() - USB - queries the NXT device for it's settings by issuing a GET DEVICE INFO
 //		      command.  This should only be done via USB (for now).  This routine returns
@@ -51,11 +57,12 @@ bool nxtQueryDevice(VDIP *vdip, int usbDev, char **name, char **btAddress, long 
 
      char		cbuf[50];		// enough for return data from NXT (plus slop)
      static char 	namebuf[15];		// 14 chars plus \0 termination
-     static char	btAddressbuf[7];	// 7 bytes of BT address
+     static char	btAddressbuf[13];	// 6 bytes of BT address (ignores the last one)
 
      *name = namebuf;
      *btAddress = btAddressbuf;
-
+     *freeMemory = 0;
+     
      vdip->cmd(VDIP_SC,NULL,100,usbDev);	// set the current VDIP port to the NXT
 
      cbuf[0] = NXT_SYS_CMD;
@@ -67,14 +74,29 @@ bool nxtQueryDevice(VDIP *vdip, int usbDev, char **name, char **btAddress, long 
 
      int r = vdip->cmd(VDIP_DRD,cbuf,100);
 
-     Serial.println(r,HEX);
-
      if(r != 33) {
 	  Serial.println("yikes, didn't get values back");
 	  return(0);
      } else {
 	  Serial.println("yeah!  got 33 back");
 	  dumpDataHex(cbuf,33);
+          for (int i = 0; i < 15; i++){
+            namebuf[i] = cbuf[3 + i];
+          }
+          
+          int j = 0;
+          for (int i = 18; i < 24; i++){
+            //the last byte is always zero (sorta like a null terminator)
+            btAddressbuf[j++] = hexConverter[(cbuf[i]>>4)&0x0F];  
+            btAddressbuf[j++] = hexConverter[cbuf[i]&0x0F];
+          }
+          btAddressbuf[j] = '\0';
+          
+          long m = 1;
+          for (int i = 29; i < 33; i++, m *= 256){
+            *freeMemory += cbuf[i]*m;
+          }
+          
 	  return(1);
      }
 }
