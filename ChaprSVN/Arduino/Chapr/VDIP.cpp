@@ -4,6 +4,7 @@
 #include "VDIPSPI.h"
 #include "VDIP.h"
 #include "nxt.h"
+#include "BT.h"
 
 //#define HAVE_JOY1	(_p1 && _p1_dev != -1 && !(_p1_devtype & CLASS_BOMS) )
 //#define HAVE_JOY2	(_p2 && _p2_dev != -1 && !(_p2_devtype & CLASS_BOMS) )
@@ -378,15 +379,23 @@ void VDIP::processNXT(portConfig *portConfigBuffer)
 	  break;
      }
 
-//     cmd(VDIP_SC,NULL,100,portConfigBuffer->usbDev);
-//     cmd(VDIP_DSD,(char *)output,100,i);
+     //cmd(VDIP_SC,NULL,100,portConfigBuffer->usbDev);
+     //cmd(VDIP_DSD,(char *)output,100,i);
 
      {
 	  char *name;
 	  char *btAddress;
 	  long	freeMemory;
-
-	  nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory);
+          extern BT bt;
+          
+	  if(nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory)){
+            Serial.println(name);
+            Serial.println(freeMemory);
+            Serial.println(btAddress);
+            bt.setRemoteAddress(btAddress);
+            delay(100);
+            bt.reset();
+          }
      }
 
 }

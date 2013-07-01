@@ -193,6 +193,26 @@ void BT::configMode(char *name)
      baud9600mode(false);	// get out of 9600 mode, but leave auto connect off
 }
 
+void BT::setRemoteAddress(char *address)
+{
+  autoConnectMode(false);
+  baud9600mode(true);
+  begin(9600);		// set the SoftwareSerial baud rate appropriately
+     // each mode configuration starts with a reset() to ensure that
+     // the latest modes are enabled and baud rates set
+  reset(); 
+  delay(100); //was at 10, which worked fine, but when it mysteriously stopped replying, 100 worked better
+  btSend("$$$");		// get into command mode
+  delay(30);
+  btSend("SR,");
+  btSend(address);
+  btSend("\r");
+  baud9600mode(false);	// get out of 9600 mode, but leave auto connect off
+  autoConnectMode(true);
+  reset();
+  delay(100);
+}
+
 void BT::opMode()
 {
      // fire-up auto connect mode and kill 9600 baud
