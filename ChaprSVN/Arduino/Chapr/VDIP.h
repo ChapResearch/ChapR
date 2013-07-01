@@ -93,6 +93,8 @@ public:
      bool sync();
      int getJoystick(int, char *);
      void zombieMode();
+     int cmd(vdipcmd, char *rbuf, int timeout, int arg = 0);
+
 
 private:
      uint8_t _resetPin;
@@ -101,8 +103,6 @@ private:
 
      int  _resetDelay;	// we've been reset, and are still in reset mode (set by reset())
      long _resetTarget;	// target time before out of reset (set by reset())
-
-     int cmd(vdipcmd, char *rbuf, int timeout, int arg = 0);
 
      bool readBytes(int count, char *, int);
      bool sendBytes(int count, const char *, int);

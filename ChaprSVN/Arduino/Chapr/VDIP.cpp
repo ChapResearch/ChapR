@@ -3,9 +3,10 @@
 
 #include "VDIPSPI.h"
 #include "VDIP.h"
+#include "nxt.h"
 
-#define HAVE_JOY1	(_p1 && _p1_dev != -1 && !(_p1_devtype & CLASS_BOMS) )
-#define HAVE_JOY2	(_p2 && _p2_dev != -1 && !(_p2_devtype & CLASS_BOMS) )
+//#define HAVE_JOY1	(_p1 && _p1_dev != -1 && !(_p1_devtype & CLASS_BOMS) )
+//#define HAVE_JOY2	(_p2 && _p2_dev != -1 && !(_p2_devtype & CLASS_BOMS) )
 
 //
 // deviceUpdate() - update the USB devices if necessary.
@@ -174,23 +175,35 @@ void VDIP::mapDevice(int dev, char *deviceReport, portConfig *returnPortConfig)
 
 
 //
-// cmd() - submit a VDIP command.  Will fill in the return buffer with
-//	   the return data.  The caller needs to know what to look for
-//	   from the command, however.
+// cmd() - submit a VDIP command.
 //
-//	   Each command waits for one line of return feedback (after
-//	   maybe waiting for data).
+//	This routine is somewhat "low-level" in that it communicates with the VDIP
+//	about sending/receiving data - but much of that data is to/from the devices
+//	that are CONNECTED to the VDIP.  So other routines often use this lower-level
+//	routine to implement sending/recieving to the specific device.
 //
-//	   Does a flush() before executing the command.
+//	A single VDIP command can send or receive a variable amount of data - but not
+//	both send AND receive a variable amount of data in a single command.  So, some
+//	commands need a buffer of data to send out while some need a buffer for return
+//	data.  This command uses the same buffer for both input and output.
 //
-//	   The number of bytes put into rbuf is returned.  This hides
-//	   a lot of errors...
+//	The given argument is used for the command or to specify the number of bytes
+//	that should be SENT with the buffer.  For routines that return data, this
+//	routine will fill in the buffer	with the return data.  The caller needs to
+//	know what to look for from the command, however.
 //
+//	Each command waits for one line of return feedback (after maybe waiting for data).
+//
+//      Does a sync() before executing the command.
+//
+//	The number of bytes put into buf is returned.  This hides a lot of errors...
+//
+// 	NOTE - the timeout isn't fully implemented here - could be a problem
 
-int VDIP::cmd(vdipcmd cmd, char *rbuf, int timeout, int arg /* = 0 */)
+int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
 {
      int	i = 0;
-     char	cbuf[5];		// command buffer
+     char	cbuf[32];		// command buffer - must be big enough for biggest "rbytes" below
      int	rbytes = 0;		// how many bytes to expect
      bool	twoStage = false;	// true if return has a number of bytes as the first stage
      int	sendingCmd = false;	// true if the command sends out data
@@ -255,21 +268,30 @@ int VDIP::cmd(vdipcmd cmd, char *rbuf, int timeout, int arg /* = 0 */)
      (void)sendBytes(i,cbuf,0);		// send the command - blocking-style
 
      if(sendingCmd) {
-	  (void)sendBytes(arg,rbuf,timeout);
+	  (void)sendBytes(arg,buf,timeout);
      }
 
      // at this point, bytes come back for good command - this code assumes
      // that the commands are all "good" - ie - no mispelled commands
 
      if (rbytes) {		// we are looking for return bytes
-	  readBytes(rbytes,rbuf,timeout);
 
-	  // we can have a two-stager at this point, where the first byte of the
-	  // rbytes above specifies how many bytes to receive.  If it is 0, then
-	  // only a return line is expected.
+	  if(!twoStage) {
 
-	  if (twoStage) {
-	       rbytes = rbuf[0];
+	       // not a two stager, so just read directly into the return buffer
+
+	       readBytes(rbytes,buf,timeout);
+
+	  } else {
+
+	       // we have a two-stager at this point, where the first byte of the
+	       // rbytes above specifies how many bytes to receive.  If it is 0, then
+	       // only a return line is expected.
+
+	       readBytes(rbytes,cbuf,timeout);	// don't overwrite buffer yet
+
+	       rbytes = cbuf[0];
+
 	       // there seems to be the possibility that either "Bad Command" (BC) or "Command Failed" (CF)
 	       // comes back.  In this case, ignore it and return zero.
 
@@ -281,7 +303,8 @@ int VDIP::cmd(vdipcmd cmd, char *rbuf, int timeout, int arg /* = 0 */)
 		    return(0);
 
 	       default:	
-		    readBytes(rbytes,rbuf,timeout);
+		    readBytes(1,cbuf,timeout);		// consume the '\r'
+		    readBytes(rbytes,buf,timeout);	// then return the real bytes
 		    break;
 	       }
 	  }
@@ -355,9 +378,16 @@ void VDIP::processNXT(portConfig *portConfigBuffer)
 	  break;
      }
 
-     cmd(VDIP_SC,NULL,100,portConfigBuffer->usbDev);
+//     cmd(VDIP_SC,NULL,100,portConfigBuffer->usbDev);
+//     cmd(VDIP_DSD,(char *)output,100,i);
 
-     cmd(VDIP_DSD,(char *)output,100,i);
+     {
+	  char *name;
+	  char *btAddress;
+	  long	freeMemory;
+
+	  nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory);
+     }
 
 }
 void VDIP::ejectNXT()
