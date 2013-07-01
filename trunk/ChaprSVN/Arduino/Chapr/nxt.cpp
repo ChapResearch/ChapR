@@ -3,16 +3,83 @@
 //
 // nxt.cpp
 //
-//   NXT communication routines.
+//   NXT communication routines.  This file implements all NXT communication routines.
+//   It supports both USB and BT communication.
 //
+//   Note there are "normal" commands as well as a set of extended "direct commands."
+//   These routines don't worry the user with the difference between them.
+//
+
+#include "vdip.h"
+#include "nxt.h"
 
 typedef unsigned char byte;
 
-/////////////////////////////////////////////////////////////////////////////
-// NXT Direct Commands - the following calls implement the NXT protocol
-//			for "direct commands".  see the NXT Direct Commands
-//			protocol reference.
-/////////////////////////////////////////////////////////////////////////////
+void dumpDataHex(char *buffer, int count)
+{	
+     int i = 0, value;
+
+     for(;count > 0; count--, i++, buffer++) {
+	  value = (unsigned char)*buffer;
+	  Serial.print("0x");
+	  if( value< 16) {
+	       Serial.print("0");
+	  }
+	  Serial.print(value,HEX);
+	  Serial.print(" ");
+	  if( i%8 == 7) {
+	       Serial.println("");
+	  }
+     }
+}
+
+//
+// nxtQueryDevice() - USB - queries the NXT device for it's settings by issuing a GET DEVICE INFO
+//		      command.  This should only be done via USB (for now).  This routine returns
+//		      TRUE (non-zero) if the command worked or FALSE (zero) if it didn't.  If it
+//		      did work, the name buffer is filled in with the name of the NXT, the btaddress
+//		      buffer is filled in, and the freeMemory long is filled in with the amount
+//		      of free memory on the NXT.
+//
+//		      Since only one NXT is supposed to be connected at any one time, this routine
+//		      uses simple static buffers to return the name and btAddress.  The next call
+//		      will wipe them out.
+//
+bool nxtQueryDevice(VDIP *vdip, int usbDev, char **name, char **btAddress, long *freeMemory)
+{
+     // assumes we are connected, otherwise this routine shouldn't be called
+
+     char		cbuf[50];		// enough for return data from NXT (plus slop)
+     static char 	namebuf[15];		// 14 chars plus \0 termination
+     static char	btAddressbuf[7];	// 7 bytes of BT address
+
+     *name = namebuf;
+     *btAddress = btAddressbuf;
+
+     vdip->cmd(VDIP_SC,NULL,100,usbDev);	// set the current VDIP port to the NXT
+
+     cbuf[0] = NXT_SYS_CMD;
+     cbuf[1] = NXT_GET_DEV_INFO;
+
+     vdip->cmd(VDIP_DSD,cbuf,100,2);		// send the command
+
+     delay(1000);			       	// half-second delay for return of command
+
+     int r = vdip->cmd(VDIP_DRD,cbuf,100);
+
+     Serial.println(r,HEX);
+
+     if(r != 33) {
+	  Serial.println("yikes, didn't get values back");
+	  return(0);
+     } else {
+	  Serial.println("yeah!  got 33 back");
+	  dumpDataHex(cbuf,33);
+	  return(1);
+     }
+}
+
+
 
 //
 // nxtGamepadUSBTranslate() - translate a single USB gamepad reading into the fields that would
@@ -67,8 +134,8 @@ int nxtJoystickTranslate(byte *output, byte UserMode, byte StopPgm, byte *USBJoy
      output[1] = UserMode;		// normally set to zero
      output[2] = StopPgm;		// false to turn OFF wait for start
 
-     nxtGamepadUSBTranslate(USBJoystick1+1,&output[3]);
-     nxtGamepadUSBTranslate(USBJoystick2+1,&output[10]);
+     nxtGamepadUSBTranslate(USBJoystick1,&output[3]);	// used to have +1 when the \r wasn't being read
+     nxtGamepadUSBTranslate(USBJoystick2,&output[10]);
 
      output[17] = 0;
 
