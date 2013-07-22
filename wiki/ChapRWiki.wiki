@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary Source code Wiki for the Westlake ChapR FTC remote control
 
 = Introduction =
 
