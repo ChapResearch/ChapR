@@ -71,15 +71,19 @@
 #define BUTTON		A0
 #define TONEPIN		A3
 
-#endif
+#define POWER_ON_HOLD	A4
+#define POWER_BUTTON	A5
 
-VDIP	 vdip(VDIP_CLOCK, VDIP_MOSI, VDIP_MISO, VDIP_CS, VDIP_RESET);
-BT	 bt(BT_RX, BT_TX, BT_RESET, BT_MODE, BT_9600BAUD, BT_CONNECTED);
+#endif
 
 blinky	powerLED(LED_POWER);
 blinky	indicateLED(LED_INDICATE);
 
+VDIP	 vdip(VDIP_CLOCK, VDIP_MOSI, VDIP_MISO, VDIP_CS, VDIP_RESET);
+BT	 bt(BT_RX, BT_TX, BT_RESET, BT_MODE, BT_9600BAUD, BT_CONNECTED);
+
 button theButton(BUTTON);
+button powerButton(POWER_BUTTON,true);
 
 ChapRName myName; //myName() doesn't work because it thinks it's declaring a function with return type ChapRName
 
@@ -89,10 +93,13 @@ sound  	beeper(TONEPIN);
 
 void setup()
 {
+     pinMode(POWER_ON_HOLD,OUTPUT);	// the power-on-hold needs to be turned on as soon as possible
+     digitalWrite(POWER_ON_HOLD,HIGH);
+     
      powerLED.fast();			// flash the power LED during boot
      
      Serial.begin(LOCAL_SERIAL_BAUD);	// the serial monitor operates at this BAUD
-     Serial.write("ChapR v0.2 up!\n");
+     Serial.write("ChapR v0.3 up!\n");
      Serial.println(myName.get());
 
      // standard init stuff happens here
@@ -172,11 +179,23 @@ bool isLowPower = false;
 
 void loop()
 {
+     static bool	power_button_released = false;
      static int		loopCount = 0;
      static bool	wasConnected = false;
      bool		js1 = false;
      bool		js2 = false;
      bool               wfs = false;
+
+     // when we first boot, the power button is pressed in, so ensure that it changes before
+     // monitoring it for shutdown.
+
+     if(powerButton.hasChanged()) {
+	  if(!power_button_released) {
+	       power_button_released = true;
+	  } else {
+	       digitalWrite(POWER_ON_HOLD,LOW);
+	  }
+     }
 
      // check each joystick that is connected, and grab a packet of information from it
      // the joysticks return 8 bytes of info
@@ -249,8 +268,9 @@ void loop()
          powerLED.slow();
       }
      if (millis() - lastAnyAction >= ZMODETIMEOUT){
-        enterZombieMode();
-      }
+	  digitalWrite(POWER_ON_HOLD,LOW);
+	  enterZombieMode();
+     }
      
      // update the state of the LEDs - this should always be done at the end of the loop
 
