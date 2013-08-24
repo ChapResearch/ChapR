@@ -1,3 +1,14 @@
+-----------------------------------------------------------------
+TODO AS OF AUG 24, 2013
+-----------------------------------------------------------------
+
+
+
+
+
+-----------------------------------------------------------------
+OLD TODO BEFORE AUG 24, 2013
+-----------------------------------------------------------------
 *Software
 XPower Saver Mode
 	After 5 min, the power LED blinks and the BT module stops sending joystick info (can be escaped by hitting the joysticks)

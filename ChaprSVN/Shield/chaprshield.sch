@@ -5844,8 +5844,8 @@ In this library the device names are the same as the pin names of the symbols, t
 <text x="-25.4" y="-73.66" size="1.778" layer="97">** RN42.Reset has pull-up - pull-down to reset.</text>
 <text x="121.92" y="91.44" size="1.778" layer="97">*</text>
 <text x="63.5" y="109.22" size="1.778" layer="97">NOTE: 3.3v Comes from VDIP not ARD</text>
-<text x="162.56" y="-68.58" size="2.54" layer="97">V 0.2</text>
-<text x="76.2" y="-48.26" size="2.54" layer="97">Initial ChapR Board</text>
+<text x="162.56" y="-68.58" size="2.54" layer="97">V 0.3</text>
+<text x="76.2" y="-48.26" size="2.54" layer="97">ChapR Board</text>
 <text x="-7.62" y="-38.1" size="1.778" layer="97">Button  =&gt;  A0</text>
 <text x="-7.62" y="-43.18" size="1.778" layer="97">Speaker  &lt;=  A3</text>
 <text x="-7.62" y="-48.26" size="1.778" layer="97">Connect LED  &lt;=  A1</text>
