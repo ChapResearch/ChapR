@@ -7,13 +7,16 @@ class button
 {
  public:
   button(int pin);
+  button(int pin, bool inverted);
   
   bool isPressed();
   bool hasChanged();
 
  private:
   int _pin;
-  bool wasPressed;
+  bool _wasPressed;
+  bool _inverted;
+  bool check();
 };
 
 #endif BUTTON_H

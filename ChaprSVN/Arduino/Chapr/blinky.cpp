@@ -28,6 +28,8 @@
 blinky::blinky(int pin) : _pin(pin), _state(BLINKY_OFF), _shift(true)
 {
      pinMode(_pin,OUTPUT);
+
+     update();		// go ahead and turn on things that should go on right away
 }
 
 void blinky::on()
