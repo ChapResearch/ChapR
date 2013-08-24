@@ -1,0 +1,71 @@
+
+
+   ---- Transcoding 'C:\Users\eric\Documents\ChapRemote\ChaprSVN\PCB\v0.3 Production\chapr.sol' ----   Mon Jul 29 21:45:34 2013
+
+D10   --> D100
+D11   --> D101
+D12   --> D102
+D13   --> D103
+D14   --> D104
+D15   --> D105
+D16   --> D106
+D17   --> D107
+D18   --> D108
+D19   --> D109
+D20   --> D110
+D21   --> D111
+D22   --> D112
+-----------------------------------------------------------------
+
+
+   ---- Transcoding 'C:\Users\eric\Documents\ChapRemote\ChaprSVN\PCB\v0.3 Production\chapr.stc' ----   Mon Jul 29 21:45:34 2013
+
+D10   --> D113
+D11   --> D114
+D12   --> D115
+D13   --> D116
+D14   --> D117
+D15   --> D118
+D16   --> D119
+D17   --> D120
+D18   --> D121
+D19   --> D122
+D20   --> D123
+D21   --> D124
+D22   --> D125
+D23   --> D126
+-----------------------------------------------------------------
+
+
+   ---- Transcoding 'C:\Users\eric\Documents\ChapRemote\ChaprSVN\PCB\v0.3 Production\chapr.sts' ----   Mon Jul 29 21:45:34 2013
+
+D10   --> D127
+D11   --> D128
+D12   --> D129
+D13   --> D130
+D14   --> D131
+D15   --> D132
+D16   --> D133
+D17   --> D134
+D18   --> D135
+D19   --> D136
+D20   --> D137
+D21   --> D138
+-----------------------------------------------------------------
+
+
+   ---- Transcoding 'C:\Users\eric\Documents\ChapRemote\ChaprSVN\PCB\v0.3 Production\chapr.plc' ----   Mon Jul 29 21:45:34 2013
+
+D11   --> D139
+D12   --> D140
+D13   --> D141
+D14   --> D142
+D15   --> D143
+D16   --> D144
+D17   --> D145
+D18   --> D146
+D19   --> D147
+D20   --> D148
+D21   --> D149
+D22   --> D150
+-----------------------------------------------------------------
