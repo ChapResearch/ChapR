@@ -70,7 +70,7 @@ bool nxtQueryDevice(VDIP *vdip, int usbDev, char **name, char **btAddress, long 
 
      vdip->cmd(VDIP_DSD,cbuf,100,2);		// send the command
 
-     delay(1000);			       	// half-second delay for return of command
+     delay(1000);			       	// second delay for return of command
 
      int r = vdip->cmd(VDIP_DRD,cbuf,100);
 
@@ -78,8 +78,8 @@ bool nxtQueryDevice(VDIP *vdip, int usbDev, char **name, char **btAddress, long 
 	  Serial.println("yikes, didn't get values back");
 	  return(0);
      } else {
-	  Serial.println("yeah!  got 33 back");
-	  dumpDataHex(cbuf,33);
+	  //Serial.println("yeah!  got 33 back");
+	  //dumpDataHex(cbuf,33);
           for (int i = 0; i < 15; i++){
             namebuf[i] = cbuf[3 + i];
           }

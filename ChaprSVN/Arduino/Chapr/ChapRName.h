@@ -10,7 +10,7 @@ public:
 
      void setFromString(char*);
      char *get();
-     bool setFromConsole();
+     void setFromConsole();
      bool setFromFlashDrive();
 
 private:
