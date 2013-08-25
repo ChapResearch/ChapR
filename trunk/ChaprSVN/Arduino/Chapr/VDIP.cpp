@@ -321,6 +321,9 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
 //
 void VDIP::processDisk()
 {
+     //check that it's in port two (beep annoyingly otherwise)
+     //read through VDIP stuff looking for a text file with the name, personality etc.
+     
      Serial.println("disk inserted apparently");
 }
 
@@ -389,19 +392,22 @@ void VDIP::processNXT(portConfig *portConfigBuffer)
           extern BT bt;
           
 	  if(nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory)){
-            Serial.println(name);
-            Serial.println(freeMemory);
-            Serial.println(btAddress);
+            //Serial.println(name);
+            //Serial.println(freeMemory);
+            //Serial.print("\"");
+            //Serial.print(btAddress);
+            //Serial.println("\"");
             bt.setRemoteAddress(btAddress);
             delay(100);
-            bt.reset();
           }
      }
 
 }
 void VDIP::ejectNXT()
-{
+{  
+     extern void software_Reset();
      Serial.println("eject NXT");
+     software_Reset();
 }
 
 //

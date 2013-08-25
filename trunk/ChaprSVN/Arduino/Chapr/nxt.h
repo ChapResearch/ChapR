@@ -8,6 +8,9 @@
 #define NXT_SYS_CMD_NR '\x81'		// System command - NO REPLY
 
 #define NXT_GET_DEV_INFO '\x9b'		// Get Device Info command
+#define NXT_REBOOT       '\x97'        //Reboot system command
+
+#define NXT_REBOOT_MAGICSTRING  "Let's dance: SAMBA"  //string for booting NXT
 
 
 extern int nxtMsgCompose(byte *output, 		// the output buffer to scribble things to - min 22 bytes

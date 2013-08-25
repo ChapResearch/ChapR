@@ -1,7 +1,38 @@
 -----------------------------------------------------------------
 TODO AS OF AUG 24, 2013
 -----------------------------------------------------------------
+*Software
+1. NXT USB Pairing
+ 	X get BT ID and pair
+ - display image to show ChapR is connected (something Westlakey)
+ - make sure BT is on (will be implemented with personalities)
+2. Fix master/slave issue
+ 	X BT pairing
+ - USB pairing
+	the brick works best when it is rebooted after a USB pairing session (it would be nice to do this with software)
+3. Kill switch
+4. Flash drive
+ - naming
+ - personality
+ - timeout
+	X5. Build naming into main ChapR.ino
+6. Personality
+7. Revist power saving modes
+8. BT ID
+9. ChapR Library
 
+**test with another NXT because NXT - A brick will boot strangely if the ChapR is pairing before it has been booted
+**sometimes you have to reboot the NXt brick to get it to pair properly
+
+*Hardware
+1. v1.0
+ - fix transitors
+ - 3.3V VDIP
+ - capacitors?
+ - diffused blue LED
+2. template for case
+3. buy 50 boards
+4. buy parts for 10 boards
 
 
 

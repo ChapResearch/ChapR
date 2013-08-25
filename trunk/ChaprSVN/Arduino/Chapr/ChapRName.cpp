@@ -43,30 +43,50 @@ void ChapRName::setFromString(char *name)
 
 bool ChapRName::setFromConsole()
 {
-  Serial.println("Hit space then enter if you want to rename your ChapR.");
-  char buffer[100];
-  String name = "";
-  static int index = 0;
-  bool enteringName = false;
   if (Serial.available() > 0){
-    int input = Serial.read();
-    buffer[index] = input;
-    if (buffer[index - 1] == ' '){
-      Serial.write("Enter your new name (must be 1 - 20 characters without spaces): ");
+      Serial.println("The current name of your ChapR is: ");
+      char *currentName = get();
+      Serial.println(currentName);
+      int index = 0;
+      char buffer[15];
+      while (true){
+        if (Serial.available() > 0){
+          byte val = Serial.read();
+          if (val != '\r' && index != 14){
+            buffer[index] = val;
+          } else {
+            buffer[index] = '\0';
+            break;
+          }
+          index++;
+        }
+      }
+      Serial.print("Your ChapR is now named: ");
+      Serial.println(buffer);
+      setFromString(buffer);
+      Serial.println("Hit return to accept, or type \"cancel\" (return) to cancel");
+    
       index = 0;
-      enteringName = true;
+      buffer[15];
+        while (true){
+          if (Serial.available() > 0){
+            byte val = Serial.read();
+          if   (val != '\r' && index != 14){
+              buffer[index] = val;
+            } else {
+              buffer[index] = '\0';
+              break;
+            }
+            index++;
+          }
+        }
+      
+      if (strcmp(buffer, "cancel") == 0) {
+        setFromString(currentName);
+        Serial.print("Your ChapR is now named: ");
+        Serial.println(currentName);
+      }
     }
-    else if (buffer[index] == '\r'){
-     for (int i = 0; i <= index; i++){
-       name = name + buffer[i];
-     }
-    Serial.println(name);
-    Serial.println("Congrats! Your ChapR has been named " + name);
-    }
-    if (!enteringName){
-    index++;
-    }
-  }
 }
 
 bool ChapRName::setFromFlashDrive()

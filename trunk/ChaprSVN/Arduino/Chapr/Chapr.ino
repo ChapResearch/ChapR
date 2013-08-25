@@ -85,6 +85,8 @@ BT	 bt(BT_RX, BT_TX, BT_RESET, BT_MODE, BT_9600BAUD, BT_CONNECTED);
 button theButton(BUTTON);
 button powerButton(POWER_BUTTON,true);
 
+bool    inConfigMode;
+
 ChapRName myName; //myName() doesn't work because it thinks it's declaring a function with return type ChapRName
 
 sound  	beeper(TONEPIN);
@@ -100,7 +102,9 @@ void setup()
      
      Serial.begin(LOCAL_SERIAL_BAUD);	// the serial monitor operates at this BAUD
      Serial.write("ChapR v0.3 up!\n");
-     Serial.println(myName.get());
+     Serial.print("If you want to rename \"");
+     Serial.print(myName.get());
+     Serial.println("\", type the name followed by a return");
 
      // standard init stuff happens here
 
@@ -111,9 +115,11 @@ void setup()
 
      if (digitalRead(BUTTON) == HIGH) {		// the button has a pull-down, so normally LOW
           bt.configMode(myName.get());
+          inConfigMode = true;
 	  powerLED.slow();
      } else {
 	  bt.opMode();
+          inConfigMode = false;
 	  powerLED.on();
      }
 
@@ -163,6 +169,11 @@ void enterZombieMode()
    sleep_cpu();
 }
 
+void software_Reset() // Restarts program from beginning but does not reset the peripherals and registers
+{
+asm volatile ("  jmp 0");  
+}  
+
 long lastAnyAction = 0;
 long lastJSAction = 0;
 bool isLowPower = false;
@@ -186,6 +197,10 @@ void loop()
      bool		js2 = false;
      bool               wfs = false;
 
+     //monitor for return from IDE to indicate a wish to change name
+   
+    myName.setFromConsole();
+    
      // when we first boot, the power button is pressed in, so ensure that it changes before
      // monitoring it for shutdown.
 
@@ -222,6 +237,10 @@ void loop()
      // if not connected, blink the thing
 
      if(bt.connected()) {
+          if(inConfigMode){
+            inConfigMode = false;
+            software_Reset();          //does not initialize the IO lines, just resets master/slave pairing
+          }
 	  indicateLED.on();
 	  powerLED.on();
 	  if (!wasConnected) {
