@@ -27,3 +27,5 @@ void sound::squeep()
      }
      noTone(_pin);
 }
+
+//add icky noise

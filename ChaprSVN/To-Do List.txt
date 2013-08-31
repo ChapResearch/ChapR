@@ -24,6 +24,8 @@ TODO AS OF AUG 24, 2013
 **test with another NXT because NXT - A brick will boot strangely if the ChapR is pairing before it has been booted
 **sometimes you have to reboot the NXt brick to get it to pair properly
 
+**ChapR wouldn't work with Matrix...?
+
 *Hardware
 1. v1.0
  - fix transitors

@@ -41,7 +41,7 @@ void ChapRName::setFromString(char *name)
         write(name);
 }
 
-bool ChapRName::setFromConsole()
+void ChapRName::setFromConsole()
 {
   if (Serial.available() > 0){
       Serial.println("The current name of your ChapR is: ");

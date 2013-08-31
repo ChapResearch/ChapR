@@ -1,0 +1,3 @@
+personality
+Rewrite the top line with the name of the programming language you want your ChapR to be compatible with. 
+The current options are RobotC and LabView. The default is RobotC if the name is not spelled or capitalized properly.
