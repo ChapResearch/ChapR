@@ -56,7 +56,7 @@ void VDIP::deviceUpdate()
 		    // check incoming device and call process routines if needed
 
 		    if(portConfigBuffer.type == DEVICE_DISK) {
-			 processDisk();
+			 processDisk(&portConfigBuffer); //WHAT IS GOING ON?!!!!!!!!!!!!
 		    }
 
 		    if(portConfigBuffer.type == DEVICE_NXT) {
@@ -314,17 +314,44 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
      return(rbytes);
 }
 
+#define DEFAULTTIMEOUT 100
+
+//readFile() - helper method used to read a file on the disk and returns the entire contents of the file
+void VDIP::readFile(char *filename)
+{
+  byte length = strlen(filename);
+  if (sendBytes(5, "DIR, ", DEFAULTTIMEOUT) && sendBytes(length, filename, DEFAULTTIMEOUT) && sendBytes(1, "\r", DEFAULTTIMEOUT)){
+    char fileSizes[1];
+    readBytes(1, fileSizes, DEFAULTTIMEOUT); //no idea how to use, or how many bytes I'll get back...
+    int fileSize = (int) fileSizes[0]; //um????
+    
+    if (sendBytes(4, "RD, ", DEFAULTTIMEOUT) && sendBytes(length, filename, DEFAULTTIMEOUT)){ //unsure of TIMEOUT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      char contents[fileSize];
+      readBytes(fileSize, contents, DEFAULTTIMEOUT);
+      Serial.println(contents);
+    }
+  }
+}
+
 //
 // processDisk() - called when a disk is discovered and properly located
 //                 on P2.  This routine does everything that the Chapr can
 //                 do with a flash drive, like update the name of the Chapr.
 //
-void VDIP::processDisk()
+void VDIP::processDisk(portConfig *portConfigBuffer)
 {
-     //check that it's in port two (beep annoyingly otherwise)
-     //read through VDIP stuff looking for a text file with the name, personality etc.
-     
      Serial.println("disk inserted apparently");
+     //check that it's in port two (beep annoyingly otherwise)
+     if(ports[1].type == DEVICE_DISK) {
+     //yay			 
+     } else {
+     //eww
+     }
+     //read through VDIP stuff looking for a text file with the name, personality etc.
+     readFile("name.txt");
+     readFile("personality.txt");
+     readFile("timeout.txt");
+     
 }
 
 void VDIP::ejectDisk()

@@ -106,7 +106,8 @@ private:
 
      bool readBytes(int count, char *, int);
      bool sendBytes(int count, const char *, int);
-     void processDisk();
+     void readFile(char *name);
+     void processDisk(portConfig *portConfigBuffer);
      void ejectDisk();
      void processNXT(portConfig *);
      void ejectNXT();

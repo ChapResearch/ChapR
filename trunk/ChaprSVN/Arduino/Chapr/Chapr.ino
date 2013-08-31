@@ -6,6 +6,7 @@
 #include "sound.h"
 #include "nxt.h"
 #include "ChapRName.h"
+#include "ChapREEPROM.h"
 #include <EEPROM.h>
 #include "button.h"
 #include <avr/sleep.h>
@@ -88,6 +89,7 @@ button powerButton(POWER_BUTTON,true);
 bool    inConfigMode;
 
 ChapRName myName; //myName() doesn't work because it thinks it's declaring a function with return type ChapRName
+ChapREEPROM myEEPROM;
 
 sound  	beeper(TONEPIN);
 
@@ -101,10 +103,16 @@ void setup()
      powerLED.fast();			// flash the power LED during boot
      
      Serial.begin(LOCAL_SERIAL_BAUD);	// the serial monitor operates at this BAUD
-     Serial.write("ChapR v0.3 up!\n");
-     Serial.print("If you want to rename \"");
-     Serial.print(myName.get());
-     Serial.println("\", type the name followed by a return");
+     Serial.println("ChapR v0.3 up!");
+     
+     if (!myEEPROM.isInitialized()){
+       Serial.println("Please intialize your ChapR.");
+       myEEPROM.setFromConsole("ChapRX", (byte) 10, (byte) 1);
+     }
+     
+     //Serial.print("If you want to rename \"");
+     //Serial.print(myName.get());
+     //Serial.println("\", type the name followed by a return");
 
      // standard init stuff happens here
 
@@ -199,7 +207,11 @@ void loop()
 
      //monitor for return from IDE to indicate a wish to change name
    
-    myName.setFromConsole();
+    //myName.setFromConsole();
+    
+    if (Serial.available() > 0){
+      myEEPROM.setFromConsole(myEEPROM.getName(), myEEPROM.getTimeout(), myEEPROM.getPersonality());
+    }
     
      // when we first boot, the power button is pressed in, so ensure that it changes before
      // monitoring it for shutdown.

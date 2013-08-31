@@ -172,7 +172,7 @@ bool VDIP::sync()
      // Below, we send out the sync/echo command and simply wait for its return.
      // This has the same effect as a flush, by-the-way.
 
-     sendBytes(2,sBuffer,0);		// a blocking send of the sync/echo string
+     sendBytes(2,sBuffer,0);		// a blocking fsendBy of the sync/echo string
 
      while(true) {
 	  unsigned char	RChar, prevRChar;
