@@ -15,27 +15,6 @@
 
 typedef unsigned char byte;
 
-void dumpDataHex(char *buffer, int count)
-{	
-     int i = 0, value;
-
-     for(;count > 0; count--, i++, buffer++) {
-	  value = (unsigned char)*buffer;
-	  Serial.print("0x");
-	  if( value< 16) {
-	       Serial.print("0");
-	  }
-	  Serial.print(value,HEX);
-	  Serial.print(" ");
-	  if( i%8 == 7) {
-	       Serial.println("");
-	  }
-     }
-}
-
-
-
-
 char hexConverter[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 
@@ -207,3 +186,53 @@ int nxtMsgCompose(byte *output, 	// the output buffer to scribble things to - mi
      size = nxtJoystickTranslate(buffer, UserMode, StopPgm, USBJoystick1, USBJoystick2);
      return(nxtDCMessagePackage(output,buffer,size,mbox));
 }
+
+//
+// nxtBTMailboxMsgCompose() - given a message, compose a BT message to be sent to
+//				a particular mailbox on the NXT.  This COULD be split
+//				into two commands - one to compose the message and
+//				another to wrap it in bluetooth - but by combining
+//				them we save copy time.  It is ASSUMED that the incoming
+//				message buffer has enough space to add the 6 bytes
+//				needed for headers.  NOTE too that the NULL termination
+//				that is required for messages is enforced.  that is, the
+//				last byte of the incoming message is always set to '\0'
+//
+int nxtBTMailboxMsgCompose(int mbox, byte *msgbuff, int size)
+{
+     // BT messages need two extra bytes on the front for BT packet size (+2)
+     // and we also need to add two bytes for the standard NXT command (+2)
+     // then two bytes for the mailbox direct command (+2)
+
+     msgbuff[size-1] = '\0';		// enforce the NULL termination
+
+     memmove(msgbuff+6,msgbuff,size);	// shift over by the 6 needed to package the message
+
+     msgbuff[0] = size + 4;		// BT size does NOT include these two size bytes
+     msgbuff[1] = 0x00;			// this is the BT MSB of size - always zero
+     msgbuff[2] = NXT_DIR_CMD_NR;	// direct command with no response
+     msgbuff[3] = NXT_DIR_SEND;		// the direct command for MessageWrite
+     msgbuff[4] = mbox;			// the mailbox to use
+     msgbuff[5] = size;			// and this is the size of actual mailbox message
+
+     return(size+6);			// total size of the message going over BT
+}
+
+
+//
+// nxtBTKillCommand() - create a BT message for killing the current program running
+//			on the next.  As above, this COULD be split into two commands -
+//			one that composes the kill message and the other wrap it in
+//			BT - but it is in one to make it more efficient.
+//
+
+int nxtBTKillCommand(byte *msgbuff)
+{
+     msgbuff[0] = 2;			// BT size does NOT include these two size bytes
+     msgbuff[1] = 0x00;			// this is the BT MSB of size - always zero
+     msgbuff[2] = NXT_DIR_CMD_NR;	// direct command, no response
+     msgbuff[3] = NXT_DIR_STOP;		// stop command
+
+     return(4);
+}
+

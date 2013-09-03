@@ -9,6 +9,7 @@ public:
 
      void confirm();
      void squeep();
+     void icky();
 
 private:
      int	_pin;

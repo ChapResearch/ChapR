@@ -6,6 +6,9 @@
 //#include <stdint.h>
 #include <SoftwareSerial.h>
 
+// it is really strange, but BT.h won't compile correctly unless the  ChapR.ino
+// file also includes SoftwareSerial.h...really weird...
+
 //
 // these defines are used to the operational baud for the BT interface
 //

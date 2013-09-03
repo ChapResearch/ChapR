@@ -28,4 +28,15 @@ void sound::squeep()
      noTone(_pin);
 }
 
-//add icky noise
+void sound::icky()
+{
+     noTone(_pin);
+
+     tone(_pin,5000,40);
+     delay(40);
+
+     for( int i=4; i--; ) {
+	  tone(_pin,110,50);
+	  delay(100);
+     }
+}
