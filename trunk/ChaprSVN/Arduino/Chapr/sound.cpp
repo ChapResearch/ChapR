@@ -14,6 +14,18 @@ void sound::confirm()
   tone(_pin,880,50);
 }
 
+void sound::squawk()
+{
+  noTone(_pin);
+     for (int i = 880; i > 220; i -= 10) {
+	  tone(_pin,i);
+	  delay(1);
+     }
+     tone(_pin, 220);
+     delay(100);
+     noTone(_pin);
+}
+
 void sound::squeep()
 {
      noTone(_pin);

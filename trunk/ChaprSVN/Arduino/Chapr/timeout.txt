@@ -1,3 +1,1 @@
-timeout
-Rewrite the top line to be the time (in milliseconds) before the ChapR goes into zombie mode (powers off).
-The default is 600000, and this will be the timeout time if the time is written incorrectly (contains commas, invalid characters etc.)
+15
