@@ -1,5 +1,4 @@
 
-
 #ifndef VDIP_h
 #define VDIP_h
 
@@ -62,7 +61,10 @@ typedef enum vcmd {
      VDIP_QD,			// Query Device - arg is device
      VDIP_DRD,			// Data Read from current device
      VDIP_DSD,			// Data Send to current device
-     VDIP_SUM			// suspend monitor (low power mode)
+     VDIP_SUM,			// suspend monitor (low power mode)
+     VDIP_OPR,                  // open a file for reading
+     VDIP_RDF,                  // read from file (specifies how many bytes)
+     VDIP_CLF                   //closes the currently open file
 } vdipcmd;
 
 typedef enum _deviceType {
@@ -106,7 +108,7 @@ private:
 
      bool readBytes(int count, char *, int);
      bool sendBytes(int count, const char *, int);
-     void readFile(char *name);
+     bool readFile(char *name, char *buf, byte numToRead);
      void processDisk(portConfig *portConfigBuffer);
      void ejectDisk();
      void processNXT(portConfig *);
@@ -116,6 +118,7 @@ private:
      void reset();
      void updateDevices();
      void mapDevice(int, char *, portConfig *);
+     void debugPortConfig(portConfig*);
 
 };
 

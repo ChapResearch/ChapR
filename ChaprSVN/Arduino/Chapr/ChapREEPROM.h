@@ -18,6 +18,8 @@
 #define EEPROM_MAGIC           18
 #define EEPROM_MAGICLENGTH      5 //without null terminator (23 - 18)
 #define EEPROM_MAXSTRINGLENGTH (max(EEPROM_NAMELENGTH, EEPROM_MAGICLENGTH) + 1)
+#define EEPROM_MAXTIMEOUT      120 //says timeout cannot be longer than two hours
+#define EEPROM_LASTPERSON        2 //last personality that has been coded
 #define EEPROM_MAGICSTRING   "ChapR"
 
 class ChapREEPROM

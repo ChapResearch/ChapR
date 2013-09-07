@@ -1,2 +1,1 @@
-name
-Rewrite the top line to be the name for your ChapR. It must be less than 14 characters and more than none.
+Stanford

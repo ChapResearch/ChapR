@@ -10,21 +10,34 @@ TODO AS OF AUG 24, 2013
  	X BT pairing
  - USB pairing
 	the brick works best when it is rebooted after a USB pairing session (it would be nice to do this with software)
+	reboot brick, then reset ChapR (use a 2 in EEPROM, then decrement to indicate phase change)
 3. Kill switch
-4. Flash drive
- - naming
- - personality
- - timeout
+	turn on (hold till lights go on)
+	button pressed (kills program)
+	turn off (hold till lights go off); see button pressed, wait x seconds, turn off both lights, lower powerhold line
+	X4. Flash drive
+ 	X naming
+ 	X personality
+ 	X timeout
 	X5. Build naming into main ChapR.ino
-6. Personality
+	X6. Personality (NXT-G and NXT-RobotC)
 7. Revist power saving modes
 8. BT ID
 9. ChapR Library
+10. LabView Compatibility
+11. Matrix Compatibility
+12. Board bring-up program
+	checks if VDIP program has been flashed
+	tests communication to BT and VDIP
+	checks versions of each part
+	read and write EEPROM
 
 **test with another NXT because NXT - A brick will boot strangely if the ChapR is pairing before it has been booted
 **sometimes you have to reboot the NXt brick to get it to pair properly
 
 **ChapR wouldn't work with Matrix...?
+
+**Mysteriously disconnects and reconnects after a few minutes
 
 *Hardware
 1. v1.0

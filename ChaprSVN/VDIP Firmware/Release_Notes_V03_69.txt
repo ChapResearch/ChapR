@@ -1,0 +1,551 @@
+VNC1L Firmware: V03.69 16-Mar-2012
+Documentation: Vinculum Firmware User Manual V2.05
+
+Release Notes
+-------------
+
+Fixes:
+
+Disk Commands
+- Correct allocation of new clusters when overwriting files greater than
+  one cluster in size.
+- Support for BOMS class devices over a single USB hub on Port 2.
+  An extra Device Detected and Device Removed message will be displayed
+  when a BOMS class device is inserted or removed from a connected hub.
+- FSE and FS commands will now report Command Failed if there was an 
+  error calculating free disk space.
+- All disk commands will ignore directory entries for labels.
+- Improve handling of SCSI Read Capacity command on certain disks which
+  results in the disk appearing to be not supported by the firmware.
+  Increased the timeout for the disk to return a successful completion
+  to the read capacity command.
+- Fix for RDF command in SPI mode. One byte of data immediately after a 
+  sector boundary may have been lost if polling of the SPI interface was 
+  suspended after the transmission of the last byte of the previous sector.
+- File corruption could occur if DVL or DSN command was used immediately
+  before writing a file.
+
+General
+- User Manual numbering has been changed. V2.05 is the current version
+  (for V03.65 firmware onwards) superceeding the previous version V2.4.
+- LEDs are turned off when entering suspend mode (SUM).
+- Add support for FT4232H with 4 channels.
+
+Known Issues
+- Monitor in UART mode does not support XON/XOFF flow control set by
+  Vinculum Firmware Customiser application. This mode of operation is not
+  supported.
+- VCDC firmware may not support all CDC class devices - please check with
+  customer support.
+- When Data Mode is requested when a device is inserted into an already
+  connected USB hub, Data Mode will be acknowledged. Note that Data Mode 
+  will not be acknowledged for a USB hub on it's own.
+       
+
+VNC1L Firmware: V03.68 8-May-2009
+Documentation: Vinculum Firmware User Manual V2.05
+
+Release Notes
+-------------
+
+Fixes:
+
+Disk Commands
+- Add RD command support for both USB Host Ports on VDFC firmware.
+- Correct RD command behaviour for fragmented files when a file size is 
+  between a cluster boundary and the following sector boundary.
+
+VMUSIC Commands
+- Added End-of-stream detection for VST command.
+
+USB Slave
+- Fix issue when using BOMS device and USB slave concurrently.
+
+General
+- User Manual numbering has been changed. V2.05 is the current version
+  (for V03.65 and V03.66 firmware) superceeding the previous version V2.4.
+- Add SPI interface support for VDFC firmware.
+- Fix data corruption issue when switching from device access in data mode 
+  to BOMS disk using disk command commands.
+- Fix LED behaviour when detecting flash disks on VDPS firmware to match 
+  VDAP.
+- Check for a device removal when leaving data mode on VDPS.
+- Initialise FTDI devices when used over a USB hub.
+- Remove USB devices when they are disconnected from a hub.
+
+Known Issues
+- Monitor in UART mode does not support XON/XOFF flow control set by
+  Vinculum Firmware Customiser application. This mode of operation is not
+  supported.
+       
+
+VNC1L Firmware: V03.66 15-Sept-2008
+Documentation: Vinculum Firmware User Manual V2.05
+
+Release Notes
+-------------
+
+Fixes:
+
+Disk Commands
+- Prevent DLD command from deleting directories marked as Read Only
+  but allow Hidden directories to be deleted.
+- Disk detection will verify file system on inserted disks and display
+  No Disk prompt if the filesystem is not supported.
+- Added support for removable ATAPI BOMS disks.
+
+VMUSIC Commands
+- Correct initial volume when playing files using the V3A, VRA or VRR
+  commands.
+- Improve random algorithm used for VRR command.
+- End-of-stream detection for low bit-rate sources improved to prevent
+  track finishing early.
+
+General
+- User Manual numbering has been changed. V2.05 is the current version
+  (for V03.65 and V03.66 firmware) superceeding the previous version V2.4.
+
+Known Issues
+- Monitor in UART mode does not support XON/XOFF flow control set by
+  Vinculum Firmware Customiser application. 
+       
+
+VNC1L Firmware: V03.65 13-Jun-2008
+Documentation: Vinculum Firmware User Manual V2.05
+
+Release Notes
+-------------
+
+Fixes:
+
+Disk Commands
+- Improve speed of operation for write and read operations.
+- Added code to support recent devices with large primary sector offsets
+  such as the Kingston Datatraveller range.
+- Detect and reject NTFS volumes.
+- Find first valid disk volume in card readers with multiple LUNs.
+
+USB Device Commands
+- DRD command returned $00 $00 $0d if device NAKed transfer. Corrected
+  response to $00 $0D.
+- SSU command requested Host to Device data twice if an error occurred
+  during the SETUP phase of the transaction. Note that if the data size 
+  requested in the SSU command exceeds 127 bytes then the command will fail 
+  before entering the data phase.
+     
+General
+- Better CDC device support (Set Control Line improvements).
+- VDPS Firmware does not always detect and report the removal of a USB Host
+  connected to the VNC1L as a slave device.
+
+Known Issues
+- VMSC1 firmware may have incorrect volume when playing tracks using V3A,
+  VRA or VRR commands. Please contact support for an updated version.
+  
+
+Release Notes Update: 9-May-2008
+Documentation: Vinculum Firmware User Manual V2.4
+
+Documentation 
+- Updated V03.63 Release Notes. "A DRD will return 'Command Failed' if the 
+  device it is reading from returns a NAK status to the read. This does not 
+  necessarily indicate an error; however, the monitor will return this status 
+  to differentiate between a NAK and the device returning a zero length 
+  data packet."
+
+
+Vinculum Firmware: V03.64 25-April-2008
+Documentation: Vinculum Firmware User Manual V2.4
+
+Release Notes
+-------------
+
+Fixes:
+
+Disk Commands
+- Fix subdirectories reporting "Errors in . and/or .. corrected." during
+  chkdsk on Windows XP.
+- Correct first use of a disk to detect a disk full condition properly.
+- Added "cd /" command to change directory to the root directory.
+
+General
+- Corrected handling of 'No Prompt' option and 'No Device Detection/Removal'
+  option in customiser application. No Disk message not displayed after a
+  device removal. A prompt of a No Disk messages is always displayed in 
+  response to a carriage return.
+- While a file was open for writing using the DSD Command to send data to
+  a device on USB Port 1 had the potential to corrupt data in the open file.
+- Added VDFC (Vinculum Disk File Copier) to standard firmware builds.
+
+Known Issues
+- Vinculum Firmware User Manual V2.4 Section 6.9 VDFC Commands:
+
+  + Errors in Table 6.21.
+
+Extended Command Set    Short Command Set     Function
+                        (Hexadecimal Codes)
+A:                      41 3A 0D              Select Source Disk
+B:                      42 3A 0D              Select Target Disk
+IMS                     26 0D                 Create Snapshot Image of 
+                                                Source Disk 
+IMF·file                25 20 file 0D         Create Snapshot Image of 
+                                                File on Source Disk
+CPS                     21 0D                 Copy Source Disk to Target 
+                                                Disk
+CPF·file                20 20 file 0D         Copy File on Source Disk to 
+                                                Target Disk
+
+  + IMS, IMF, CPS and CPF commands do not produce a dot trail but report the
+    number bytes transferred for each file after the filename is displayed.
+
+- VDFC Firmware is NOT compatible with the VF2F2 module.
+
+
+Vinculum Firmware: V03.63 29-February-2008
+Documentation: Vinculum Firmware User Manual V2.4
+
+Release Notes
+-------------
+
+Fixes:
+
+Disk Commands
+- Fix bug when overwriting existing files after performing a SEK operation
+  to a cluster boundary.
+
+VDPS Firmware
+- Vinculum Firmware Customiser can set USB Slave VID, PID and configuration
+  strings for use by VDPS firmware.
+  
+General
+- Improved detection of Low-Speed USB devices.
+- Fixed detection and configuration of certain makes and models of disk keys.
+- DSD and SSU commands always accept the number of bytes specified in the
+  command parameters even if an error has occurred.
+- DRD and SSU commands always report the number of bytes received even if
+  an error has occurred (in which case this will be zero).
+
+Documentation 
+- Updated V03.61 Release Notes. "An RDF command which reads past the end of 
+  a file will be padded with 0xFE."
+  
+
+Vinculum Firmware: V03.62 7-December-2007
+Documentation: Vinculum Firmware User Manual V2.3
+
+Release Notes
+-------------
+
+Fixes:
+
+VMUSIC Commands
+- Fix VPF command not returning to prompt when it attempts to play a 
+  non-existing file.
+
+General
+- If the Vinculum is started or reset when the DATAREQ# pin is active it
+  will attempt to connect to a device on USB Port 1 then USB Port 2. This
+  may not be the same device to which it was connected to before a reset.
+  The DATAACK# line will be deasserted if RST# is asserted. It is, however,
+  not recommended starting or resetting the Vinculum while in data mode.
+  
+
+Vinculum Firmware: V03.61 28-November-2007
+Documentation: Vinculum Firmware User Manual V2.3
+
+Release Notes
+-------------
+
+Fixes:
+
+Disk Commands
+- Removed initial scan of disk for determining free space.
+  This means that disks can be used almost immediately after being detected
+  by the firmware. The first time an FS or FSE command is called the firmware
+  will search the disk and calculate the free space available. The IDD 
+  command will not report available disk space until the FS or FSE command
+  is called. Detection and handling of a full disk condition has been 
+  improved.
+- RDF and WRF commands now fully honour the size of data passed to the 
+  command before reporting any error messages. This means, for instance, 
+  that a WRF command when there is no file opened for writing will expect 
+  the number of bytes passed as a parameter before the File Invalid message 
+  is reported. Data passed to the command will be ignored. Similarly, an RDF 
+  command which reads past the end of a file will be padded with 0xFE.
+  You MUST still check that a disk is connected before issuing any commands
+  which will access the disk or the command will return the "No Disk" message.
+- While a file is open for write prevent use of disk commands which may 
+  affect the firmware's ability to continue to access the open file. These 
+  commands are RD, CD, DLF and REN.
+
+USB Commands  
+- Devices without IN or OUT endpoints are listed in the device list. This is 
+  to allow SETUP commands to be sent to these type of devices using the SSU 
+  command. They cannot be accessed with DSD or DRD commands nor should they 
+  be used in data mode.
+- SSU command error fixed to allow a command with a data size of zero bytes 
+  to be sent to a device.
+
+VMUSIC Commands
+- Add Pause command (VP) to pause playback. If other VMusic playback commands 
+  are called during pause then the selected track starts playing regardless 
+  of whether the device was in the paused state.
+- Add Skip Directory command (VSD) to V3A and VRA commands. This will exit 
+  the directory where the currently playing file is stored and start playing 
+  from the next directory in line. Note that sub-directories and MP3 files 
+  in the current directory are skipped.
+- VF and VB commands added to fast forward or rewind approximately 5 seconds.
+- Added VRR command added to randomly select files to play. This does not 
+  shuffle files but simply plays tracks at random.
+- Elapsed time during playback is preceded by "T " (0x54, 0x20) to prevent 
+  applications wrongly detecting SCS playback stop message.
+- After "Playing" message 5 lines of information from the file's ID3 tag is 
+  displayed. These are, in order, Track Number, Title, Artist, Album and 
+  Composer. A carriage return signifies the end of each tag information. 
+  Tags not containing ASCII text are not displayed. 
+- Block access to disk commands during playback which may affect the 
+  firmware's ability to continue to access the playing file. These commands 
+  are DIR, DIRT, MKD, DLD, RD, CD, DLF and REN.
+
+General
+- Modify codepage to support ASCII character codes in the range 128 to 255.
+  Allows use of two-byte character sets.
+- Fixed bug in SPI interface when transferring large data blocks from disk
+  to the Monitor. This only occurred when more than 512 bytes were requested
+  and the period between SPI polls exceeded 2ms.
+
+Known Issues:
+
+- If the Vinculum is started or reset when the DATAREQ# pin is active there
+  may be some spurious data sent to the Monitor. This typically happens only
+  when device configured in QD 0 is on USB Port 1. 
+  It is not recommended to start the Vinculum firmware in data mode.
+  
+
+Vinculum Firmware: V03.60 31-October-2007
+Documentation: Vinculum Firmware User Manual V2.2
+
+Release Notes
+-------------
+
+Fixes:
+
+- All firmwares. Corrected bug when SEK command called immediately after
+  OPW command. 
+- VMSC1 firmware. Fix error when reading from or writing to files after
+  playing MP3 files.
+- VMSC1 firmware. Add support for VS1011e decoder.
+- VDAP firmware. Allow connection to all supported CDC Class devices by 
+  using the SC command to select the CDC Control Class. The CDC data
+  class is selected automatically when data mode is selected. Allows
+  modem and serial communications ports to be selected depending on
+  application.
+
+
+Vinculum Firmware: V03.58 30-September-2007
+Documentation: Vinculum Firmware User Manual V2.2
+
+Release Notes
+-------------
+
+Fixes:
+
+- VMSC1 firmware. V3A command exits gracefully when disk key is removed
+  unexpectedly during playback.
+- All Firmwares corrected SSU command to return size of read data in LSB first
+  format. Removed 0x0d (carriage return) at end of received data.
+- All Firmwares fixed SSU command when performing a device to host operation
+  to properly display data received from device.
+- All Firmwares fixed issue with RDF command not handling cluster boundary
+  properly on small (< sector size) reads.
+    
+New Features:
+
+- VMSC1 firmware. Added VRF to repeatedly play a single file and VRA to 
+  repeat all files. SCS codes are 0x89 and 0x8A, command formats are the
+  same as the VPF and V3A commands.
+  
+Known Issues:
+
+- VDIF firmware only available by request through Technical Support.
+- VCDC firmware only available by request through Technical Support.
+- All Firmwares reflasher process. There may be issues using reflasher files
+  if a reflasher file for V03.55, V03.54 and V03.51 has been used. Please 
+  contact technical support if the reflasher procedure fails. Customers using
+  supplied ROM files in the VPROG programming application are unaffected.
+
+
+Vinculum Firmware: V03.57 31-August-2007
+Documentation: Vinculum Firmware User Manual V2.2
+
+Release Notes
+-------------
+
+Fixes:
+
+- All Firmwares corrected DRD command to check maximum size of end point
+  is capable of receiving number of bytes sent by command.
+- All Firmwares fixed SC command calls in SCS mode.
+  
+New Features:
+
+- None.
+  
+Known Issues:
+
+- VDIF firmware only available by request through Technical Support.
+- VCDC firmware only available by request through Technical Support.
+- All Firmwares reflasher process. There may be issues using reflasher files
+  if a reflasher file for V03.55, V03.54 and V03.51 has been used. Please 
+  contact technical support if the reflasher procedure fails. Customers using
+  supplied ROM files in the VPROG programming application are unaffected.
+
+
+Vinculum Firmware: V03.56 1-August-2007
+Documentation: Vinculum Firmware User Manual V2.1
+
+Release Notes
+-------------
+
+Fixes:
+
+- All Firmwares corrected DRD command issue when reading devices in USB Port
+  2 and no device in USB Port 1. Occasionally the data read from the device
+  on USB Port 2 would incorrecly be returned as 0xBB.
+- All Firmwares able to detect and ignore unsupported BOMS (disk) devices,
+  including incorrect sector sizes, unformatted drives or unsupported file
+  systems.
+- All Firmwares have improved detection and handling of full disks.
+- All Firmwares now list correct number of files in root directory on FAT12
+  and FAT16 formatted disks.
+- All Firmwares fix occasional issue with deletion of files on FAT12 format 
+  disks.
+- VMSC1 Firmware for VMUSIC1 and VMUSIC2 modules now supports all MP3
+  bitrates up to 320 kbit/sec.
+- VMSC1 Firmware reduced pop sound between tracks.
+- VDPS Firmware improved to detect and configure composite or hub devices
+  on USB Port 2.
+  
+New Features:
+
+- Playback status added to VMSC1 firmware. "Playing <file>" message displayed 
+  on Monitor at start of each track ("P" in SCS Mode). "Stopped" displayed
+  when all tracks finished playing ("S" in SCS Mode). Elapsed time of 
+  currently playing track displayed in format specified by IPA or IPH mode
+  of the Monitor.
+- The monitor can connect to CDC devices in VDAP firmware by using the 
+  DATAREQ/DATAACK pins. This is at the expense of utilising the DSR/DTR pins 
+  from the CDC device but allows connection when required. VCDC firmware 
+  connects automatically to CDC devices upon insertion and all pins are usable
+  from the CDC device. 
+- "Found It" message no longer displayed when a firmware upgrade file 
+  (FTRFB.FTD) found on disk.
+- Reduced latency in writing files sequentially onto large disk volumes.
+  
+Known Issues:
+
+- VDIF firmware only available by request through Technical Support.
+- All Firmwares reflasher process. There may be issues using reflasher files
+  if a reflasher file for V03.55, V03.54 and V03.51 has been used. Please 
+  contact technical support if the reflasher procedure fails. Customers using
+  supplied ROM files in the VPROG programming application are unaffected.
+
+
+Vinculum Firmware: V03.55 25-June-2007
+Documentation: Vinculum Firmware User Manual V2.0
+
+Release Notes
+-------------
+
+Fixes:
+
+- Correct DIR listing of subdirectory names with name extensions. '.' is 
+  properly inserted in subdirectory name between name and extension.
+- Improved unexpected disk removal detection.
+- Fixed return from SUM (Suspend Monitor) to recognise removal or insertion
+  of disk while suspended.
+- Corrected FAT file corruption reported when appending to files under
+  certain circumstances.
+- Check for 128 byte maximum transfer size in DSD command.
+- Prevent overrun of maximum number of files in root directory of FAT16 and
+  FAT12 filesystems.
+- DRD and DSD commands supported in Short File System.
+- VDIF firmware: FTDI USB Slave initialisation at same default settings as
+  UART Monitor.
+  
+New Features:
+
+- Added SSU command to send raw setup packets to USB devices and send or
+  receive follow-on data packets.
+- New FWU command to upgrade firmware from specified FTD file on disk.
+- Improved checks for invalid characters in filenames and utilise codepage
+  to generate uppercase filenames from lowercase input.
+
+Known Issues:
+
+- VMSC1 firmware: Maximum bitrate for MP3 files with VMusic is 224kbits/sec.
+- Using Apple iPod and other USB storage devices which have a sector size of
+  greater than 512 bytes is not suppported at the moment.
+- A small proportion of HID devices behind USB hubs may identify incorrectly.
+- With HID devices in data mode on the SPI interface the last byte in each 
+  transaction from the device to the Monitor is not received. Works correctly
+  in command mode or with the UART interface.
+
+
+
+Vinculum Firmware: V03.54 25-May-2007
+Documentation: Vinculum VNC1L Firmware VDAP V1.07
+
+Release Notes
+-------------
+
+Fixes:
+
+- Fix DRD command when zero bytes pending from non-FTDI USB slave devices.
+- Add Short Command version of 'SCS' command to ECS command list. Allows 
+  quicker switching to SCS at startup.
+- Fix the DSD command when using SPI mode.
+- Corrected WRF command to handle appending clusters to the end of a file 
+  after a SEK operation.
+- Corrected code to free unused clusters when truncating files with the OPW, 
+  SEK, and CLF commands.
+- Resolved issue with SEK command when used with files opened for write with 
+  the OPW command.
+- Added error message "File Open" or "FO" when a file is open for writing and 
+  a command with the potential to cause data corruption is called.
+e.g. OPR, OPW, RD, CD, REN, DLF. 
+- Improve VDPS operation to detect slave connection at powerup.
+
+
+
+Vinculum Firmware: V03.50 25-Apr-2007
+Documentation: Vinculum VNC1L Firmware VDAP V1.07
+
+
+Release Notes
+-------------
+
+Fixes:
+
+- Improved handling of Flash disk removal and reliability of operating Flash 
+  disks under suspend mode (after SUD command issued).
+- Fix file writing bug on Flash disks with large cluster sizes. Under certain 
+  conditions writes which spanned a cluster boundary would fail.
+- Add DSN (Disk Serial Number) command. DSN will report the 32 bit serial 
+  number of a Flash disk. 
+- Add DVL (Disk Volume Label) command. DVL will display the text of the 
+  volume label of a Flash disk as stored in the boot sector. Not all 
+  operating systems utilise this method.
+- Allow the OPW command to specify a date and time which will be used for the 
+  file modify, access and/or create time and date.
+- Allow the OPR command to specify a date which will be used for the file 
+  access date.
+- Allow the MKD command to specify a date and time which will be used for the 
+  directory modify, access and/or create time and date.
+- Add the DIRT command to display the created, modified and last accessed date 
+  and time of a file or subdirectory.
+- Prevent a read-only file from being opened by the OPW command. Add a Read 
+  Only error response.
+- Prevent the OPW command from opening directories and files with FAT extended 
+  attributes. Add File Invalid error response.
+

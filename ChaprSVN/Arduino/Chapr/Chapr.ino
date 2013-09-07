@@ -71,6 +71,8 @@ byte joy2data[] = { 0x80, 0x80, 0x80, 0x80, 0x08, 0x00, 0x04,0x00 };
 
 bool    inConfigMode;
 
+long     powerTimeout;
+
 //
 // setup() - this routine is run ONCE by the Arduino upon start-up.
 //
@@ -89,10 +91,12 @@ void setup()
        myEEPROM.setFromConsole("ChapRX", (byte) 10, (byte) 1);
      }
      
+     powerTimeout = 60000 * (long) myEEPROM.getTimeout(); //sets the timeout from EEPROM
+     
      // check the button to see if it was pressed upon boot, if so, enter config mode
 
      if (digitalRead(BUTTON) == HIGH) {		// the button has a pull-down, so normally LOW
-          bt.configMode(myName.get());
+          bt.configMode(myEEPROM.getName());
           inConfigMode = true;
 	  powerLED.slow();
      } else {
@@ -139,7 +143,7 @@ void enterZombieMode()
 
 void software_Reset() // Restarts program from beginning but does not reset the peripherals and registers
 {
-asm volatile ("  jmp 0");  
+    asm volatile ("  jmp 0");  
 }  
 
 long lastAnyAction = 0;
@@ -156,6 +160,7 @@ void loop()
      bool		js1 = false;
      bool		js2 = false;
      bool               wfs = false;
+     
 
      //monitor for return from IDE to indicate a wish to change name
    
@@ -163,6 +168,8 @@ void loop()
     
     if (Serial.available() > 0){
       myEEPROM.setFromConsole(myEEPROM.getName(), myEEPROM.getTimeout(), myEEPROM.getPersonality());
+      current_personality = myEEPROM.getPersonality();	// in case the personality changed
+      powerTimeout = 60000 * (long) myEEPROM.getTimeout();
     }
     
      // when we first boot, the power button is pressed in, so ensure that it changes before
@@ -173,6 +180,7 @@ void loop()
 	       power_button_released = true;
 	  } else {
 	       digitalWrite(POWER_ON_HOLD,LOW);
+               personalities[current_personality-1]->Kill();
 	  }
      }
 
@@ -212,7 +220,6 @@ void loop()
 
      if((loopCount % DEVICE_UPDATE_LOOP_COUNT) == 0) {
 	  vdip.deviceUpdate();
-	  current_personality = myEEPROM.getPersonality();	// in case the personality changed
      }
 
      // check to see if we're connected to the brick - turn on the light if so
@@ -271,7 +278,7 @@ void loop()
          isLowPower = true;
          powerLED.slow();
       }
-     if (millis() - lastAnyAction >= ZMODETIMEOUT){
+     if (powerTimeout != 0 && millis() - lastAnyAction >= powerTimeout){
 	  digitalWrite(POWER_ON_HOLD,LOW);
 	  enterZombieMode();
      }

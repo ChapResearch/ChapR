@@ -5,9 +5,34 @@
 #include "VDIP.h"
 #include "nxt.h"
 #include "BT.h"
+#include "sound.h"
+#include "debug.h"
+#include "config.h"
+#include "ChapREEPROM.h"
+
+ChapREEPROM      myEEPROM2;
+
+sound  	         beeper2(TONEPIN);
 
 //#define HAVE_JOY1	(_p1 && _p1_dev != -1 && !(_p1_devtype & CLASS_BOMS) )
 //#define HAVE_JOY2	(_p2 && _p2_dev != -1 && !(_p2_devtype & CLASS_BOMS) )
+
+void DEBUG_PORT_CONFIG(portConfig *config)
+{
+     Serial.print("port: ");
+     Serial.print(config->port);
+     Serial.print(" - logical dev: ");
+     Serial.print(config->usbDev);
+     Serial.print(" - type: ");
+     Serial.print(config->type);
+     Serial.println("");
+}
+
+/*void VDIP::debug_port_config()
+{
+     DEBUG_PORT_CONFIG(&ports[0]);
+     DEBUG_PORT_CONFIG(&ports[1]);
+}*/
 
 //
 // deviceUpdate() - update the USB devices if necessary.
@@ -56,7 +81,9 @@ void VDIP::deviceUpdate()
 		    // check incoming device and call process routines if needed
 
 		    if(portConfigBuffer.type == DEVICE_DISK) {
-			 processDisk(&portConfigBuffer); //WHAT IS GOING ON?!!!!!!!!!!!!
+                         //debugPortConfig(&portConfigBuffer);
+                         DEBUG_PORT_CONFIG(&portConfigBuffer);
+			 processDisk(&portConfigBuffer);
 		    }
 
 		    if(portConfigBuffer.type == DEVICE_NXT) {
@@ -126,23 +153,6 @@ void DEBUG_USB_QD(int dev, unsigned char *buffer)
      DEBUG_HEX_BYTE(buffer[19]);
      DEBUG_HEX_BYTE(buffer[18]); Serial.print(" ");
      Serial.println();
-}
-
-void DEBUG_PORT_CONFIG(portConfig *config)
-{
-     Serial.print("port: ");
-     Serial.print(config->port);
-     Serial.print(" - logical dev: ");
-     Serial.print(config->usbDev);
-     Serial.print(" - type: ");
-     Serial.print(config->type);
-     Serial.println("");
-}
-
-void VDIP::debug_port_config()
-{
-     DEBUG_PORT_CONFIG(&ports[0]);
-     DEBUG_PORT_CONFIG(&ports[1]);
 }
 
 #endif
@@ -262,8 +272,49 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
 	       cbuf[i++] = ((arg == 1)?'\x2b':'\x2c');
 	  }
 	  break;
+
+    case VDIP_OPR:
+         rbytes = 0;
+          {
+               cbuf[i++] = '\x0E';
+	       cbuf[i++] = ' ';
+               for (int x = 0; x < 15; x++){
+                 if (buf[x] == '\0'){
+                   break;
+                 }
+                 cbuf[i] = buf[x];
+                 i++;
+               }       
+          }
+          break;
+          
+    case VDIP_RDF:
+        rbytes = arg;
+          {
+              cbuf[i++] = '\x0B';
+              cbuf[i++] = ' ';
+              cbuf[i++] = '\x0';
+              cbuf[i++] = '\x0';
+              cbuf[i++] = '\x0';
+              cbuf[i++] = arg;
+          }
+          break;
+          
+    case VDIP_CLF:
+        rbytes = 0;
+          {
+            cbuf[i++] = '\x0A';
+            cbuf[i++] = ' ';
+            for (int x = 0; x < 15; x++){
+                 if (buf[x] == '\0'){
+                   break;
+                 }
+                 cbuf[i] = buf[x];
+                 i++;
+               }
+          }   
      }
-	       
+          	       
      cbuf[i++] = '\r';
 
      (void)sendBytes(i,cbuf,0);		// send the command - blocking-style
@@ -315,23 +366,25 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
 }
 
 #define DEFAULTTIMEOUT 100
+#define BIGENOUGH 20 //the maximum amount of data we read from flash files
 
 //readFile() - helper method used to read a file on the disk and returns the entire contents of the file
-void VDIP::readFile(char *filename)
+bool VDIP::readFile(char *filename, char *buf, byte numToRead)
 {
-  byte length = strlen(filename);
-  if (sendBytes(5, "DIR, ", DEFAULTTIMEOUT) && sendBytes(length, filename, DEFAULTTIMEOUT) && sendBytes(1, "\r", DEFAULTTIMEOUT)){
-    char fileSizes[1];
-    readBytes(1, fileSizes, DEFAULTTIMEOUT); //no idea how to use, or how many bytes I'll get back...
-    int fileSize = (int) fileSizes[0]; //um????
-    
-    if (sendBytes(4, "RD, ", DEFAULTTIMEOUT) && sendBytes(length, filename, DEFAULTTIMEOUT)){ //unsure of TIMEOUT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      char contents[fileSize];
-      readBytes(fileSize, contents, DEFAULTTIMEOUT);
-      Serial.println(contents);
+  cmd(VDIP_OPR, filename, DEFAULTTIMEOUT, 0); //last 0 is only necessary to fill argument requirements of the function
+  cmd(VDIP_RDF, buf, DEFAULTTIMEOUT, numToRead); //null to fill argument requirements
+  cmd(VDIP_CLF, filename, DEFAULTTIMEOUT, 0);
+  buf[numToRead - 1] = '\0';
+  for (int i = 0; i < BIGENOUGH; i++){
+    if (buf[i] == '\xFE'){
+      buf[i] = '\0';
     }
   }
+  return buf[0] != '\0';
 }
+
+//insert defines here for maxes and mins!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
 //
 // processDisk() - called when a disk is discovered and properly located
@@ -340,18 +393,34 @@ void VDIP::readFile(char *filename)
 //
 void VDIP::processDisk(portConfig *portConfigBuffer)
 {
+     char buf[BIGENOUGH];
      Serial.println("disk inserted apparently");
      //check that it's in port two (beep annoyingly otherwise)
-     if(ports[1].type == DEVICE_DISK) {
-     //yay			 
+     if(portConfigBuffer->port == 1) {
+       Serial.println("yay for port 2");
+       //read through VDIP stuff looking for a text file with the name, personality etc.
+       if(readFile("name.txt", buf, BIGENOUGH)){
+         if (buf[EEPROM_NAMELENGTH - 1] == '\0'){
+           myEEPROM2.setName(buf);
+         }
+       }
+       if(readFile("person.txt", buf, BIGENOUGH)){
+         byte newNum = (byte) atoi(buf);
+         if (newNum > 0 && newNum <= EEPROM_LASTPERSON){
+           myEEPROM2.setPersonality(newNum);
+         }
+       }
+       if(readFile("timeout.txt", buf, BIGENOUGH)){ //maximum length of a filename is somewhere between 7 and 11 characters
+         byte newNum = (byte) atoi(buf);
+         if (newNum >= 0 && newNum <= EEPROM_MAXTIMEOUT){
+         myEEPROM2.setTimeout(newNum);
+         }
+       }
+       beeper2.confirm();			 
      } else {
-     //eww
-     }
-     //read through VDIP stuff looking for a text file with the name, personality etc.
-     readFile("name.txt");
-     readFile("personality.txt");
-     readFile("timeout.txt");
-     
+       Serial.println("ew for port 1");
+       beeper2.squawk();
+     } 
 }
 
 void VDIP::ejectDisk()
