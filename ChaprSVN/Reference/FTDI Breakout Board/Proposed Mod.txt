@@ -1,0 +1,22 @@
+Proposed Mod to convert the FTDI basic break-out
+--------------------------------------------------
+WHEREAS
+- we have (and stock) the FTDI basic breakout board from Sparkfun for
+  use with the ChapR
+- we have "bricked" a VDIP (and may end-up doing it again sometime)
+- the board is relatively cheap
+
+PROPOSAL
+- we convert one of the breakout boards to something that will work with
+  the FTDI VDIP reflashing software VPROG
+
+PROCEDURE
+- it "looks" the easiest thing to do would be to cut the (very small) pin
+  # 2 right on the chip (disconnecting DTR)
+- then solder bridge pin #3 to pin #2, effectively wiring RTS to the same
+  pin that used to be DTR
+- then the 6 pin connector would still be cool, except it would have RTS
+  where DTR used to be
+- it would need to be well-marked!
+- IT WORKED!
+- see the VDIP firmware directory for more information
