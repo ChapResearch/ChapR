@@ -21,6 +21,7 @@ TODO AS OF AUG 24, 2013
  	X naming
  	X personality
  	X timeout
+**has trouble reading a flash drive on a low power battery
 	X5. Build naming into main ChapR.ino
 	X6. Personality (NXT-G and NXT-RobotC)
 7. Revist power saving modes

@@ -14,7 +14,7 @@ void sound::confirm()
   tone(_pin,880,50);
 }
 
-void sound::squawk()
+void sound::icky()
 {
   noTone(_pin);
      for (int i = 880; i > 220; i -= 10) {
@@ -40,7 +40,7 @@ void sound::squeep()
      noTone(_pin);
 }
 
-void sound::icky()
+void sound::yawn()
 {
      noTone(_pin);
 
