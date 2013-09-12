@@ -119,6 +119,7 @@ private:
      void updateDevices();
      void mapDevice(int, char *, portConfig *);
      void debugPortConfig(portConfig*);
+     void bootBrick();
 
 };
 

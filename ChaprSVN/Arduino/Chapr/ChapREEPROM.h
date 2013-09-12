@@ -16,11 +16,13 @@
 #define EEPROM_TIMEOUT         16
 #define EEPROM_PERSONALITY     17
 #define EEPROM_MAGIC           18
+#define EEPROM_USBPHASE        24
+
 #define EEPROM_MAGICLENGTH      5 //without null terminator (23 - 18)
 #define EEPROM_MAXSTRINGLENGTH (max(EEPROM_NAMELENGTH, EEPROM_MAGICLENGTH) + 1)
 #define EEPROM_MAXTIMEOUT      120 //says timeout cannot be longer than two hours
 #define EEPROM_LASTPERSON        2 //last personality that has been coded
-#define EEPROM_MAGICSTRING   "ChapR"
+#define EEPROM_MAGICSTRING   "Chap1"
 
 class ChapREEPROM
 {
@@ -35,6 +37,8 @@ public:
      byte getPersonality();
      bool isInitialized();
      void setFromConsole(char *,byte, byte);
+     void setUSBPhase(byte phase);
+     byte getUSBPhase();
      
 private:
      int  getStringFromMonitor(char*, int);

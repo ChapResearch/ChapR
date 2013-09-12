@@ -486,24 +486,35 @@ void VDIP::processNXT(portConfig *portConfigBuffer)
 	  char *btAddress;
 	  long	freeMemory;
           extern BT bt;
-          
-	  if(nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory)){
+          if (myEEPROM2.getUSBPhase() == (byte) 0){
+	    if(nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory)){
             //Serial.println(name);
             //Serial.println(freeMemory);
             //Serial.print("\"");
             //Serial.print(btAddress);
             //Serial.println("\"");
-            bt.setRemoteAddress(btAddress);
-            delay(100);
-          }
-     }
-
+              bt.setRemoteAddress(btAddress);
+              delay(100);
+              Serial.print("USB Phase: ");
+              Serial.println(myEEPROM2.getUSBPhase());
+              Serial.println("set to Phase1");
+              myEEPROM2.setUSBPhase(1);
+              extern void software_Reset();
+              Serial.print("USB Phase: ");
+              Serial.println(myEEPROM2.getUSBPhase());
+              delay(1000);
+              software_Reset();
+            }
+        }    
+    }
 }
+
 void VDIP::ejectNXT()
 {  
-     extern void software_Reset();
+     //extern void software_Reset(); //why are both of these here?
      Serial.println("eject NXT");
-     software_Reset();
+     myEEPROM2.setUSBPhase(0);
+     //software_Reset();
 }
 
 //
