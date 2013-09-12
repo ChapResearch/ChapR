@@ -1,0 +1,15 @@
+ChapR-5 (1st Button Board)
+**needs a lid
+v0.3 board
+v1.0 software
+
+ChapR-6 (VHS Board)
+**needs to be signed
+v0.3 board
+v1.0 software
+
+ChapR-7 (Ben Board)
+**has lid with green marks
+**WFS button needs to be replaced
+v0.3 board
+v1.0 software
