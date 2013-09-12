@@ -10,6 +10,8 @@
 #include "config.h"
 #include "ChapREEPROM.h"
 
+extern void software_Reset();
+
 ChapREEPROM      myEEPROM2;
 
 sound  	         beeper2(TONEPIN);
@@ -394,10 +396,8 @@ bool VDIP::readFile(char *filename, char *buf, byte numToRead)
 void VDIP::processDisk(portConfig *portConfigBuffer)
 {
      char buf[BIGENOUGH];
-     Serial.println("disk inserted apparently");
      //check that it's in port two (beep annoyingly otherwise)
      if(portConfigBuffer->port == 1) {
-       Serial.println("yay for port 2");
        //read through VDIP stuff looking for a text file with the name, personality etc.
        if(readFile("name.txt", buf, BIGENOUGH)){
          if (buf[EEPROM_NAMELENGTH - 1] == '\0'){
@@ -418,103 +418,35 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
        }
        beeper2.confirm();			 
      } else {
-       Serial.println("ew for port 1");
        beeper2.icky();
      } 
 }
 
 void VDIP::ejectDisk()
 {
-     Serial.println("ejected disk");
+     //Serial.println("ejected disk");
 }
 
 void VDIP::processNXT(portConfig *portConfigBuffer)
 {
-     Serial.println("NXT connected apparently");
-
-     byte	output[50];
-     int	size;
-     int	i = 0;
-
-     switch(1) {
-     case 1:
-	  output[i++] = 0x80;	// direct command with no response
-	  output[i++] = 0x02;	// the direct command for play sound file
-	  output[i++] = 0x00;	// play sound only once
-	  output[i++] = 'w';	// name of the sound file - '\0' terminated
-	  output[i++] = 'o';	// 2
-	  output[i++] = 'o';	// 3
-	  output[i++] = 'p';	// 4
-	  output[i++] = 's';	// 5
-	  output[i++] = '.';	// 6
-	  output[i++] = 'r';	// 7
-	  output[i++] = 's';	// 8
-	  output[i++] = 'o';	// 9
-	  output[i++] = '\0';	// 10
-	  output[i++] = '\0';	// 11
-	  output[i++] = '\0';	// 12
-	  output[i++] = '\0';	// 13
-	  output[i++] = '\0';	// 14
-	  output[i++] = '\0';	// 15
-	  output[i++] = '\0';	// 16
-	  output[i++] = '\0';	// 17
-	  output[i++] = '\0';	// 18
-	  output[i++] = '\0';	// 19
-	  output[i++] = '\0';	// 20
-	  break;
-
-     case 2:
-	  output[i++] = 0x80;	// direct command with no response
-	  output[i++] = 0x03;	// the direct command for play tone
-	  output[i++] = 0xb8;	// 440 Hz (LSB)
-	  output[i++] = 0x02;	//     (MSB)
-	  output[i++] = 0x88;	// 5000 msecs (0x1388) (LSB)
-	  output[i++] = 0x13;	//     (MSB)
-	  break;
-
-     case 3:
-	  output[i++] = 0x80;	// direct command with no response
-	  output[i++] = 0x01;	// STOP!
-	  break;
-     }
-
-     //cmd(VDIP_SC,NULL,100,portConfigBuffer->usbDev);
-     //cmd(VDIP_DSD,(char *)output,100,i);
-
-     {
 	  char *name;
 	  char *btAddress;
 	  long	freeMemory;
           extern BT bt;
           if (myEEPROM2.getUSBPhase() == (byte) 0){
 	    if(nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory)){
-            //Serial.println(name);
-            //Serial.println(freeMemory);
-            //Serial.print("\"");
-            //Serial.print(btAddress);
-            //Serial.println("\"");
               bt.setRemoteAddress(btAddress);
               delay(100);
-              Serial.print("USB Phase: ");
-              Serial.println(myEEPROM2.getUSBPhase());
-              Serial.println("set to Phase1");
               myEEPROM2.setUSBPhase(1);
-              extern void software_Reset();
-              Serial.print("USB Phase: ");
-              Serial.println(myEEPROM2.getUSBPhase());
               delay(1000);
               software_Reset();
             }
-        }    
-    }
+          }    
 }
 
 void VDIP::ejectNXT()
 {  
-     //extern void software_Reset(); //why are both of these here?
-     Serial.println("eject NXT");
      myEEPROM2.setUSBPhase(0);
-     //software_Reset();
 }
 
 //
