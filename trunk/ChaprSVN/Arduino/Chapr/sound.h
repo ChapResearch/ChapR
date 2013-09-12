@@ -8,6 +8,7 @@ public:
      sound(int soundPin);
 
      void confirm();
+     void squawk();
      void squeep();
      void icky();
 

@@ -73,3 +73,5 @@
 //#define LOWPOWERTIMEOUT 10000
 #define ZMODETIMEOUT 600000
 //#define ZMODETIMEOUT 20000
+
+#define POWEROFFHOLDDOWN 125 //this is measured in the number of main loops to match the time needed for boot

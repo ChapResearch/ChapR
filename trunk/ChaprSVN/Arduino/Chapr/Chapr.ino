@@ -73,6 +73,8 @@ bool    inConfigMode;
 
 long     powerTimeout;
 
+int      timeButtonPressed;
+
 //
 // setup() - this routine is run ONCE by the Arduino upon start-up.
 //
@@ -82,6 +84,7 @@ void setup()
      digitalWrite(POWER_ON_HOLD,HIGH);
      
      powerLED.fast();			// flash the power LED during boot
+     timeButtonPressed = 0;
      
      Serial.begin(LOCAL_SERIAL_BAUD);	// the serial monitor operates at this BAUD
      Serial.println("ChapR v0.3 up!");
@@ -90,6 +93,8 @@ void setup()
        Serial.println("Please intialize your ChapR.");
        myEEPROM.setFromConsole("ChapRX", (byte) 10, (byte) 1);
      }
+     
+     //myEEPROM.setUSBPhase(0); //won't be needed once all ChapRs have updated code
      
      powerTimeout = 60000 * (long) myEEPROM.getTimeout(); //sets the timeout from EEPROM
      
@@ -176,12 +181,22 @@ void loop()
      // monitoring it for shutdown.
 
      if(powerButton.hasChanged()) {
+       timeButtonPressed = 0;
 	  if(!power_button_released) {
 	       power_button_released = true;
 	  } else {
-	       digitalWrite(POWER_ON_HOLD,LOW);
-               personalities[current_personality-1]->Kill();
-	  }
+               personalities[current_personality-1]->Kill(&bt); 
+          }
+     }
+     
+     if (power_button_released && powerButton.isPressed()){
+       timeButtonPressed++;
+       if (timeButtonPressed > POWEROFFHOLDDOWN){
+           powerLED.off();
+           indicateLED.off();
+           digitalWrite(POWER_ON_HOLD,LOW);
+           enterZombieMode();
+       }
      }
 
      // check each joystick that is connected, and grab a packet of information from it

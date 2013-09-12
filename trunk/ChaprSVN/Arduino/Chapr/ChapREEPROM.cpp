@@ -17,6 +17,16 @@ void ChapREEPROM::markInitialized()
   setString(EEPROM_MAGIC,EEPROM_MAGICLENGTH,EEPROM_MAGICSTRING);
 }
 
+void ChapREEPROM::setUSBPhase(byte phase)
+{
+  EEPROM.write(EEPROM_USBPHASE, phase);
+}
+
+byte ChapREEPROM::getUSBPhase()
+{
+  return EEPROM.read(EEPROM_USBPHASE);
+}
+
 void ChapREEPROM::flushSerial()
 {
   while (Serial.available() > 0){
@@ -67,7 +77,7 @@ void ChapREEPROM::setFromConsole(char *name, byte timeout, byte personality)
     Serial.println(getName());
   }
   
-  Serial.print("Enter ChapR timeout (0 (no timeout) - 255 min).  Hit return for default: ");
+  Serial.print("Enter ChapR timeout (0 (no timeout) - 120 min).  Hit return for default: ");
   Serial.println(timeout);
   getStringFromMonitor(buffer,sizeof(buffer));
   if (buffer[0] == '\0'){
@@ -90,6 +100,7 @@ void ChapREEPROM::setFromConsole(char *name, byte timeout, byte personality)
   }
   Serial.println("Preferences saved!");
   markInitialized();
+  setUSBPhase(0); //says the NXT has not been connected by USB yet
 }
 
 void ChapREEPROM::setString(int start, int length, char *thing)

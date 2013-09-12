@@ -6,12 +6,14 @@ TODO AS OF AUG 24, 2013
  	X get BT ID and pair
  - display image to show ChapR is connected (something Westlakey)
  - make sure BT is on (will be implemented with personalities)
-2. Fix master/slave issue
+	X2. Fix master/slave issue
  	X BT pairing
- - USB pairing
+ 	X USB pairing
 	the brick works best when it is rebooted after a USB pairing session (it would be nice to do this with software)
 	reboot brick, then reset ChapR (use a 2 in EEPROM, then decrement to indicate phase change)
-3. Kill switch
+**works with NXT - A, which is now in the NXT mode, but not with Rachel NXT (which went through a hardware reset)
+**doesn't get a chance to say it's connected, so it connects after the reset only (no way of knowing if master/slave flip occurred at the moment)
+	X3. Kill switch
 	turn on (hold till lights go on)
 	button pressed (kills program)
 	turn off (hold till lights go off); see button pressed, wait x seconds, turn off both lights, lower powerhold line
@@ -25,7 +27,7 @@ TODO AS OF AUG 24, 2013
 8. BT ID
 9. ChapR Library
 10. LabView Compatibility
-11. Matrix Compatibility
+	X11. Matrix Compatibility
 12. Board bring-up program
 	checks if VDIP program has been flashed
 	tests communication to BT and VDIP
