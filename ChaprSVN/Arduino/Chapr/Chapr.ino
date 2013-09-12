@@ -149,6 +149,7 @@ void loop()
      bool		js1 = false;
      bool		js2 = false;
      bool               wfs = false;
+     bool               pb = false;
     
     if (Serial.available() > 0){
       myEEPROM.setFromConsole(myEEPROM.getName(), myEEPROM.getTimeout(), myEEPROM.getPersonality());
@@ -162,7 +163,8 @@ void loop()
 	  if(!power_button_released) {
 	       power_button_released = true;
 	  } else {
-               personalities[current_personality-1]->Kill(&bt); 
+               personalities[current_personality-1]->Kill(&bt);
+               pb = true; 
           }
      }
      
@@ -187,6 +189,7 @@ void loop()
 	  js1 = true;
 	  personalities[current_personality-1]->ChangeInput(&bt,1,&g1_prev,&g1);
 	  g1_prev = g1;
+
      }
 
      if (theButton.hasChanged()){
@@ -212,7 +215,7 @@ void loop()
 	  }
      } else {
 	  if (wasConnected) {
-	       wasConnected = false;
+	      wasConnected = false;
 	  }
 	  indicateLED.slow();
      }
@@ -220,11 +223,12 @@ void loop()
      personalities[current_personality-1]->Loop(&bt,theButton.isPressed(),&g1,&g2);
      
      //checks to see if we should enter a power saving mode (if 5 min has passed)
-     if (js1 || js2 || wfs){ //if something has happened, make note of the time since boot
+     if (js1 || js2 || wfs || pb){ //if something has happened, make note of the time since boot
         lastAnyAction = millis();
      }
      
      if (powerTimeout != 0 && millis() - lastAnyAction >= powerTimeout){
+          beeper.yawn();
 	  digitalWrite(POWER_ON_HOLD,LOW);
      }
      

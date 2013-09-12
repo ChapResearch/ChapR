@@ -419,7 +419,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
        beeper2.confirm();			 
      } else {
        Serial.println("ew for port 1");
-       beeper2.squawk();
+       beeper2.icky();
      } 
 }
 
