@@ -45,7 +45,6 @@ BT	bt(BT_RX, BT_TX, BT_RESET, BT_MODE, BT_9600BAUD, BT_CONNECTED);
 button	theButton(BUTTON);
 button	powerButton(POWER_BUTTON,true);
 
-ChapRName myName; //myName() doesn't work because it thinks it's declaring a function with return type ChapRName
 ChapREEPROM myEEPROM;
 
 Personality_0	p0;
@@ -66,14 +65,9 @@ Gamepad		g2_prev(2);	// the buffer for the gamepad data before current changes
 /****************************************************************************************/
 
 byte emptyJSData[] = { 0x80, 0x80, 0x80, 0x80, 0x08, 0x00, 0x04, 0x00 };
-byte joy1data[] = { 0x80, 0x80, 0x80, 0x80, 0x08, 0x00, 0x04,0x00 };
-byte joy2data[] = { 0x80, 0x80, 0x80, 0x80, 0x08, 0x00, 0x04,0x00 };
 
-bool    inConfigMode;
-
-long     powerTimeout;
-
-int      timeButtonPressed;
+bool    inConfigMode; //whether or not the ChapR is in pairing mode
+long     powerTimeout; //how long until the ChapR turns itself off (configured by user)
 
 //
 // setup() - this routine is run ONCE by the Arduino upon start-up.
@@ -84,7 +78,6 @@ void setup()
      digitalWrite(POWER_ON_HOLD,HIGH);
      
      powerLED.fast();			// flash the power LED during boot
-     timeButtonPressed = 0;
      
      Serial.begin(LOCAL_SERIAL_BAUD);	// the serial monitor operates at this BAUD
      Serial.println("ChapR v0.3 up!");
@@ -94,12 +87,9 @@ void setup()
        myEEPROM.setFromConsole("ChapRX", (byte) 10, (byte) 1);
      }
      
-     //myEEPROM.setUSBPhase(0); //won't be needed once all ChapRs have updated code
-     
      powerTimeout = 60000 * (long) myEEPROM.getTimeout(); //sets the timeout from EEPROM
      
-     // check the button to see if it was pressed upon boot, if so, enter config mode
-
+     // check the WFS button to see if it was pressed upon boot, if so, enter config mode
      if (digitalRead(BUTTON) == HIGH) {		// the button has a pull-down, so normally LOW
           bt.configMode(myEEPROM.getName());
           inConfigMode = true;
@@ -110,13 +100,9 @@ void setup()
 	  powerLED.on();
      }
 
-     Serial.write("Waiting on VDIP sync\n");
-
      while(!vdip.sync()) {		// while waiting, update the LED status
 	  powerLED.update();
      }
-
-     Serial.write("Out of VDIP sync\n");
 
      vdip.deviceUpdate();		// get initial device setup
      current_personality = myEEPROM.getPersonality();
@@ -149,27 +135,20 @@ void enterZombieMode()
 void software_Reset() // Restarts program from beginning but does not reset the peripherals and registers
 {
     asm volatile ("  jmp 0");  
-}  
-
-long lastAnyAction = 0;
-long lastJSAction = 0;
-bool isLowPower = false;
+}
 
 #define DEVICE_UPDATE_LOOP_COUNT	50
 
 void loop()
 {
      static bool	power_button_released = false;
-     static int		loopCount = 0;
+     static int	        loopCount = 0;
      static bool	wasConnected = false;
+     static int         timeButtonPressed; //how long the power button has been pressed (makes sure the ChapR isn't accidentally turned off)
+     static long        lastAnyAction = millis();
      bool		js1 = false;
      bool		js2 = false;
      bool               wfs = false;
-     
-
-     //monitor for return from IDE to indicate a wish to change name
-   
-    //myName.setFromConsole();
     
     if (Serial.available() > 0){
       myEEPROM.setFromConsole(myEEPROM.getName(), myEEPROM.getTimeout(), myEEPROM.getPersonality());
@@ -177,9 +156,7 @@ void loop()
       powerTimeout = 60000 * (long) myEEPROM.getTimeout();
     }
     
-     // when we first boot, the power button is pressed in, so ensure that it changes before
-     // monitoring it for shutdown.
-
+     // when we first boot, the power button is pressed in, so ensure that it changes before monitoring it for shutdown
      if(powerButton.hasChanged()) {
        timeButtonPressed = 0;
 	  if(!power_button_released) {
@@ -199,9 +176,7 @@ void loop()
        }
      }
 
-     // check each joystick that is connected, and grab a packet of information from it
-     // if there is any
-
+     // check each joystick that is connected, and grab a packet of information from it if there is any
      if (g2.update(&vdip)) {
 	  js2 = true;
 	  personalities[current_personality-1]->ChangeInput(&bt,2,&g2_prev,&g2);
@@ -214,20 +189,6 @@ void loop()
 	  g1_prev = g1;
      }
 
-//     if (vdip.getJoystick(1,(char *)joy2data) == 8) {
-//	  js2 = true;
-//	  g2.load(joy2data);
-//	  dumpDataHex("(2)",joy2data,8);
-//	  g2.debugPrint("(2)");
-//     }
-//
-//     if (vdip.getJoystick(0,(char *)joy1data) == 8) {
-//	  js1 = true;
-//	  g1.load(joy1data);
-//	  dumpDataHex("(1)",joy1data,8);
-//	  g1.debugPrint("(1)");
-//     }
-
      if (theButton.hasChanged()){
 	  wfs = true;
 	  personalities[current_personality-1]->ChangeButton(&bt,theButton.isPressed());
@@ -237,9 +198,7 @@ void loop()
 	  vdip.deviceUpdate();
      }
 
-     // check to see if we're connected to the brick - turn on the light if so
-     // if not connected, blink the thing
-
+     // check to see if we're connected to the brick - turn on the light if so if not connected, blink the thing
      if(bt.connected()) {
           if(inConfigMode){
             inConfigMode = false;
@@ -258,55 +217,23 @@ void loop()
 	  indicateLED.slow();
      }
 
-     // if we're connected, send out a joystick update
-
-     if(bt.connected() && (!isLowPower || wfs)) {
-//	  byte	outbuff[25];
-//	  int	size;
-//	  int	UserMode = 0;
-//	  int	StopPgm = (theButton.isPressed())?0:1;
-//
-//	  size = nxtMsgCompose(outbuff,
-//			       UserMode,
-//			       StopPgm,
-////			       (js1)?joy1data:emptyJSData,
-////			       (js2)?joy2data:emptyJSData);
-//			       joy1data,
-//			       joy2data);
-//	  dumpDataHex("out",outbuff,size);
-//	  (void)bt.btWrite(outbuff,size);
-
-	  personalities[current_personality-1]->Loop(&bt,theButton.isPressed(),&g1,&g2);
-     }
+     personalities[current_personality-1]->Loop(&bt,theButton.isPressed(),&g1,&g2);
      
      //checks to see if we should enter a power saving mode (if 5 min has passed)
-     
      if (js1 || js2 || wfs){ //if something has happened, make note of the time since boot
         lastAnyAction = millis();
      }
-     if (js1 || js2) { //if a joystick changed
-        lastJSAction = millis();
-        isLowPower = false;
-     }
      
-     if (millis() - lastJSAction >= LOWPOWERTIMEOUT){
-         isLowPower = true;
-         powerLED.slow();
-      }
      if (powerTimeout != 0 && millis() - lastAnyAction >= powerTimeout){
 	  digitalWrite(POWER_ON_HOLD,LOW);
-	  enterZombieMode();
      }
      
      // update the state of the LEDs - this should always be done at the end of the loop
-
      powerLED.update();
      indicateLED.update();
      
      // allow only a certain number of updates - saves battery
-     
      delay(5);
 
      loopCount++;
-
 }
