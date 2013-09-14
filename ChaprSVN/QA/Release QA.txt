@@ -1,0 +1,22 @@
+0. Manufacturing Test
+1. First Time Connection (USB)
+2. First Time Connection (BT)
+3. Normal Connection
+4. Personality 1
+ - Joystick Input
+ - Kill Switch
+ - WFS
+ - RobotC/LabView/Matrix
+6. Personality 2 Joystick Input
+ - Joystick Input
+ - Kill Switch
+ - WFS
+ - 
+7. EEPROM Configuration
+ - Initialization
+ - From Console
+ - From Flash
+	 - gripes properly
+8. 2 Second Up/Down
+9. Timeout Power-down
+10. Name Usage

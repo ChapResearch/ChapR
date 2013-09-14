@@ -24,7 +24,7 @@ TODO AS OF AUG 24, 2013
 **has trouble reading a flash drive on a low power battery
 	X5. Build naming into main ChapR.ino
 	X6. Personality (NXT-G and NXT-RobotC)
-7. Revist power saving modes
+	X7. Revist power saving modes
 8. BT ID
 9. ChapR Library
 10. LabView Compatibility
@@ -34,6 +34,7 @@ TODO AS OF AUG 24, 2013
 	tests communication to BT and VDIP
 	checks versions of each part
 	read and write EEPROM
+13. Magic String vs Version
 
 **test with another NXT because NXT - A brick will boot strangely if the ChapR is pairing before it has been booted
 **sometimes you have to reboot the NXt brick to get it to pair properly
