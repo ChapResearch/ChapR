@@ -1,15 +1,18 @@
 ChapR-5 (1st Button Board)
 **needs a lid
+yellow and green LEDs
 v0.3 board
 v1.0 software
 
 ChapR-6 (VHS Board)
 **needs to be signed
+yellow and green LEDs
 v0.3 board
 v1.0 software
 
 ChapR-7 (Ben Board)
 **has lid with green marks
-**WFS button needs to be replaced
+**battery connector came off
+blue and green LEDs
 v0.3 board
 v1.0 software

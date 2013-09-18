@@ -1,0 +1,36 @@
+Purpose: TO determine if the hardware has been constructed appropriately
+ and that the appropriate software version is on the device.
+
+0. Visual check of solder joints
+1. Base Test
+ - plug in battery
+ - make sure nothing happens
+ - press and hold power switch
+ - only VDIP and Arduino should have lights
+2. Load Test Program
+ - unplug battery
+ - plug in board programmer cable
+ - download test program
+ - turn on serial terminal
+ - hit reset
+ - "running test program version X"
+ - "testing power LED" RETURN
+ - turn on power LED
+ - "testing BT LED" RETURN
+ - turn on BT LED
+ - "checking VDIP version..."
+ - "VDIP version: X"
+ - check VDIP number against needed number
+ - "VDIP up to date" or "insert flash drive into port 2 to update to X version. hit return when finished flashing" RETURN
+    - loop to "checking VDIP version..."
+ - "checking BT module version..."
+ - "BT version: X"
+ - check BT version against needed version
+ - "BT version correct" or "Bt version incorrect!"
+ - 
+2. Check VDIP firmware
+2. Verify messages to and from RN-42
+3. Verify messages to and from VDIP
+4. Hardware reset/escape hatch
+5. WSF button
+6. Power button

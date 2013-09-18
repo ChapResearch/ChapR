@@ -27,9 +27,11 @@ TODO AS OF AUG 24, 2013
 	X7. Revist power saving modes
 8. BT ID
 9. ChapR Library
-10. LabView Compatibility
+	X10. LabView Compatibility
 	X11. Matrix Compatibility
 12. Board bring-up program
+	build into checking magic string
+	have EEPROM clear an option from Serial Monitor
 	checks if VDIP program has been flashed
 	tests communication to BT and VDIP
 	checks versions of each part

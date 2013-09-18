@@ -91,7 +91,7 @@ void ChapREEPROM::setFromConsole(char *name, byte timeout, byte personality)
   Serial.print("Enter ChapR personality (numbers explained on www.thechapr.com). Hit return for default: ");
   Serial.println(personality);
   getStringFromMonitor(buffer,sizeof(buffer));
-  if (buffer[0] == '\0'){
+  if (buffer[0] == '\0' || atoi(buffer) > EEPROM_LASTPERSON){
     setPersonality(personality);
   } else {
     setPersonality(atoi(buffer));
