@@ -16,6 +16,7 @@
 #include "personality.h"
 #include "personality_0.h"		// NXT-RobotC
 #include "personality_1.h"		// NXT-G
+#include "personality_2.h"              // NXT-LabView
 
 #include "debug.h"
 
@@ -49,7 +50,8 @@ ChapREEPROM myEEPROM;
 
 Personality_0	p0;
 Personality_1	p1;
-Personality	*personalities[] = { &p0, &p1 };
+Personality_2   p2;
+Personality	*personalities[] = { &p0, &p1, &p2 };
 int		current_personality;
 
 Gamepad		g1(1);		// I'm gamepad #1!
