@@ -29,7 +29,7 @@ TODO AS OF AUG 24, 2013
 9. ChapR Library
 	X10. LabView Compatibility
 	X11. Matrix Compatibility
-12. Board bring-up program
+	X12. Board bring-up program
 	build into checking magic string
 	have EEPROM clear an option from Serial Monitor
 	checks if VDIP program has been flashed
@@ -37,6 +37,8 @@ TODO AS OF AUG 24, 2013
 	checks versions of each part
 	read and write EEPROM
 13. Magic String vs Version
+
+FIGURE OUT STUPID TWO ZEROS ON VERSION!!!!!!!!!!!
 
 **test with another NXT because NXT - A brick will boot strangely if the ChapR is pairing before it has been booted
 **sometimes you have to reboot the NXt brick to get it to pair properly

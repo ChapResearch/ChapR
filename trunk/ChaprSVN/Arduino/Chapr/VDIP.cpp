@@ -314,7 +314,13 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
                  cbuf[i] = buf[x];
                  i++;
                }
-          }   
+          }
+     case VDIP_FWV:
+         rbytes = arg;
+            {
+              cbuf[i++] = '\x13';
+            }
+          break;
      }
           	       
      cbuf[i++] = '\r';
@@ -367,7 +373,6 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
      return(rbytes);
 }
 
-#define DEFAULTTIMEOUT 100
 #define BIGENOUGH 20 //the maximum amount of data we read from flash files
 
 //readFile() - helper method used to read a file on the disk and returns the entire contents of the file

@@ -15,6 +15,7 @@
 #define BT_OP_BAUD	38400
 #define BT_SU_BAUD     	"38"
 #define BT_U_BAUD	"38.4"
+#define BT_CONFIG_BAUD  9600
 
 //
 // Note that an inquiry scan returns (for example)	:
@@ -55,6 +56,7 @@ public:
      bool connected();		// returns true if connected
      void btWrite(byte *buffer, int size);
      void reset();
+     bool checkVersion();
 
 // BIG NOTE - the pins on the RN-42 need voltage dividers - but the current
 //		implementation ** Sun Apr 21 14:47:33 2013 ** doesn't have
@@ -71,6 +73,7 @@ private:
      void autoConnectMode(bool);
      void specialPin(int,int);
      void btSend(char *string);
+     void recv(char*, long);
 };
 
 #endif /* BT_h */

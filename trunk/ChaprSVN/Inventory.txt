@@ -15,4 +15,4 @@ ChapR-7 (Ben Board)
 **battery connector came off
 blue and green LEDs
 v0.3 board
-v1.0 software
+v1.0 software (w/ board bring-up)

@@ -46,6 +46,10 @@
 //   0x40 - Unknown device (never or'd with anything else)
 //   0x80 - HUB device
 
+
+#define DEFAULTTIMEOUT 100
+
+
 #define CLASS_NONE      0x00
 #define CLASS_FTDI      0x01
 #define CLASS_PRINTER   0x04
@@ -64,7 +68,8 @@ typedef enum vcmd {
      VDIP_SUM,			// suspend monitor (low power mode)
      VDIP_OPR,                  // open a file for reading
      VDIP_RDF,                  // read from file (specifies how many bytes)
-     VDIP_CLF                   //closes the currently open file
+     VDIP_CLF,                  //closes the currently open file
+     VDIP_FWV                   //returns the firmware version
 } vdipcmd;
 
 typedef enum _deviceType {
