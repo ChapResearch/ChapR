@@ -141,7 +141,7 @@ void BT::configMode(char *name)
 
      autoConnectMode(false);
      baud9600mode(true);
-     begin(9600);		// set the SoftwareSerial baud rate appropriately
+     begin(BT_CONFIG_BAUD);		// set the SoftwareSerial baud rate appropriately
 
      // each mode configuration starts with a reset() to ensure that
      // the latest modes are enabled and baud rates set
@@ -197,7 +197,7 @@ void BT::setRemoteAddress(char *address)
 {
   autoConnectMode(false);
   baud9600mode(true);
-  begin(9600);		// set the SoftwareSerial baud rate appropriately
+  begin(BT_CONFIG_BAUD);        // set the SoftwareSerial baud rate appropriately
      // each mode configuration starts with a reset() to ensure that
      // the latest modes are enabled and baud rates set
   reset(); 
@@ -356,10 +356,55 @@ void BT::btWrite(byte *buffer, int size)
 //		(in ms) will cause this routine to return if a whole line doesn't
 //		come back (either nothing or a partial line).
 //
-//void BT::recv(char *buffer, long timeout)
-//{
-//     long	*target = millis() + timeout;
-//
-//     do {
-//	  if( read(
+void BT::recv(char *buffer, long timeout)
+{
+     long target = millis() + timeout;
+     int i = 0;
+     
+     do {
+          if (available()){
+            buffer[i] = read();
+            if (buffer[i] == '\r' || buffer[i] == '\n'){
+              break;
+            }
+            i++;
+          }
+     } while (millis() < target);
+     
+     buffer[i] = '\0';
+}
+
+bool BT::checkVersion()
+{
+  char buf[50];
+  delay(100);
+  autoConnectMode(false);
+  baud9600mode(true);
+  begin(BT_CONFIG_BAUD);      // set the SoftwareSerial baud rate appropriately
+  delay(100);
+  reset();
+  delay(500);
+  btSend("$$$");
+  delay(200);
+  recv(buf, 1000);
+  if (strcmp(buf, "CMD") != 0){
+    Serial.println("Connection to RN-42 failed!");
+  }
+  btSend("ver\r");
+  delay(200);
+  recv(buf, 1000);
+  Serial.print("RN-42 Version: ");
+  if (buf[0] != '\0'){
+  Serial.println(buf);
+  }
+  recv(buf, 1000);
+  if (buf[0] != '\0'){
+  Serial.println(buf);
+  }
+  recv(buf, 1000);
+  if (buf[0] != '\0'){
+  Serial.println(buf);
+  }
+  return true;
+}
      

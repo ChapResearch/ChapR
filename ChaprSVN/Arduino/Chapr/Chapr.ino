@@ -82,9 +82,13 @@ void setup()
      powerLED.fast();			// flash the power LED during boot
      
      Serial.begin(LOCAL_SERIAL_BAUD);	// the serial monitor operates at this BAUD
-     Serial.println("ChapR v1.0 up!");
+     Serial.print("ChapR ");
+     Serial.print(CODEVERSION);
+     Serial.println(" up!");
      
      if (!myEEPROM.isInitialized()){
+       Serial.println("Beginning board bring-up");
+       myEEPROM.boardBringUp();
        Serial.println("Please intialize your ChapR.");
        myEEPROM.setFromConsole("ChapRX", (byte) 10, (byte) 1);
      }

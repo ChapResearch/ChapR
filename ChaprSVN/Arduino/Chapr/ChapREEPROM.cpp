@@ -1,6 +1,21 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 #include "ChapREEPROM.h"
+#include "blinky.h"
+#include "config.h"
+#include "VDIP.h"
+#include "BT.h"
+#include "button.h"
+#include "debug.h"
+
+button	theButton2(BUTTON);
+
+blinky	powerLED2(LED_POWER);
+blinky	indicateLED2(LED_INDICATE);
+
+VDIP	vdip2(VDIP_CLOCK, VDIP_MOSI, VDIP_MISO, VDIP_CS, VDIP_RESET);
+
+BT	bt2(BT_RX, BT_TX, BT_RESET, BT_MODE, BT_9600BAUD, BT_CONNECTED);
 
 ChapREEPROM::ChapREEPROM()
 {
@@ -58,6 +73,42 @@ int ChapREEPROM::getStringFromMonitor(char *buffer, int size)
   buffer[index - 1] = '\0';
   flushSerial();
   return size;
+}
+
+void ChapREEPROM::boardBringUp()
+{
+  char buf[25];
+  buf[0] = ' ';
+  Serial.print("Running test program version ");
+  Serial.println(BOARDBRINGUPVERSION);
+  Serial.println("Testing power LED...");
+  powerLED2.on();
+  Serial.println("Hit return to continue");
+  getStringFromMonitor(buf, 2);
+  while (buf[0] != '\0'){
+    getStringFromMonitor(buf, 2);
+  }
+  Serial.println("Testing BT LED...");
+  powerLED2.off();
+  indicateLED2.on();
+  getStringFromMonitor(buf, 1);
+  while (buf[0] != '\0'){
+    getStringFromMonitor(buf, 1);
+  }
+  indicateLED2.off();
+  Serial.println("Press WFS button to continue");
+  while (theButton2.isPressed() != true){
+  }
+  Serial.println("checking VDIP version...");
+  for (int i = 0; i < sizeof(buf); i++){
+    buf[i] ='\0';
+  }
+  vdip2.cmd(VDIP_FWV, buf, DEFAULTTIMEOUT, 15); //expects 15 bytes back see pg 23 of Viniculum Firmware reference
+  Serial.print("VDIP version: ");
+  Serial.println(buf);
+  Serial.println("checking version of RN-42...");
+  bt2.checkVersion();
+  Serial.println("Everything looks good!");
 }
 
 void ChapREEPROM::setFromConsole(char *name, byte timeout, byte personality)

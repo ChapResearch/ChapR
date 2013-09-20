@@ -38,6 +38,7 @@ public:
      byte getPersonality();
      bool isInitialized();
      void setFromConsole(char *,byte, byte);
+     void boardBringUp();
      void setUSBPhase(byte phase);
      byte getUSBPhase();
      
