@@ -7,6 +7,7 @@
 #include "BT.h"
 #include "button.h"
 #include "debug.h"
+#include "sound.h"
 
 button	theButton2(BUTTON);
 
@@ -77,7 +78,10 @@ int ChapREEPROM::getStringFromMonitor(char *buffer, int size)
 
 void ChapREEPROM::boardBringUp()
 {
+  flushSerial();
+  
   char buf[25];
+  extern sound beeper;
   buf[0] = ' ';
   Serial.print("Running test program version ");
   Serial.println(BOARDBRINGUPVERSION);
@@ -96,6 +100,12 @@ void ChapREEPROM::boardBringUp()
     getStringFromMonitor(buf, 1);
   }
   indicateLED2.off();
+  Serial.println("Hit return to squeep");
+  getStringFromMonitor(buf, 2);
+  while (buf[0] != '\0'){
+    getStringFromMonitor(buf, 2);
+  }
+  beeper.squeep();
   Serial.println("Press WFS button to continue");
   while (theButton2.isPressed() != true){
   }
@@ -111,8 +121,12 @@ void ChapREEPROM::boardBringUp()
   Serial.println("Everything looks good!");
 }
 
-void ChapREEPROM::setFromConsole(char *name, byte timeout, byte personality)
+void ChapREEPROM::setFromConsole(char *name, byte timeout, byte personality, byte speed, byte mode)
 {
+  if (Serial.read() == '!'){
+    boardBringUp();
+  }
+  
   flushSerial();
   
   Serial.print("Enter ChapR name (1 thru 15 chars). Hit return for default: ");
@@ -149,25 +163,51 @@ void ChapREEPROM::setFromConsole(char *name, byte timeout, byte personality)
     Serial.print("ChapR personality is now: ");
     Serial.println(getPersonality());
   }
+  
+  Serial.print("Enter ChapR lag (0-255, 0 being the least lag). Hit return for default: ");
+  Serial.println(speed);
+  getStringFromMonitor(buffer,sizeof(buffer));
+  if (buffer[0] == '\0' || atoi(buffer) > EEPROM_MAXLAG || atoi(buffer) < 0){
+    setSpeed(speed);
+  } else {
+    setSpeed(atoi(buffer));
+    Serial.print("ChapR lag is now: ");
+    Serial.println(getSpeed());
+  }
+  
+  Serial.print("Enter ChapR mode. Hit return for default: ");
+  Serial.println(mode);
+  getStringFromMonitor(buffer,sizeof(buffer));
+  if (buffer[0] == '\0' || atoi(buffer) > EEPROM_MAXMODE){
+    setMode(mode);
+  } else {
+    setMode(atoi(buffer));
+    Serial.print("ChapR mode is now: ");
+    Serial.println(getMode());
+  }
+  
   Serial.println("Preferences saved!");
   markInitialized();
   setUSBPhase(0); //says the NXT has not been connected by USB yet
 }
 
-void ChapREEPROM::setString(int start, int length, char *thing)
+//
+// setString() - given a string and a starting position, sets the string in EEPROM, up to
+//               the maxLength, which is the size of the EEPROM area for that string - 1. This
+//               means the maximum string that can be written is maxLength, because
+//               maxLength does not include the null terminator.
+
+void ChapREEPROM::setString(int start, int maxLength, char *thing)
 {
   int i = 0;
-  do {
+  while(maxLength--){
     EEPROM.write(start, thing[i]);
     start++;
-    i++;
-  } while (thing[i] != '\0' && i < length + 1);
-  
-  while (i < EEPROM_MAXSTRINGLENGTH){
-    EEPROM.write(start, '\0');
-    start++;
-    i++;
+    if (thing[i] != '\0'){
+      i++;
+    }
   }
+  EEPROM.write(start, '\0'); //null terminates the string
 }
 
 char* ChapREEPROM::getString(int start, int length)
@@ -216,3 +256,22 @@ byte ChapREEPROM::getPersonality()
   EEPROM.read(EEPROM_PERSONALITY);
 }
 
+void ChapREEPROM::setSpeed(byte s)
+{
+  EEPROM.write(EEPROM_SPEED, s);
+}
+
+byte ChapREEPROM::getSpeed()
+{
+  EEPROM.read(EEPROM_SPEED);
+}
+
+void ChapREEPROM::setMode(byte m)
+{
+  EEPROM.write(EEPROM_MODE, m);
+}
+
+byte ChapREEPROM::getMode()
+{
+  EEPROM.read(EEPROM_MODE);
+}

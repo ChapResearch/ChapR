@@ -421,6 +421,18 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
          myEEPROM2.setTimeout(newNum);
          }
        }
+       if(readFile("lag.txt", buf, BIGENOUGH)){
+         byte newNum = (byte) atoi(buf);
+         if (newNum >= 0 && newNum <= EEPROM_MAXLAG){
+         myEEPROM2.setSpeed(newNum);
+         }
+       }
+       if(readFile("mode.txt", buf, BIGENOUGH)){
+         byte newNum = (byte) atoi(buf);
+         if (newNum >= 0 && newNum <= EEPROM_MAXMODE){
+         myEEPROM2.setMode(newNum);
+         }
+       }
        beeper2.confirm();			 
      } else {
        beeper2.icky();

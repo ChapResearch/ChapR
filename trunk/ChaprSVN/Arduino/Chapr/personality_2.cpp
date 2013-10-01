@@ -21,7 +21,7 @@
 //		appropriately formatted BT message with the translation of
 //		the Gamepads and inclusion of the button.
 //
-void Personality_2::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
+void Personality_2::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2)
 {
      byte	msgbuff[64];	// max size of a BT message
      int	size;
@@ -29,7 +29,7 @@ void Personality_2::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
      if (bt->connected()) {
 
 	  // first convert the gamepad data and button to the robotC structure
-	  size = robotcTranslate(msgbuff,buttonToggle,g1,g2);
+	  size = robotcTranslate(msgbuff,buttonToggle,g1,g2,mode);
 	  
 	  // then compose a NXT mailbox message (for BT transport) with that data
 	  // this routine operates within the given buffer.  Note that the
@@ -43,7 +43,7 @@ void Personality_2::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
      }
 }
 
-void Personality_2::Kill(BT *bt)
+void Personality_2::Kill(BT *bt, int mode)
 {
      byte	outbuff[64];
      int	size;
@@ -54,12 +54,12 @@ void Personality_2::Kill(BT *bt)
      }
 }
 
-void Personality_2::ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *gnu)
+void Personality_2::ChangeInput(BT *bt, int mode, int device, Gamepad *old, Gamepad *gnu)
 {
      // nothing happens here for this personality
 }
 
-void Personality_2::ChangeButton(BT *bt, bool button)
+void Personality_2::ChangeButton(BT *bt, int mode, bool button)
 {
      if (button){
        buttonToggle = !buttonToggle;

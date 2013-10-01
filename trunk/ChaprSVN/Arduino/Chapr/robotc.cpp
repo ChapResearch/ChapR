@@ -38,10 +38,10 @@ int robotcGamepadTranslate(byte *buffer, Gamepad *gp)
 //			at least 18 bytes.  Returns the number of bytes consumed in the
 //			output buffer (18).
 
-int robotcTranslate(byte *buffer, bool button, Gamepad *g1, Gamepad *g2)
+int robotcTranslate(byte *buffer, bool button, Gamepad *g1, Gamepad *g2, int mode)
 {
      buffer[0] = 0;		// this isn't actually used in the robotC Joystick.c code
-     buffer[1] = 0;		// this is the UserMode
+     buffer[1] = mode;		// this is the UserMode
      buffer[2] = (button)?0:1;	// false to turn OFF wait for start (the StopPgm)
 
      robotcGamepadTranslate(&buffer[3],g1);

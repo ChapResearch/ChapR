@@ -19,10 +19,10 @@
 class Personality_2 : public Personality
 {
 public:
-     virtual void ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *);
-     virtual void ChangeButton(BT *bt, bool button);
-     virtual void Loop(BT *bt, bool, Gamepad *, Gamepad *);
-     virtual void Kill(BT *bt);
+     virtual void ChangeInput(BT *bt, int mode, int device, Gamepad *old, Gamepad *);
+     virtual void ChangeButton(BT *bt, int mode, bool button);
+     virtual void Loop(BT *bt, int mode, bool, Gamepad *, Gamepad *);
+     virtual void Kill(BT *bt, int mode);
 private:
      bool buttonToggle;
 };

@@ -11,7 +11,7 @@
 #ifndef ROBOTC_H
 #define ROBOTC_H
 
-int robotcTranslate(byte *, bool, Gamepad *, Gamepad *);
+int robotcTranslate(byte *, bool, Gamepad *, Gamepad *, int mode);
 
 #endif ROBOTC_H
 
