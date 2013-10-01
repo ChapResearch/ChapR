@@ -38,8 +38,6 @@ TODO AS OF AUG 24, 2013
 	read and write EEPROM
 13. Magic String vs Version
 
-FIGURE OUT STUPID TWO ZEROS ON VERSION!!!!!!!!!!!
-
 **test with another NXT because NXT - A brick will boot strangely if the ChapR is pairing before it has been booted
 **sometimes you have to reboot the NXt brick to get it to pair properly
 

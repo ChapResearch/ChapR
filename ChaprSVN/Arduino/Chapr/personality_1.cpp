@@ -28,7 +28,7 @@
 //		   it relatively easy to figure out.
 //		   (see personality_1.h for a description of the messages)
 //
-void Personality_1::ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *gnu)
+void Personality_1::ChangeInput(BT *bt, int mode, int device, Gamepad *old, Gamepad *gnu)
 {
      byte	msgbuff[64];	// max size of a BT message
      int	size;
@@ -88,7 +88,7 @@ void Personality_1::ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *gnu)
 // ChangeButton() - called when the button state changes.       
 // 			send the status of the button on mailbox 0
 //
-void Personality_1::ChangeButton(BT *bt, bool button)
+void Personality_1::ChangeButton(BT *bt, int mode, bool button)
 {
      byte	msgbuff[64];	// max size of a BT message
      int	size;
@@ -102,7 +102,7 @@ void Personality_1::ChangeButton(BT *bt, bool button)
      (void)bt->btWrite(msgbuff,size);
 }
 
-void Personality_1::Kill(BT *bt)
+void Personality_1::Kill(BT *bt, int mode)
 {
      byte	outbuff[64];
      int	size;
@@ -113,7 +113,7 @@ void Personality_1::Kill(BT *bt)
      }
 }
 
-void Personality_1::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
+void Personality_1::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2)
 {
      // nothing happens here for this personality
 }

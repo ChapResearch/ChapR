@@ -16,3 +16,10 @@ ChapR-7 (Ben Board)
 blue and green LEDs
 v0.3 board
 v1.0 software (w/ board bring-up)
+
+ChapR-8 (Ben Board 2)
+**has lid without sticker
+**needs to be signed
+blue and green LEDs
+v.03 board
+v1.0 software (w/ board bring-up)
