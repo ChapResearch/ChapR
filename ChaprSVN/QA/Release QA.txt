@@ -7,11 +7,10 @@
  - Kill Switch
  - WFS
  - RobotC/LabView/Matrix
-6. Personality 2 Joystick Input
+6. Personality 2
  - Joystick Input
  - Kill Switch
  - WFS
- - 
 7. EEPROM Configuration
  - Initialization
  - From Console
@@ -20,3 +19,4 @@
 8. 2 Second Up/Down
 9. Timeout Power-down
 10. Name Usage
+11. Mode Implementation

@@ -84,7 +84,7 @@ void VDIP::deviceUpdate()
 
 		    if(portConfigBuffer.type == DEVICE_DISK) {
                          //debugPortConfig(&portConfigBuffer);
-                         DEBUG_PORT_CONFIG(&portConfigBuffer);
+                         //DEBUG_PORT_CONFIG(&portConfigBuffer);
 			 processDisk(&portConfigBuffer);
 		    }
 
@@ -435,6 +435,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
        }
        beeper2.confirm();			 
      } else {
+       Serial.println("icky noise here");
        beeper2.icky();
      } 
 }

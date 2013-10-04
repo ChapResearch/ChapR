@@ -387,6 +387,7 @@ bool BT::checkVersion()
   btSend("$$$");
   delay(200);
   recv(buf, 1000);
+  delay(100);
   if (strcmp(buf, "CMD") != 0){
     Serial.println("Connection to RN-42 failed!");
   }
