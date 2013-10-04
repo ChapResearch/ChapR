@@ -13468,7 +13468,7 @@ http://www.ee.siue.edu/~alozows/library/datasheets/BFR96.pdf</description>
 <text x="-25.4" y="-73.66" size="1.778" layer="97">** RN42.Reset has pull-up - pull-down to reset.</text>
 <text x="121.92" y="91.44" size="1.778" layer="97">*</text>
 <text x="111.506" y="125.222" size="1.778" layer="97">NOTE: 3.3v Comes from VDIP not ARD</text>
-<text x="162.56" y="-68.58" size="2.54" layer="97">V 1.0</text>
+<text x="162.56" y="-68.58" size="2.54" layer="97">V 0.3</text>
 <text x="76.2" y="-48.26" size="2.54" layer="97">ChapR Board</text>
 <text x="-5.08" y="-43.18" size="1.778" layer="97">Button  =&gt;  A0</text>
 <text x="-5.08" y="-48.26" size="1.778" layer="97">Speaker  &lt;=  A3</text>
