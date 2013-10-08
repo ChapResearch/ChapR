@@ -1,8 +1,9 @@
-0. Manufacturing Test
+r40. Manufacturing Test
 1. First Time Connection (USB)
-2. First Time Connection (BT)
-3. Normal Connection
-4. Personality 1
+2. 2 Second Up/Down
+3. First Time Connection (BT)
+4. Normal Connection
+5. Personality 1
  - Joystick Input
  - Kill Switch
  - WFS
@@ -16,7 +17,6 @@
  - From Console
  - From Flash
 	 - gripes properly
-8. 2 Second Up/Down
-9. Timeout Power-down
-10. Name Usage
-11. Mode Implementation
+8. Timeout Power-down
+9. Name Usage
+10. Mode Implementation

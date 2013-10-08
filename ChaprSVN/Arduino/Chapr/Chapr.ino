@@ -92,7 +92,7 @@ void setup()
        Serial.println("Beginning board bring-up");
        myEEPROM.boardBringUp();
        Serial.println("Please intialize your ChapR.");
-       myEEPROM.setFromConsole("ChapRX", (byte) 10, (byte) 1, (byte) 0, (byte) 0);
+       myEEPROM.setFromConsole("ChapRX", (byte) 10, (byte) 1, (byte) 0, (byte) 1);
      }
      
      powerTimeout = 60000 * (long) myEEPROM.getTimeout(); //sets the timeout from EEPROM

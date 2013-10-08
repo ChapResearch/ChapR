@@ -81,10 +81,9 @@ void VDIP::deviceUpdate()
 		    ports[portConfigBuffer.port].type = portConfigBuffer.type;
 
 		    // check incoming device and call process routines if needed
-
+                    //DEBUG_PORT_CONFIG(&portConfigBuffer);
 		    if(portConfigBuffer.type == DEVICE_DISK) {
                          //debugPortConfig(&portConfigBuffer);
-                         //DEBUG_PORT_CONFIG(&portConfigBuffer);
 			 processDisk(&portConfigBuffer);
 		    }
 
@@ -399,7 +398,8 @@ bool VDIP::readFile(char *filename, char *buf, byte numToRead)
 //                 do with a flash drive, like update the name of the Chapr.
 //
 void VDIP::processDisk(portConfig *portConfigBuffer)
-{
+{    
+     //Serial.println("starting processDisk");
      char buf[BIGENOUGH];
      //check that it's in port two (beep annoyingly otherwise)
      if(portConfigBuffer->port == 1) {
@@ -435,7 +435,6 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
        }
        beeper2.confirm();			 
      } else {
-       Serial.println("icky noise here");
        beeper2.icky();
      } 
 }
