@@ -14,7 +14,6 @@ public:
 
 private:
      int	_pin;
-
 };
 
 #endif SOUND_H

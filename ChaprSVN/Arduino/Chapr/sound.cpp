@@ -1,22 +1,36 @@
 #include <Arduino.h>
 #include "sound.h"
+#include "power.h"
+
+//
+// these two defines turn on/off the timer2 that is used to produce tones
+// we turn it off and on to save power since most of the time we're NOT
+// producing sound
+//
+#define SOUND_ON	tonePowerOn()
+#define SOUND_OFF       tonePowerOff()
 
 sound::sound(int pin) :
      _pin(pin)
 {
      pinMode(_pin,OUTPUT);
+     SOUND_OFF;
 }
 
 void sound::confirm()
 {
-  tone(_pin,440,50);
-  delay(50);
-  tone(_pin,880,50);
+     SOUND_ON;
+     tone(_pin,440,50);
+     delay(50);
+     tone(_pin,880,50);
+     delay(50);
+     SOUND_OFF;
 }
 
 void sound::icky()
 {
-  noTone(_pin);
+     SOUND_ON;
+     noTone(_pin);
      for (int i = 880; i > 220; i -= 10) {
 	  tone(_pin,i);
 	  delay(1);
@@ -24,10 +38,12 @@ void sound::icky()
      tone(_pin, 220);
      delay(100);
      noTone(_pin);
+     SOUND_OFF;
 }
 
 void sound::squeep()
 {
+     SOUND_ON;
      noTone(_pin);
      for (int i = 880; i < 3520; i += 20) {
 	  tone(_pin,i);
@@ -38,10 +54,12 @@ void sound::squeep()
 	  delay(1);
      }
      noTone(_pin);
+     SOUND_OFF;
 }
 
 void sound::yawn()
 {
+     SOUND_ON;
      noTone(_pin);
 
      tone(_pin,5000,40);
@@ -51,4 +69,5 @@ void sound::yawn()
 	  tone(_pin,110,50);
 	  delay(100);
      }
+     SOUND_OFF;
 }

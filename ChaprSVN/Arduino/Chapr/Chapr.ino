@@ -17,6 +17,7 @@
 #include "personality_0.h"		// NXT-RobotC
 #include "personality_1.h"		// NXT-G
 #include "personality_2.h"              // NXT-LabView
+#include "power.h"
 
 #include "debug.h"
 
@@ -87,29 +88,28 @@ void setup()
      Serial.print("ChapR ");
      Serial.print(CODEVERSION);
      Serial.println(" up!");
-     
+
      if (!myEEPROM.isInitialized()){
        Serial.println("Beginning board bring-up");
        myEEPROM.boardBringUp();
        Serial.println("Please intialize your ChapR.");
        myEEPROM.setFromConsole("ChapRX", (byte) 10, (byte) 1, (byte) 0, (byte) 1);
      }
-     
+
+     // check the WFS button to see if it was pressed upon boot, if so, enter config mode
+
+     if (digitalRead(BUTTON) == HIGH) {		// the button has a pull-down, so normally LOW
+          inConfigMode = true;			// in pairing/config mode
+	  powerLED.slow();
+     } else {
+          inConfigMode = false;			// in normal mode
+	  powerLED.on();
+     }
+
      powerTimeout = 60000 * (long) myEEPROM.getTimeout(); //sets the timeout from EEPROM
      lag = myEEPROM.getSpeed(); //sets the lag from EEPROM
      mode = myEEPROM.getMode();
      
-     // check the WFS button to see if it was pressed upon boot, if so, enter config mode
-     if (digitalRead(BUTTON) == HIGH) {		// the button has a pull-down, so normally LOW
-          bt.configMode(myEEPROM.getName());
-          inConfigMode = true;
-	  powerLED.slow();
-     } else {
-	  bt.opMode();
-          inConfigMode = false;
-	  powerLED.on();
-     }
-
      while(!vdip.sync()) {		// while waiting, update the LED status
 	  powerLED.update();
      }
@@ -119,6 +119,13 @@ void setup()
 
      g1.load(emptyJSData);
      g2.load(emptyJSData);
+
+     if (inConfigMode) {
+          bt.configMode(myEEPROM.getName());
+     } else {
+	  bt.opMode();
+	  lowPowerOperation();		// turn off all unused portions of the ARDUINO - including serial port
+     }
 
      beeper.confirm();
 }
@@ -160,7 +167,7 @@ void loop()
      bool		js2 = false;
      bool               wfs = false;
      bool               pb = false;
-    
+
     if (Serial.available() > 0){
       myEEPROM.setFromConsole(myEEPROM.getName(), myEEPROM.getTimeout(), myEEPROM.getPersonality(), myEEPROM.getSpeed(), myEEPROM.getMode());
       current_personality = myEEPROM.getPersonality();	// in case the personality changed
