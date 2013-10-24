@@ -7,7 +7,7 @@
 // constructor
 //
 BT::BT(uint8_t receive,
-       uint8_t transmit, 
+       uint8_t transmit,
        uint8_t reset, 		// TO BT> used to reset the BT module (necessary?)
        uint8_t automode,	// TO BT> sets auto connect mode - off when pairing
        uint8_t baud,		// TO BT> sets 9600 baud mode
@@ -29,9 +29,9 @@ BT::BT(uint8_t receive,
      //		pinMode(_autoModePin,OUTPUT);
      //		pinMode(_9600BaudPin,OUTPUT);
 
-     
+
      pinMode(_rstPin,INPUT);
-     
+
 #ifdef V01
      pinMode(_autoModePin,INPUT);
      pinMode(_9600BaudPin,INPUT);
@@ -67,8 +67,14 @@ void BT::specialPin(int pin, int value)
 //		Note that at least 500 ms needs to lapse after this
 //		call before sync() is called.
 //
+//	** Thu Oct 24 14:49:17 2013 **
+//	EJR - I moved the delays to inside the reset so they can be applied
+//		consistently. 
+//
 void BT::reset()
 {
+     delay(100);
+
      specialPin(_rstPin,LOW);		// to be changed to digitalWrite(_rstPin,LOW)
 
      // needs to be low for min 160us, but 10 ms works great
@@ -81,7 +87,7 @@ void BT::reset()
      // to serial input - I'm seeing a weird immediate echo on the TX line if I
      // don't wait for this long
 
-     delay(500);
+     delay(750);
 }
 
 //
@@ -108,10 +114,10 @@ void BT::reset()
 //
 //	GPIO6	- the _autoModePin
 //	GPIO7	- the _9600BaudPin
-//	GPIO2	- the _connetPin 
+//	GPIO2	- the _connetPin
 //
 // When CONFIG mode is requested, the following things occur:
-//	
+//
 //	pull LOW GPIO6	  // disconnects and terminates auto connect mode (has pull-up)
 //	allow HIGH GPIO7  // (normally held low) sets 9600 baud
 //	send "$$$"	  // enters command mode (after each command, wait)
@@ -147,11 +153,25 @@ void BT::configMode(char *name)
      // the latest modes are enabled and baud rates set
 
      reset();
-     
-     delay(100); //was at 10, which worked fine, but when it mysteriously stopped replying, 100 worked better
 
      btSend("$$$");		// get into command mode
 
+     delay(30);
+
+     // see the bottom of the file for notes about GPIOs
+
+     // NOTE - that power could be set lower here, but for now we set it to the
+     //		maximum - allowing the module to negotiate down if necessary.
+     //		Note, too, that it is dependent upon the BT firmware 4.77 vs. 6.15
+
+#define btV615
+
+#ifdef btV615
+     btSend("SY,000C\r");	// set power to 12 db
+#endif
+#ifdef btV477
+     btSend("SY,0004\r");	// set power to 12 db
+#endif
      delay(30);
 
      btSend("SU,");		// set appropriate baud
@@ -179,12 +199,11 @@ void BT::configMode(char *name)
      btSend("SX,1");		// set bonding mode (only stored device can attach)
      btSend("\r");
 
-     delay(30);
+     delay(50);			// this command takes a little more time
 
-     btSend("S?,1");		// attempt master/slave flip
-     btSend("\r");
-
-     delay(30);
+//     btSend("S?,1");		// attempt master/slave flip
+//     btSend("\r");
+//     delay(30);		// no reason to do this any more - we do it manually
 
      btSend("U,");		// do an immediate baud rate setting
      btSend(BT_U_BAUD);		// to eliminate the need for a reboot
@@ -200,21 +219,21 @@ void BT::setRemoteAddress(char *address)
   begin(BT_CONFIG_BAUD);        // set the SoftwareSerial baud rate appropriately
      // each mode configuration starts with a reset() to ensure that
      // the latest modes are enabled and baud rates set
-  reset(); 
-  delay(100); //was at 10, which worked fine, but when it mysteriously stopped replying, 100 worked better
-  
+
+  reset();
+
   btSend("$$$");		// get into command mode
   delay(30);
-  
+
   btSend("SR,");
   btSend(address);
   btSend("\r");
   delay(30);
-  
+
   btSend("---");		// and out of command mode
   btSend("\r");
   delay(30);
-  
+
   baud9600mode(false);	// get out of 9600 mode, but leave auto connect off
   autoConnectMode(true);
 }
@@ -232,8 +251,6 @@ void BT::opMode()
 
      reset();
 
-     delay(100); //gives time for the reset to occur (things didn't work without it)
-     
      // we're in 38400 baud in this case, or should be
 
      btSend("$$$");		// get into command mode
@@ -263,8 +280,6 @@ void BT::zombieMode()
 
      reset();
 
-     delay(100); //gives time for the reset to occur (things didn't work without it)
-     
      // we're in 38400 baud in this case, or should be
 
      btSend("$$$");		// get into command mode
@@ -275,7 +290,7 @@ void BT::zombieMode()
      btSend("\r");
 
      delay(30);
-     
+
      btSend("Z");              //enters deep sleep mode
      btSend("\r");
 
@@ -360,7 +375,7 @@ void BT::recv(char *buffer, long timeout)
 {
      long target = millis() + timeout;
      int i = 0;
-     
+
      do {
           if (available()){
             buffer[i] = read();
@@ -370,7 +385,7 @@ void BT::recv(char *buffer, long timeout)
             i++;
           }
      } while (millis() < target);
-     
+
      buffer[i] = '\0';
 }
 
@@ -381,9 +396,7 @@ bool BT::checkVersion()
   autoConnectMode(false);
   baud9600mode(true);
   begin(BT_CONFIG_BAUD);      // set the SoftwareSerial baud rate appropriately
-  delay(100);
   reset();
-  delay(500);
   btSend("$$$");
   delay(200);
   recv(buf, 1000);
@@ -408,4 +421,33 @@ bool BT::checkVersion()
   }
   return true;
 }
-     
+
+///////////////////////////////////////////////////////////////////
+//  GPIO NOTES
+//
+//   We've done some work on the GPIOs of the BT module, though
+//   decided not to impement it yet.  Here's the data
+//
+// set the state of the GPIO in/out - the following map is our guide
+//
+//		GPIO    Dir     Description            	GPIO    Dir     Description
+//		---------------------------             ---------------------------
+//		0       ?                               8	OUT	RF status
+//		1       ?                               9	IN
+//		2       OUT     connect signal          10	IN
+//		3       IN      (unused)                11	IN
+//		4       IN      factory reset           
+//		5       OUT     connect status          
+//		6       IN      auto connect            
+//		7       IN      9600 baud               
+//
+// set GPI08 - GPIO11 as inputs (normally only 8 is an output anyway
+//     btSend("S*,0f00\r");
+//     delay(30);
+//
+// turn off GPIO 0,1,5 0b00100011 mask, 0b00000000 value
+//     btSend("S@,2300\r");
+//     delay(30);
+//     btSend("S&,2300\r");	// no pull-ups
+//     delay(30);
+///////////////////////////////////////////////////////////////////
