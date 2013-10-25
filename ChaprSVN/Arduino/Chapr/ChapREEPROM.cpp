@@ -86,6 +86,7 @@ void ChapREEPROM::boardBringUp()
   Serial.print("Running test program version ");
   Serial.println(BOARDBRINGUPVERSION);
   Serial.println("Don't forget to switch the top jumper on the VDIP");
+  indicateLED2.off();
   Serial.println("Testing power LED...");
   powerLED2.on();
   Serial.println("Hit return to continue");
@@ -111,7 +112,6 @@ void ChapREEPROM::boardBringUp()
   Serial.println("Press WFS button to continue");
   while (theButton2.isPressed() != true){
   }
-  Serial.println("Don't forget to switch the top jumper on the VDIP");
   Serial.println("checking VDIP version...");
   for (int i = 0; i < sizeof(buf); i++){
     buf[i] ='\0';
