@@ -5,11 +5,15 @@ r40. Manufacturing Test
 4. Normal Connection
 5. Personality 1
  - Joystick Input
+    - all 12 buttons and all 9 tophat
+    - x1, y1, x2, y2
  - Kill Switch
  - WFS
  - RobotC/LabView/Matrix
 6. Personality 2
  - Joystick Input
+    - all 12 buttons and all 9 tophat
+    - x1, y1, x2, y2
  - Kill Switch
  - WFS
 7. EEPROM Configuration

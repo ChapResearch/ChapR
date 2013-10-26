@@ -6,11 +6,21 @@ Purpose: TO determine if the hardware has been constructed appropriately
  - plug in battery
  - make sure nothing happens
  - press and hold power switch
- - only VDIP and Arduino should have lights
-2. Load Test Program
-2. Check VDIP firmware
-2. Verify messages to and from RN-42
-3. Verify messages to and from VDIP
-4. Hardware reset/escape hatch
-5. WSF button
-6. Power button
+ - only Arduino should have an LED (red)
+ - VDIP jumpers should be switched
+ - check for knot and notch (stress relief)
+2. Load Test Program (hold down WFS)
+   - Check VDIP firmware
+   - Verify messages to and from RN-42
+4. Hardware reset/escape hatch*
+5. Connect to a brick
+   - USB connection
+   - BT connection
+6. Joystick input
+   - basic responses
+7. WSF button
+8. Kill switch
+9. Power off ChapR
+10. Check labeling of case lid and base and outside label
+
+*not currently tested
