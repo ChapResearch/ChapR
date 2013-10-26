@@ -2,12 +2,31 @@
 #include "VDIP.h"
 #include "gamepad.h"
 
-
 // constructor - loads up a blank (but valid) gamepad
 
 Gamepad::Gamepad(int _id) : id(_id), x1(0), y1(0), x2(0), y2(0), buttons(0), tophat(0)
 {
 }
+
+#ifdef DEBUG
+
+void Gamepad::debugPrint(char *prefix)
+{
+     Serial.print(prefix);
+     Serial.print(": X1:");
+     Serial.print(x1);
+     Serial.print(" Y1:");
+     Serial.print(y1);
+     Serial.print(" X2:");
+     Serial.print(x2);
+     Serial.print(" Y1:");
+     Serial.print(y2);
+     Serial.print(" TOP: ");
+     Serial.print(tophat);
+     Serial.println("");
+}
+
+#endif
 
 //
 // load() - given a byte array of data from a USB read of a gamepad, load it into
@@ -25,11 +44,14 @@ void Gamepad::load(byte *usbdata)
      // usbdata[5] has buttons 12-5
 
      buttons = ((unsigned int)((usbdata[4]&0xf0)>>4)) | (((unsigned int)usbdata[5])<<4);
-
+     
      tophat = usbdata[4] & 0x0f;				// tophat
      if (tophat & 0x08) {					// 0x08 means that no tophat pressed
-	  tophat = 0;
+         tophat = 0;
+     } else{
+       tophat++; //we have to map north to 1 to match the canonical form
      }
+     //debugPrint("");
 }
 
 //
@@ -46,18 +68,4 @@ bool Gamepad::update(VDIP *vdip)
 	  return(true);
      }
      return(false);
-}
-
-void Gamepad::debugPrint(char *prefix)
-{
-     Serial.print(prefix);
-     Serial.print(": X1:");
-     Serial.print(x1);
-     Serial.print(" Y1:");
-     Serial.print(y1);
-     Serial.print(" X2:");
-     Serial.print(x2);
-     Serial.print(" Y1:");
-     Serial.print(y2);
-     Serial.println("");
 }
