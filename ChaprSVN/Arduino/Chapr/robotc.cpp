@@ -23,11 +23,12 @@ int robotcGamepadTranslate(byte *buffer, Gamepad *gp)
      buffer[4] = (byte) (gp->buttons & 0x00ff);		// buttons 1-8
      buffer[5] = (byte) ((gp->buttons & 0x0f00)>>8);	// buttons 9-12
 
-     buffer[6] = gp->tophat;
+     
      if (gp->tophat == 0) {				//   expects -1 if no tophat pressed
 	  buffer[6] = 0xff;
+     } else {
+         buffer[6] = gp->tophat-1; //change from canonical gamepad form to what RobotC expects
      }
-
      return(7);
 }
 
