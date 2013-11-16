@@ -12,6 +12,7 @@
 #include "personality.h"
 #include "personality_0.h"
 #include "robotc.h"
+#include "sound.h"
 
 #include "debug.h"
 
@@ -60,6 +61,18 @@ void Personality_0::ChangeInput(BT *bt, int mode, int device, Gamepad *old, Game
 }
 
 void Personality_0::ChangeButton(BT *bt, int mode, bool button)
-{
+{ 
+     extern sound beeper;
      // nothing happens here for this personality
+     char  buf[NXT_PRGM_NAME_SIZE];
+     
+     if (button){ //only executes if the button is in the down position
+       if (nxtGetProgramName(bt, buf)){
+  
+       } else {
+         if (nxtGetChosenProgram(bt, buf)){
+             nxtRunProgram(bt, buf);
+         }
+       }
+     }
 }

@@ -210,6 +210,8 @@ void BT::configMode(char *name)
      btSend(",N\r");		// (exits command mode too)
 
      baud9600mode(false);	// get out of 9600 mode, but leave auto connect off
+     
+     flushReturnData();
 }
 
 void BT::setRemoteAddress(char *address)
@@ -236,6 +238,8 @@ void BT::setRemoteAddress(char *address)
 
   baud9600mode(false);	// get out of 9600 mode, but leave auto connect off
   autoConnectMode(true);
+  
+  flushReturnData();
 }
 
 void BT::opMode()
@@ -264,7 +268,8 @@ void BT::opMode()
 
      btSend("---");		// and out of command mode
      btSend("\r");
-
+    
+     flushReturnData();
 }
 
 void BT::zombieMode()
@@ -294,6 +299,7 @@ void BT::zombieMode()
      btSend("Z");              //enters deep sleep mode
      btSend("\r");
 
+    flushReturnData();
 }
 
 void BT::autoConnectMode(bool turnOn)
@@ -369,9 +375,10 @@ void BT::btWrite(byte *buffer, int size)
 // recv() - receive data back from the BT module.  This code assumes that a line is
 //		always return - that is, something ending in a '\r'.  The given timeout
 //		(in ms) will cause this routine to return if a whole line doesn't
-//		come back (either nothing or a partial line).
+//		come back (either nothing or a partial line). It returns the number of
+//              characters written into the buffer (not including the null terminator)
 //
-void BT::recv(char *buffer, long timeout)
+int BT::recv(char *buffer, long timeout)
 {
      long target = millis() + timeout;
      int i = 0;
@@ -387,6 +394,36 @@ void BT::recv(char *buffer, long timeout)
      } while (millis() < target);
 
      buffer[i] = '\0';
+     
+     return i;
+}
+
+//
+// recv() - receive the specified number of bytes without null termination
+int BT::recv(byte *buffer, int count, long timeout){
+     //read first two bytes to determine size (use timeout as an escape hatch)
+     long target = millis() + timeout;
+     int i = 0;
+     
+     while (millis() < target && count){
+       if (available()){
+            buffer[i] = read();
+            i++;
+            count--;
+       }
+     }
+     
+     return i;
+}
+
+#define TIMEOUT 1000
+
+void BT::flushReturnData()
+{
+  delay(40); //delay to make sure final messages from RN-42 are received
+  while (available()){
+    read();
+  } 
 }
 
 bool BT::checkVersion()

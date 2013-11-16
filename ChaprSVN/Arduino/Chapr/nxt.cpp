@@ -10,9 +10,11 @@
 //   These routines don't worry the user with the difference between them.
 //
 
+#include "BT.h"
 #include "vdip.h"
 #include "nxt.h"
 #include "ChapREEPROM.h"
+#include "debug.h"
 
 ChapREEPROM myEEPROM3;
 
@@ -83,38 +85,271 @@ bool nxtQueryDevice(VDIP *vdip, int usbDev, char **name, char **btAddress, long 
      }
 }
 
-
-
 //
-// nxtGamepadUSBTranslate() - translate a single USB gamepad reading into the fields that would
-//				part of a RobotC joystick structure as serialized to be transmitted
-//				by BT.  This routine is COMPLETELY dependent upon the way in which
-//				the RobotC "Joystick.h" is coded, and will need to change if it does.
-//				- the output array must be 7 bytes
-//				- the input array must be 6 bytes
-//				- NOTE that this routine doesn't take into account the MODE SWITCH
-//				  which is byte #7 in the USB data.
+// nxtGetProgramName() - fills the char* buffer it is given
+//                       with the name of the program running, if
+//                       Bluetooth is connected. It returns false if
+//                       no program is running or something goes wrong with
+//                       the communication. The buffer won't be modified unless
+//                       true is returned. If true is returned, buffer will contain
+//                       the null-terminated name of the proram running on the NXT (including 
+//                       ".rxe"). The buffer needs to be at least 20 bytes and will always be null-terminated.
 //
-void nxtGamepadUSBTranslate(byte *usbdata, byte *output)
+bool nxtGetProgramName(BT *bt, char *buf)
 {
-//     output[0] = usbdata[0];					// joystick 1 (left) X axis 
-//     output[1] = usbdata[1];					// joystick 1 (left) Y axis 
-//     output[2] = usbdata[2];					// joystick 2 (right) X axis 
-//     output[3] = usbdata[3];					// joystick 2 (right) Y axis 
-
-     output[0] = usbdata[0]-128;				// joystick 1 (left) X axis 
-     output[1] = usbdata[1]-128;				// joystick 1 (left) Y axis 
-     output[2] = usbdata[2]-128;				// joystick 2 (right) X axis 
-     output[3] = usbdata[3]-128;				// joystick 2 (right) Y axis 
-
-     output[4] = (usbdata[4]&0xf0)>>4 | (usbdata[5]&0x0f)<<4;	// buttons 1-8
-     output[5] = (usbdata[5]&0xf0)>>4;				// buttons 9-12
-     output[6] = usbdata[4] & 0x0f;				// tophat
-     if (output[6] & 0x08) {					//   NXT expects -1 if no tophat pressed
-	  output[6] = 0xff;
+     byte	outbuff[64];
+     int	size = 0;
+     
+     if (!bt->connected()){
+       return false;
      }
+     
+     outbuff[size++] = 2;			// BT size does NOT include these two size bytes
+     outbuff[size++] = 0x00;			// this is the BT MSB of size - always zero
+     outbuff[size++] = NXT_DIR_CMD;
+     outbuff[size++] = NXT_DIR_CURRENT;
+     
+     bt->flushReturnData(); // somehow there is data in the Bluetooth receive buffer TODO figure out why
+     
+     (void)bt->btWrite(outbuff,size);
+     bt->recv(outbuff,2,1000); 
+     size = outbuff[0];
+       
+     // check to make sure the proper message is received
+       
+     if (size != 23){ 
+       bt->flushReturnData();
+       return false;
+     }
+       
+     // receive the rest of the data
+       
+     bt->recv(outbuff,size,1000); // timeout of 1000 milliseconds
+       
+     // check to see if a program is running
+       
+     if (outbuff[NXT_STATUS] == (byte) NXT_ERR_NOACTIVE){ // the error constant is cast to a byte to prevent sign extension
+       return false;
+     }
+       
+     if (outbuff[NXT_PRGM_NAME] == 0){ // checks to see that the name returned is useful
+       return false;
+     }
+       
+     // copy the name to the return buffer
+       
+     strncpy(buf,(char *) outbuff + NXT_PRGM_NAME,NXT_PRGM_NAME_SIZE);
+      
+     return true;
+}
 
-     // we don't send the last byte that is mode and controller data
+//
+// nxtOpenFileToRead() - returns the handle if the file is found properly (-1 otherwise).
+//                       If the handle is not -1, the int * given will be filled with the 
+//                       size.
+int nxtOpenFileToRead(BT *bt, char *buf, long *fileSize)
+{
+     byte	outbuff[64];
+     int	size = 0;
+     
+     if (!bt->connected()){
+       return -1;
+     }
+       
+     // open the file on the nxt
+       
+     outbuff[size++] = 22;			// BT size does NOT include these two size bytes
+     outbuff[size++] = 0x00;			// this is the BT MSB of size - always zero
+     outbuff[size++] = NXT_SYS_CMD;
+     outbuff[size++] = NXT_SYS_OPEN_R;
+     strncpy((char *)outbuff + size, buf, NXT_PRGM_NAME_SIZE);
+     size += NXT_PRGM_NAME_SIZE;
+       
+     bt->flushReturnData(); // somehow there is data in the Bluetooth receive buffer TODO figure out why
+     
+     (void)bt->btWrite(outbuff,size);
+     bt->recv(outbuff,2,1000); 
+     size = outbuff[0];
+       
+     // check to make sure the proper message is received
+       
+     if (size != 8){ 
+       bt->flushReturnData();
+       return -1;
+     }
+       
+     //receive the rest of the data
+       
+     bt->recv(outbuff,size,1000);
+     
+     // determines the size of the file
+     
+     *fileSize = outbuff[4];
+     *fileSize |= outbuff[5] << 8;
+     *fileSize |= outbuff[6] << 16;
+     *fileSize |= outbuff[7] << 24;
+     
+     // returns the handle of the file
+     
+     return outbuff[3];
+}
+
+//
+// nxtReadFile() - if everything goes well, the number of bytes read will be returned. If the size of
+//                 the Bluetooth message isn't what it is supposed to be or returns an error, the method
+//                 will return a -1. If the method does not return a -1, the buffer given will be filled 
+//                 with the contents of the file specified by the handle you passed to the method. The
+//                 amount of data to read (numToRead) should never be over 255 - if so, this routine
+//                 won't work as expected.
+//
+int nxtReadFile(BT *bt, char *buf, int numToRead, int handle)
+{
+     byte	outbuff[64];
+     int	size = 0;
+     
+     if (!bt->connected()){
+       return -1;
+     }
+     
+     outbuff[size++] = 5;			// BT size does NOT include these two size bytes
+     outbuff[size++] = 0x00;			// this is the BT MSB of size - always zero
+     outbuff[size++] = NXT_SYS_CMD;
+     outbuff[size++] = NXT_SYS_READ;
+     outbuff[size++] = handle;
+     outbuff[size++] = numToRead;
+     outbuff[size++] = 0; // normally the most significant byte, but the size will never be over 255
+            
+     bt->flushReturnData(); // somehow there is data in the Bluetooth receive buffer TODO figure out why
+     
+     (void)bt->btWrite(outbuff,size);
+     bt->recv(outbuff,2,1000);   //  we wait for the NXT for up to 1 second for a response
+     size = outbuff[0];
+       
+     // since we asked for numToRead bytes, the return BT packet should be numToRead + 6
+     // or something has gone wrong.
+       
+     if (size != numToRead+6) { 
+       bt->flushReturnData();
+       return -1;
+     }
+       
+     //receive the rest of the data
+       
+     bt->recv(outbuff,numToRead+6,1000);
+       
+     if (outbuff[2] != 0){ //checks that the read was successful
+        return -1;
+     }
+       
+     //copies the data into buf
+       
+     strncpy(buf, (char *) outbuff + 6, numToRead);
+
+     return numToRead; // amount of data read
+} 
+
+//
+// nxtCloseFile() - closes the file named by the given handle, returning true if everything works,
+//                  false otherwise. If something goes wrong, we can't do anything but return false.
+//
+bool nxtCloseFile(BT *bt, int handle)
+{
+     byte	outbuff[64];
+     int	size = 0;
+     
+     if (!bt->connected()){
+       return false;
+     }
+       
+     // open the file on the nxt
+       
+     outbuff[size++] = 3;			// BT size does NOT include these two size bytes
+     outbuff[size++] = 0x00;			// this is the BT MSB of size - always zero
+     outbuff[size++] = NXT_SYS_CMD;
+     outbuff[size++] = NXT_SYS_CLOSE;
+     outbuff[size++] = handle;
+       
+     bt->flushReturnData(); // somehow there is data in the Bluetooth receive buffer TODO figure out why
+     
+     (void)bt->btWrite(outbuff,size);
+     bt->recv(outbuff,2,1000); 
+     size = outbuff[0];
+       
+     // check to make sure the proper message is received
+       
+     if (size != 4){ 
+       bt->flushReturnData();
+       return false;
+     }
+       
+     // receive the rest of the data
+       
+     bt->recv(outbuff,size,1000);
+
+     // checks that the handle of the file closed matches the given handle
+
+     if (outbuff[3] == handle){
+       return true;
+     } else {
+       return false;
+     }
+}
+
+//
+// nxtGetChosenProgram() - fills the buffer with the name of the program loaded into program
+//                         chooser and returns true if successful. If no file is found, false 
+//                         is returned. Also, if an error is encountered along the way, the 
+//                         file will simply be closed.
+//
+bool nxtGetChosenProgram(BT *bt, char *buf)
+{
+     long       fileSize;
+     bool       retVal = false;
+     
+     if (!bt->connected()){
+       return false;
+     }
+      
+     int handle = nxtOpenFileToRead(bt, "FTCConfig.txt", &fileSize);
+       
+     if (fileSize < NXT_PRGM_NAME_SIZE){ //the name will not include the null terminator
+     
+         if (nxtReadFile(bt, buf, fileSize, handle) != -1){ //simply gets the bytes
+           buf[fileSize] = '\0'; //null terminates the name of the file
+           retVal = true;
+         }
+         
+     }
+ 
+     (void) nxtCloseFile(bt, handle);
+
+     return retVal;
+}
+
+void nxtRunProgram(BT *bt, char *buf)
+{
+    byte	outbuff[64];
+     int	size = 0;
+     
+     if (bt->connected()) {
+       
+       // open the file on the nxt
+       
+       outbuff[size++] = 22;			// BT size does NOT include these two size bytes
+       outbuff[size++] = 0x00;			// this is the BT MSB of size - always zero
+       outbuff[size++] = NXT_DIR_CMD;
+       outbuff[size++] = NXT_DIR_START;
+       strncpy((char *)outbuff + size, buf, NXT_PRGM_NAME_SIZE);
+       size += NXT_PRGM_NAME_SIZE;
+       
+       bt->flushReturnData(); // somehow there is data in the Bluetooth receive buffer TODO figure out why
+     
+       (void)bt->btWrite(outbuff,size);
+       bt->recv(outbuff,2,1000); 
+       size = outbuff[0];
+       
+       bt->recv(outbuff,size,1000); 
+     }
 }
 
 //

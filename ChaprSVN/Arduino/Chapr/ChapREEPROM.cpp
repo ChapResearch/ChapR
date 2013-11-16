@@ -83,45 +83,47 @@ void ChapREEPROM::boardBringUp()
   char buf[25];
   extern sound beeper;
   buf[0] = ' ';
-  Serial.print("Running test program version ");
+  Serial.print(F("Running test program version "));
   Serial.println(BOARDBRINGUPVERSION);
-  Serial.println("Don't forget to switch the top jumper on the VDIP");
+  Serial.println(F("Don't forget to switch the top jumper on the VDIP"));
   indicateLED2.off();
-  Serial.println("Testing power LED...");
+  Serial.println(F("Testing power LED..."));
   powerLED2.on();
-  Serial.println("Hit return to continue");
+  Serial.println(F("Hit return to continue"));
   getStringFromMonitor(buf, 2);
   while (buf[0] != '\0'){
     getStringFromMonitor(buf, 2);
   }
-  Serial.println("Testing BT LED...");
+  Serial.println(F("Testing BT LED..."));
   powerLED2.off();
   indicateLED2.on();
-  Serial.println("Hit return to continue");
+  Serial.println(F("Hit return to continue"));
   getStringFromMonitor(buf, 1);
   while (buf[0] != '\0'){
     getStringFromMonitor(buf, 1);
   }
   indicateLED2.off();
-  Serial.println("Hit return to squeep");
+  Serial.println(F("Hit return to squeep"));
   getStringFromMonitor(buf, 2);
   while (buf[0] != '\0'){
     getStringFromMonitor(buf, 2);
   }
   beeper.squeep();
-  Serial.println("Press WFS button to continue");
-  while (theButton2.isPressed() != true){
+  Serial.println(F("Press WFS button to continue"));
+  while (theButton2.check() != true){
   }
-  Serial.println("checking VDIP version...");
+  Serial.println(F("checking VDIP version..."));
   for (int i = 0; i < sizeof(buf); i++){
     buf[i] ='\0';
   }
   vdip2.cmd(VDIP_FWV, buf, DEFAULTTIMEOUT, 15); //expects 15 bytes back see pg 23 of Viniculum Firmware reference
-  Serial.print("VDIP version: ");
+  Serial.print(F("VDIP version: "));
   Serial.println(buf);
-  Serial.println("checking version of RN-42...");
+  Serial.println(F("Should be 3.69"));
+  Serial.println(F("checking version of RN-42..."));
   bt2.checkVersion();
-  Serial.println("Everything looks good!");
+  Serial.println(F("Should be 6.15"));
+  Serial.println(F("Everything looks good!"));
 }
 
 void ChapREEPROM::setFromConsole(char *name, byte timeout, byte personality, byte speed, byte mode)
@@ -132,7 +134,7 @@ void ChapREEPROM::setFromConsole(char *name, byte timeout, byte personality, byt
   
   flushSerial();
   
-  Serial.print("Enter ChapR name (1 thru 15 chars). Hit return for default: ");
+  Serial.print(F("Enter ChapR name (1 thru 15 chars). Hit return for default: "));
   Serial.println(name);
   int index = 0;
   char buffer[EEPROM_MAXSTRINGLENGTH];
@@ -141,55 +143,55 @@ void ChapREEPROM::setFromConsole(char *name, byte timeout, byte personality, byt
     setName(name);
   } else {  
     setName(buffer);
-    Serial.print("ChapR name is now: ");
+    Serial.print(F("ChapR name is now: "));
     Serial.println(getName());
   }
   
-  Serial.print("Enter ChapR timeout (0 (no timeout) - 120 min).  Hit return for default: ");
+  Serial.print(F("Enter ChapR timeout (0 (no timeout) - 120 min).  Hit return for default: "));
   Serial.println(timeout);
   getStringFromMonitor(buffer,sizeof(buffer));
   if (buffer[0] == '\0'){
     setTimeout(timeout);
   } else {
     setTimeout(atoi(buffer));
-    Serial.print("ChapR timeout is now: ");
+    Serial.print(F("ChapR timeout is now: "));
     Serial.println(getTimeout());
   }
 
-  Serial.print("Enter ChapR personality (numbers explained on www.thechapr.com). Hit return for default: ");
+  Serial.print(F("Enter ChapR personality (numbers explained on www.thechapr.com). Hit return for default: "));
   Serial.println(personality);
   getStringFromMonitor(buffer,sizeof(buffer));
   if (buffer[0] == '\0' || atoi(buffer) > EEPROM_LASTPERSON){
     setPersonality(personality);
   } else {
     setPersonality(atoi(buffer));
-    Serial.print("ChapR personality is now: ");
+    Serial.print(F("ChapR personality is now: "));
     Serial.println(getPersonality());
   }
   
-  Serial.print("Enter ChapR lag (0-255, 0 being the least lag). Hit return for default: ");
+  Serial.print(F("Enter ChapR lag (0-255, 0 being the least lag). Hit return for default: "));
   Serial.println(speed);
   getStringFromMonitor(buffer,sizeof(buffer));
   if (buffer[0] == '\0' || atoi(buffer) > EEPROM_MAXLAG || atoi(buffer) < 0){
     setSpeed(speed);
   } else {
     setSpeed(atoi(buffer));
-    Serial.print("ChapR lag is now: ");
+    Serial.print(F("ChapR lag is now: "));
     Serial.println(getSpeed());
   }
   
-  Serial.print("Enter ChapR mode. Hit return for default: ");
+  Serial.print(F("Enter ChapR mode. Hit return for default: "));
   Serial.println(mode);
   getStringFromMonitor(buffer,sizeof(buffer));
   if (buffer[0] == '\0' || atoi(buffer) > EEPROM_MAXMODE){
     setMode(mode);
   } else {
     setMode(atoi(buffer));
-    Serial.print("ChapR mode is now: ");
+    Serial.print(F("ChapR mode is now: "));
     Serial.println(getMode());
   }
   
-  Serial.println("Preferences saved!");
+  Serial.println(F("Preferences saved!"));
   markInitialized();
   setUSBPhase(0); //says the NXT has not been connected by USB yet
 }
