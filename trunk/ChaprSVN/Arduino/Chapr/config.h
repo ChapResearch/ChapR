@@ -72,9 +72,13 @@
 //these two constants define the time before entering power saving mode and are in milliseconds
 // (the second commented out versions are for debugging)
 
-#define LOWPOWERTIMEOUT 300000
-//#define LOWPOWERTIMEOUT 10000
-#define ZMODETIMEOUT 600000
-//#define ZMODETIMEOUT 20000
+//#define LOWPOWERTIMEOUT 300000
+//#define ZMODETIMEOUT 600000
 
 #define POWEROFFHOLDDOWN 2000 //this is measured in milliseconds
+
+
+// Because the switches on the ChapR are mechanical, they will generate multiple presses
+// for every user press. The "debounce" is the time in milliseconds the ChapR waits after
+// noticing a button press before it reports the next one.
+#define DEBOUNCE 50

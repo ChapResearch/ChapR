@@ -3,8 +3,8 @@
 
 #include "VDIPSPI.h"
 #include "VDIP.h"
-#include "nxt.h"
 #include "BT.h"
+#include "nxt.h"
 #include "sound.h"
 #include "debug.h"
 #include "config.h"

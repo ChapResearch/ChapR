@@ -103,7 +103,67 @@
 #define NXT_DIR_CURRENT	'\x11'		// Get current program name
 #define NXT_DIR_RECV	'\x13'		// receive a direct message
 
-// these need to be replaced in the code with the defines above
+//
+// RESPONSE PACKAGE BYTE LOCATIONS
+//
+#define NXT_TYPE           0            //always 0x02 to indicate "response package"
+#define NXT_RSP            1            //the command it is responding to
+#define NXT_STATUS         2            //the status of the command response (see below for error messages)
+//Get Program Name
+#define NXT_PRGM_NAME      3            //bytes 3 through 22 are the name of the program currently running (null-terminated)
+#define NXT_PRGM_NAME_SIZE 20           //the size of the program name, including null termination (and ".rxe")
+//
+// ERROR MESSAGES FOR DIRECT COMMANDS
+//
+#define NXT_ERR_NONE   '\x00'           // Success!
+#define NXT_ERR_TRANS  '\x20'           // Pending communication transaction in progress
+#define NXT_ERR_MBOX   '\x40'           // Specified mailbox queue is empty
+#define NXT_ERR_RFAIL  '\xBD'           // Request failed (i.e. specified file not found)
+#define NXT_ERR_UNKN   '\xBE'           // Unknown command opcode
+#define NXT_ERR_INSANE '\xBF'           //Insane packet
+#define NXT_ERR_OOR    '\xC0'           // Data contains out-of-range values
+/*
+#define NXT_ERR_CBUS   '\xDD'           //Communication bus error
+#define NXT_ERR_No free memory in communication buffer 0xDE
+· Specified channel/connection is not valid 0xDF
+· Specified channel/connection not configured or busy 0xE0*/
+#define NXT_ERR_NOACTIVE  '\xEC'        // No active program
+/*· Illegal size specified 0xED
+· Illegal mailbox queue ID specified 0xEE
+· Attempted to access invalid field of a structure 0xEF
+· Bad input or output specified 0xF0
+· Insufficient memory available 0xFB
+· Bad arguments 0xFF*/
+
+
+// these need to be replaced in the code with the defines above TODO
+
+//
+// ERROR MESSAGES FOR SYSTEM COMMANDS
+//
+/*Success 0x00
+· No more handles 0x81
+· No space 0x82
+· No more files 0x83
+· End of file expected 0x84
+· End of file 0x85
+· Not a linear file 0x86
+see below
+· Handle all ready closed 0x88
+· No linear space 0x89
+· Undefined error 0x8A
+· File is busy 0x8B
+· No write buffers 0x8C
+· Append not possible 0x8D
+· File is full 0x8E
+· File exists 0x8F
+· Module not found 0x90
+· Out of boundary 0x91
+· Illegal file name 0x92
+· Illegal handle 0x93
+*/
+
+#define NXT_SYS_ERR_NOFILE '0x87'
 
 #define NXT_GET_DEV_INFO NXT_SYS_INFO
 #define NXT_REBOOT       NXT_SYS_BOOTH
@@ -119,5 +179,12 @@ extern int nxtMsgCompose(byte *output, 		// the output buffer to scribble things
 
 extern bool nxtQueryDevice(VDIP *, int, char **, char **, long *);
 
-extern int nxtBTMailboxMsgCompose(int,byte *,int);
-extern int nxtBTKillCommand(byte *);
+extern int  nxtBTMailboxMsgCompose(int,byte *,int);
+extern int  nxtBTKillCommand(byte *);
+extern bool nxtGetProgramName(BT *, char*);
+extern bool nxtGetChosenProgram(BT *, char*);
+extern int nxtOpenFileToRead(BT *, char*);
+extern int nxtReadFile(BT *, char *, int, int);
+extern bool nxtCloseFile(BT *, int);
+extern void nxtRunProgram(BT *, char *);
+

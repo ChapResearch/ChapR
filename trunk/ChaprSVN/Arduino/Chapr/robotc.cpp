@@ -15,10 +15,13 @@
 
 int robotcGamepadTranslate(byte *buffer, Gamepad *gp)
 {
-     buffer[0] = gp->x1;				// joystick 1 (left) X axis 
-     buffer[1] = gp->y1;				// joystick 1 (left) Y axis 
-     buffer[2] = gp->x2;				// joystick 2 (right) X axis 
-     buffer[3] = gp->y2;				// joystick 2 (right) Y axis 
+     // because the FCS only sends up to -127 and NOT -128, we cap the values at -127
+     // note: LabView also caps these values, but RobotC does not
+  
+     buffer[0] = max(gp->x1, -127);				// joystick 1 (left) X axis 
+     buffer[1] = max(gp->y1, -127);				// joystick 1 (left) Y axis 
+     buffer[2] = max(gp->x2, -127);				// joystick 2 (right) X axis 
+     buffer[3] = max(gp->y2, -127);				// joystick 2 (right) Y axis 
 
      buffer[4] = (byte) (gp->buttons & 0x00ff);		// buttons 1-8
      buffer[5] = (byte) ((gp->buttons & 0x0f00)>>8);	// buttons 9-12

@@ -11,12 +11,13 @@ class button
   
   bool isPressed();
   bool hasChanged();
+  bool check();
 
  private:
   int _pin;
   bool _wasPressed;
   bool _inverted;
-  bool check();
+  long _target;
 };
 
 #endif BUTTON_H

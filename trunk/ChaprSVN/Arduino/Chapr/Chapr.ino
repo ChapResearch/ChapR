@@ -124,7 +124,7 @@ void setup()
           bt.configMode(myEEPROM.getName());
      } else {
 	  bt.opMode();
-	  lowPowerOperation();		// turn off all unused portions of the ARDUINO - including serial port
+	  //lowPowerOperation();		// turn off all unused portions of the ARDUINO - including serial port TODO
      }
 
      beeper.confirm();
