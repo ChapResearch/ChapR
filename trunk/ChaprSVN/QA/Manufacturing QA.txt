@@ -6,9 +6,9 @@ Purpose: TO determine if the hardware has been constructed appropriately
  - plug in battery
  - make sure nothing happens
  - press and hold power switch
- - only Arduino should have an LED (red)
+ - only Arduino should have an LED (red) *later
  - VDIP jumpers should be switched
- - check for knot and notch (stress relief)
+ - check for knot and notch (stress relief) *later
 2. Load Test Program (hold down WFS)
    - Check VDIP firmware
    - Verify messages to and from RN-42
