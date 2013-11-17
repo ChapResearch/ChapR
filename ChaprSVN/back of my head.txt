@@ -1,0 +1,27 @@
+take out the battery when working on software
+take out the lowPowerOperation comments
+write all the error messages as defines
+
+RIGHT HERE - where i am in code
+SKETCHY - code that should be fixed
+TODO - code that needs to be fixed
+
+ask Vandegrift if we can use their quotes
+
+potential problems
+ - confusing the hold down the power button and have nothing happen (can't tell if the battery is dead)
+ - latency when using LabView
+ - all the way forward on the sticks stops motors in LabView (would stop for a brief moment)
+ - battery life (good!)
+ - having to reboot both the NXt and ChapR
+ - not being able to tell the battery life (flashing power LED and making icky noise repeatedly)
+ - switch idea (not happening)
+ - adding a belt clip? (customizable with personality)
+
+LabView stops pairing while a program is running
+
+needs a board spin to change the silk screen and get rid of the extra holes (and potentially monitor battery)
+
+**LabView personality shouldn't send -128 on the up stick
+
+must check FCS!!
