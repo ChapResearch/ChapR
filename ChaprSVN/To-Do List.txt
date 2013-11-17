@@ -1,4 +1,44 @@
 -----------------------------------------------------------------
+TODO AS OF NOV 11, 2013
+-----------------------------------------------------------------
+*Software
+1. Program Chooser
+2. ChapR Library
+3. USB Pairing Extras
+ - display image to show ChapR is connected (something Westlakey)
+ - make sure BT is on (will be implemented with personalities)
+4. Configurable Bluetooth range
+
+*Hardware
+?
+
+*Website
+1. Lag Page
+2. Mode Page
+3. Update bug list
+4. Update software
+
+*Marketing
+1. Presentation for FTC Conference (Nov 9)
+  - make sure Rachel bot is ready
+  - print flyers
+  //- picture of a program starting on a brick
+  //- teleOp remote start
+  - hardware diagram
+  //- find and integrate old/new presentation
+  //- fix flowchart
+  //- split and format "moving forward" slide
+2. Get feedback on the ChapRs
+3. Get current owners to update bugs
+
+**works with NXT - A, which is now in the NXT mode, but not with Rachel NXT (which went through a hardware reset)
+**doesn't get a chance to say it's connected, so it connects after the reset only (no way of knowing if master/slave flip occurred at the moment)
+**test with another NXT because NXT - A brick will boot strangely if the ChapR is pairing before it has been booted
+**sometimes you have to reboot the NXt brick to get it to pair properly
+**ChapR wouldn't work with Matrix...?
+**Mysteriously disconnects and reconnects after a few minutes
+**has trouble reading a flash drive on a low power battery
+-----------------------------------------------------------------
 TODO AS OF AUG 24, 2013
 -----------------------------------------------------------------
 *Software
