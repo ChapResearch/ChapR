@@ -128,7 +128,7 @@ bool nxtGetProgramName(BT *bt, char *buf)
        
      // check to see if a program is running
        
-     if (outbuff[NXT_STATUS] == (byte) NXT_ERR_NOACTIVE){ // the error constant is cast to a byte to prevent sign extension
+     if (outbuff[NXT_STATUS] == (byte) NXT_ERR_NOACT){ // the error constant is cast to a byte to prevent sign extension
        return false;
      }
        
