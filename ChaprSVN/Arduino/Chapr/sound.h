@@ -11,6 +11,10 @@ public:
      void yawn();
      void squeep();
      void icky();
+     void start();
+     void up();
+     void down();
+     void kill();
 
 private:
      int	_pin;
