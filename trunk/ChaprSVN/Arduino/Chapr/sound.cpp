@@ -71,3 +71,55 @@ void sound::yawn()
      }
      SOUND_OFF;
 }
+
+void sound::start()
+{
+  SOUND_ON;
+  noTone(_pin);
+  
+  for (int i = 100; i < 2000; i += 5) {
+	  tone(_pin,i);
+	  delay(1);
+  }
+  noTone(_pin);
+  SOUND_OFF;
+}
+
+void sound::up()
+{
+  SOUND_ON;
+  noTone(_pin);
+  
+  for (int i = 500; i < 1500; i += 5) {
+	  tone(_pin,i);
+	  delay(1);
+  }
+  noTone(_pin);
+  SOUND_OFF;
+}
+
+void sound::down()
+{
+  SOUND_ON;
+  noTone(_pin);
+  
+  for (int i = 1500; i > 500; i -= 5) {
+	  tone(_pin,i);
+	  delay(1);
+  }
+  noTone(_pin);
+  SOUND_OFF;
+}
+
+void sound::kill()
+{
+  SOUND_ON;
+  noTone(_pin);
+  
+  for (int i = 2000; i > 100; i -= 5) {
+	  tone(_pin,i);
+	  delay(1);
+  }
+  noTone(_pin);
+  SOUND_OFF;
+}
