@@ -18,7 +18,10 @@
 
 class Personality_2 : public Personality
 {
+private:
+     bool startedProgram; // if true, then the program was just started with the button
 public:
+     Personality_2();
      virtual void ChangeInput(BT *bt, int mode, int device, Gamepad *old, Gamepad *);
      virtual void ChangeButton(BT *bt, int mode, bool button);
      virtual void Loop(BT *bt, int mode, bool, Gamepad *, Gamepad *);

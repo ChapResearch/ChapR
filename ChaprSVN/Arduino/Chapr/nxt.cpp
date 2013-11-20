@@ -182,6 +182,8 @@ int nxtOpenFileToRead(BT *bt, char *buf, long *fileSize)
        
      bt->recv(outbuff,size,1000);
      
+     
+     dumpDataHex("openFileToRead", outbuff, 8);
      // determines the size of the file
      
      *fileSize = outbuff[4];
@@ -190,6 +192,12 @@ int nxtOpenFileToRead(BT *bt, char *buf, long *fileSize)
      *fileSize |= outbuff[7] << 24;
      
      // returns the handle of the file
+     
+     Serial.print("nxtOpenFileToRead() handle ");
+     Serial.println(outbuff[3]);
+     
+     Serial.print("nxtOpenFileToRead() fileSize ");
+     Serial.println(*fileSize);
      
      return outbuff[3];
 }
@@ -244,7 +252,7 @@ int nxtReadFile(BT *bt, char *buf, int numToRead, int handle)
      //copies the data into buf
        
      strncpy(buf, (char *) outbuff + 6, numToRead);
-
+     
      return numToRead; // amount of data read
 } 
 
@@ -277,7 +285,7 @@ bool nxtCloseFile(BT *bt, int handle)
        
      // check to make sure the proper message is received
        
-     if (size != 4){ 
+     if (size != 4){
        bt->flushReturnData();
        return false;
      }
@@ -285,6 +293,8 @@ bool nxtCloseFile(BT *bt, int handle)
      // receive the rest of the data
        
      bt->recv(outbuff,size,1000);
+
+     dumpDataHex("return after trying to close", outbuff, size);
 
      // checks that the handle of the file closed matches the given handle
 
@@ -311,6 +321,14 @@ bool nxtGetChosenProgram(BT *bt, char *buf)
      }
       
      int handle = nxtOpenFileToRead(bt, "FTCConfig.txt", &fileSize);
+      
+     Serial.print("handle is ");
+     Serial.println(handle);
+     
+     handle = nxtOpenFileToRead(bt, "FTCConfig.txt", &fileSize);
+      
+     Serial.print("handle is ");
+     Serial.println(handle);
        
      if (fileSize < NXT_PRGM_NAME_SIZE){ //the name will not include the null terminator
      
@@ -323,12 +341,20 @@ bool nxtGetChosenProgram(BT *bt, char *buf)
  
      (void) nxtCloseFile(bt, handle);
 
+     Serial.print("nxtGetChosenProgram() returned ");
+     Serial.println(retVal);
      return retVal;
 }
 
-void nxtRunProgram(BT *bt, char *buf)
+//
+// nxtRunProgram() - takes in the name of the program to run, returning whether
+//                   or not said program ran. A program would not run (and the 
+//                   method would return false) because either the program was
+//                   not found or the NXT brick is not connected via Bluetooth.
+//
+bool nxtRunProgram(BT *bt, char *buf)
 {
-    byte	outbuff[64];
+     byte	outbuff[64];
      int	size = 0;
      
      if (bt->connected()) {
@@ -348,8 +374,19 @@ void nxtRunProgram(BT *bt, char *buf)
        bt->recv(outbuff,2,1000); 
        size = outbuff[0];
        
+       if (size != 3) {
+         bt->flushReturnData();
+         return false;
+       }
+       
        bt->recv(outbuff,size,1000); 
+       
+       Serial.print("nxtRunProgram() returned ");
+       Serial.println(outbuff[2]);
+       return outbuff[2] == NXT_ERR_NONE;
      }
+     
+     return false;
 }
 
 //
@@ -391,13 +428,33 @@ int nxtBTMailboxMsgCompose(int mbox, byte *msgbuff, int size)
 //			BT - but it is in one to make it more efficient.
 //
 
-int nxtBTKillCommand(byte *msgbuff)
+bool nxtBTKillCommand(BT *bt)
 {
-     msgbuff[0] = 2;			// BT size does NOT include these two size bytes
-     msgbuff[1] = 0x00;			// this is the BT MSB of size - always zero
-     msgbuff[2] = NXT_DIR_CMD_NR;	// direct command, no response
-     msgbuff[3] = NXT_DIR_STOP;		// stop command
-
-     return(4);
+    byte	outbuff[64];
+    int	size = 0;
+     
+    if (bt->connected()) {
+       outbuff[size++] = 2;			// BT size does NOT include these two size bytes
+       outbuff[size++] = 0x00;			// this is the BT MSB of size - always zero
+       outbuff[size++] = NXT_DIR_CMD;	// direct command, no response
+       outbuff[size++] = NXT_DIR_STOP;		// stop command
+       
+       bt->flushReturnData(); // somehow there is data in the Bluetooth receive buffer TODO figure out why
+     
+       (void)bt->btWrite(outbuff,size);
+       bt->recv(outbuff,2,1000); 
+       size = outbuff[0];
+       
+       if (size != 3) {
+         bt->flushReturnData();
+         return false;
+       }
+       
+       bt->recv(outbuff,size,1000); 
+       
+       return outbuff[2] == NXT_ERR_NONE;
+     }
+    
+     return false;
 }
 

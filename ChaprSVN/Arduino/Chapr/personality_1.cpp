@@ -12,6 +12,7 @@
 #include "nxtg.h"
 #include "personality.h"
 #include "personality_1.h"
+#include "sound.h"
 
 #include "debug.h"
 
@@ -104,12 +105,10 @@ void Personality_1::ChangeButton(BT *bt, int mode, bool button)
 
 void Personality_1::Kill(BT *bt, int mode)
 {
-     byte	outbuff[64];
-     int	size;
+     extern sound beeper;
 
-     if (bt->connected()) {
-	  size = nxtBTKillCommand(outbuff);
-	  (void)bt->btWrite(outbuff,size);
+     if (nxtBTKillCommand(bt)){
+         beeper.kill();
      }
 }
 
