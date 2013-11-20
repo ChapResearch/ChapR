@@ -173,11 +173,11 @@ extern int nxtMsgCompose(byte *output, 		// the output buffer to scribble things
 extern bool nxtQueryDevice(VDIP *, int, char **, char **, long *);
 
 extern int  nxtBTMailboxMsgCompose(int,byte *,int);
-extern int  nxtBTKillCommand(byte *);
+extern bool  nxtBTKillCommand(BT *);
 extern bool nxtGetProgramName(BT *, char*);
 extern bool nxtGetChosenProgram(BT *, char*);
 extern int nxtOpenFileToRead(BT *, char*);
 extern int nxtReadFile(BT *, char *, int, int);
 extern bool nxtCloseFile(BT *, int);
-extern void nxtRunProgram(BT *, char *);
+extern bool nxtRunProgram(BT *, char *);
 

@@ -16,6 +16,11 @@
 
 #include "debug.h"
 
+Personality_0::Personality_0() : startedProgram(false)
+{
+    
+}
+
 //
 // Loop() - for the NXT-RobotC pesonality, a message is sent out for each
 //		loop through the Arduino code.  The message is simply the
@@ -46,14 +51,10 @@ void Personality_0::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
 
 void Personality_0::Kill(BT *bt, int mode)
 {
-     //extern sound beeper;
-     byte	outbuff[64];
-     int	size;
+     extern sound beeper;
 
-     if (bt->connected()) {
-	  size = nxtBTKillCommand(outbuff);
-	  (void)bt->btWrite(outbuff,size);
-          //beeper.kill();
+     if (nxtBTKillCommand(bt)){
+         beeper.kill();
      }
 }
 
@@ -69,13 +70,24 @@ void Personality_0::ChangeButton(BT *bt, int mode, bool button)
      
      if (button){ //only executes if the button is in the down position
        if (nxtGetProgramName(bt, buf)){
+         // program is running so the action button functions as a WFS button 
+         // and is handled by the loop call of the personality
+         beeper.up();
        } else {
-           if (nxtGetChosenProgram(bt, buf)){
-             nxtRunProgram(bt, buf);
+           if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf)){
              beeper.start();
            } else {
              beeper.icky();
            }
+           startedProgram = true;
          }
+     } else {
+       // if the last action triggered by having the button down 
+       // was starting the program, don't make the "down" sound
+       if (startedProgram){
+         startedProgram = false;
+       } else {
+         beeper.down();
+       }
      }
 }

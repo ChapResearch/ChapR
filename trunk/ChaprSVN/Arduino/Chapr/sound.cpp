@@ -90,10 +90,9 @@ void sound::up()
   SOUND_ON;
   noTone(_pin);
   
-  for (int i = 500; i < 1500; i += 5) {
-	  tone(_pin,i);
-	  delay(1);
-  }
+  tone(_pin,1500);
+  delay(150);
+  
   noTone(_pin);
   SOUND_OFF;
 }
@@ -103,10 +102,9 @@ void sound::down()
   SOUND_ON;
   noTone(_pin);
   
-  for (int i = 1500; i > 500; i -= 5) {
-	  tone(_pin,i);
-	  delay(1);
-  }
+  tone(_pin,500);
+  delay(150);
+  
   noTone(_pin);
   SOUND_OFF;
 }

@@ -30,6 +30,9 @@
 
 class Personality
 {
+  
+private: 
+  
 public:
 
      // the Loop() interface of the Personality is called at the end of each loop through

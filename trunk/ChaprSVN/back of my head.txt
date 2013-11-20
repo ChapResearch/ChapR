@@ -1,6 +1,5 @@
 take out the battery when working on software
 take out the lowPowerOperation comments
-write all the error messages as defines
 
 RIGHT HERE - where i am in code
 SKETCHY - code that should be fixed
@@ -24,4 +23,9 @@ needs a board spin to change the silk screen and get rid of the extra holes (and
 
 **LabView personality shouldn't send -128 on the up stick
 
-must check FCS!!
+did check FCS - sends 127 (should add to website)
+
+randomly got a bluetooth store is full error and the chapr tried to connect, but disconnected instantly (and repeated this process)
+  - must delete a few contacts on the brick
+
+the openFileToRead() command appears to return the wrong handle (always 0?)

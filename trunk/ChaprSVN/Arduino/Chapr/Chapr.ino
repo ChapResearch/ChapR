@@ -191,6 +191,7 @@ void loop()
        if (millis() - timeButtonPressed > POWEROFFHOLDDOWN){
            powerLED.off();
            indicateLED.off();
+           beeper.yawn();
            digitalWrite(POWER_ON_HOLD,LOW);
            enterZombieMode();
        }
