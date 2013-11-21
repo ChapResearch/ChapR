@@ -101,6 +101,8 @@ bool nxtGetProgramName(BT *bt, char *buf)
        return false;
      }
      
+     delay(10);
+
      outbuff[size++] = 2;			// BT size does NOT include these two size bytes
      outbuff[size++] = 0x00;			// this is the BT MSB of size - always zero
      outbuff[size++] = NXT_DIR_CMD;
@@ -153,6 +155,8 @@ int nxtOpenFileToRead(BT *bt, char *buf, long *fileSize)
        return -1;
      }
        
+     delay(10);
+
      // open the file on the nxt
        
      outbuff[size++] = 22;			// BT size does NOT include these two size bytes
@@ -185,7 +189,7 @@ int nxtOpenFileToRead(BT *bt, char *buf, long *fileSize)
      }
 
 //     dumpDataHex("openFileToRead return packet", outbuff, 8);
-     delay(10);
+//     delay(10);
 
      // determines the size of the file
      
@@ -265,7 +269,9 @@ bool nxtCloseFile(BT *bt, int handle)
      if (!bt->connected()){
        return false;
      }
-       
+  
+     delay(10);
+
      // open the file on the nxt
        
      outbuff[size++] = 3;			// BT size does NOT include these two size bytes
@@ -292,7 +298,7 @@ bool nxtCloseFile(BT *bt, int handle)
      bt->recv(outbuff,size,1000);
 
 //     dumpDataHex("return after trying to close", outbuff, size);
-     delay(10);
+//     delay(10);
 
      // checks that the handle of the file closed matches the given handle
 
@@ -318,6 +324,8 @@ bool nxtGetChosenProgram(BT *bt, char *buf)
      if (!bt->connected()){
        return false;
      }
+
+     delay(10);
 
      handle = nxtOpenFileToRead(bt, "FTCConfig.txt", &fileSize);
      if(handle == -1) {
@@ -349,7 +357,9 @@ bool nxtRunProgram(BT *bt, char *buf)
      int	size = 0;
      
      if (bt->connected()) {
-       
+
+       delay(10);
+
        // open the file on the nxt
        
        outbuff[size++] = 22;			// BT size does NOT include these two size bytes
@@ -423,6 +433,9 @@ bool nxtBTKillCommand(BT *bt)
     int	size = 0;
      
     if (bt->connected()) {
+
+       delay(10);
+
        outbuff[size++] = 2;			// BT size does NOT include these two size bytes
        outbuff[size++] = 0x00;			// this is the BT MSB of size - always zero
        outbuff[size++] = NXT_DIR_CMD;	// direct command, no response
