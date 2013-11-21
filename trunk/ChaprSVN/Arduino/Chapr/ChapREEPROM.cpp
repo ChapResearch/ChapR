@@ -112,14 +112,26 @@ void ChapREEPROM::boardBringUp()
   Serial.println(F("Press WFS button to continue"));
   while (theButton2.check() != true){
   }
-  Serial.println(F("checking VDIP version..."));
-  for (int i = 0; i < sizeof(buf); i++){
-    buf[i] ='\0';
+
+  while(true) {
+       Serial.println(F("checking VDIP version..."));
+       for (int i = 0; i < sizeof(buf); i++){
+	    buf[i] ='\0';
+       }
+       vdip2.cmd(VDIP_FWV, buf, DEFAULTTIMEOUT, 15); //expects 15 bytes back see pg 23 of Viniculum Firmware reference
+       Serial.print(F("VDIP version: "));
+       Serial.println(buf);
+       Serial.println(F("Should be 3.69 (enter \"!\" to flash it now - press return to cont)"));
+
+       getStringFromMonitor(buf, 25);
+       if(buf[0] == '\0' || buf[0] != '!') {
+	    break;		// if return or something other than !, go on with life
+       }
+       Serial.println(F("Resetting VDIP to allow flash, 10 seconds delay..."));
+       vdip2.reset();
+       delay(10000);
   }
-  vdip2.cmd(VDIP_FWV, buf, DEFAULTTIMEOUT, 15); //expects 15 bytes back see pg 23 of Viniculum Firmware reference
-  Serial.print(F("VDIP version: "));
-  Serial.println(buf);
-  Serial.println(F("Should be 3.69"));
+
   Serial.println(F("checking version of RN-42..."));
   bt2.checkVersion();
   Serial.println(F("Should be 6.15"));
