@@ -8,6 +8,8 @@
 #include "BT.h"
 #include "blinky.h"
 #include "sound.h"
+#include "gamepad.h"
+#include "robotc.h"
 #include "nxt.h"
 #include "ChapRName.h"
 #include "ChapREEPROM.h"
@@ -93,7 +95,7 @@ void setup()
        Serial.println("Beginning board bring-up");
        myEEPROM.boardBringUp();
        Serial.println("Please intialize your ChapR.");
-       myEEPROM.setFromConsole("ChapRX", (byte) 10, (byte) 1, (byte) 0, (byte) 1);
+       myEEPROM.setFromConsole("ChapRX", (byte) 10, (byte) 1, (byte) 0, (byte) USER_MODE_AUTONOMOUS);
      }
 
      // check the WFS button to see if it was pressed upon boot, if so, enter config mode
@@ -179,12 +181,15 @@ void loop()
      // when we first boot, the power button is pressed in, so ensure that it changes before monitoring it for shutdown
      if(powerButton.hasChanged()) {
        timeButtonPressed = millis();
-	  if(!power_button_released) {
-	       power_button_released = true;
-	  } else {
-               personalities[current_personality-1]->Kill(&bt, mode);
-               pb = true; 
-          }
+       if(!power_button_released) {
+	    power_button_released = true;
+       } else {
+	    if (powerButton.isPressed()) {
+		 // only call kill on the downstroke of the button
+		 personalities[current_personality-1]->Kill(&bt, mode);
+		 pb = true; 
+	    }
+       }
      }
      
      if (power_button_released && powerButton.isPressed()){

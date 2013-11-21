@@ -18,16 +18,18 @@
 
 class Personality_2 : public Personality
 {
+
 private:
-     bool startedProgram; // if true, then the program was just started with the button
+     bool buttonToggle;		// make the "wait-for-start" into a toggle
+     bool forceMode;		// used to make the mode follow the program starting
+
 public:
      Personality_2();
      virtual void ChangeInput(BT *bt, int mode, int device, Gamepad *old, Gamepad *);
      virtual void ChangeButton(BT *bt, int mode, bool button);
      virtual void Loop(BT *bt, int mode, bool, Gamepad *, Gamepad *);
      virtual void Kill(BT *bt, int mode);
-private:
-     bool buttonToggle;
+
 };
 
 #endif PERSONALITY_2_H

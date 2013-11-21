@@ -11,6 +11,13 @@
 #ifndef ROBOTC_H
 #define ROBOTC_H
 
+//
+// The user mode (defined in RobocC JoystickDriver.c) is either true (1) for teleop,
+// or false(0) for autonomous.  It is used a boolean in the code.
+
+#define USER_MODE_TELEOP	1
+#define USER_MODE_AUTONOMOUS	0
+
 int robotcTranslate(byte *, bool, Gamepad *, Gamepad *, int mode);
 
 #endif ROBOTC_H

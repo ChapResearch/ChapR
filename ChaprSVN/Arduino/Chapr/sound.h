@@ -12,8 +12,8 @@ public:
      void squeep();
      void icky();
      void start();
-     void up();
-     void down();
+     void beep();
+     void boop();
      void kill();
 
 private:
