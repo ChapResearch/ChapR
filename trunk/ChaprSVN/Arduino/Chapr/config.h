@@ -67,7 +67,7 @@
 
 #define PERSONALITYCOUNT        3 //how many personalities have been implemented
 #define BOARDBRINGUPVERSION     "1.1" //which version the testing program is
-#define CODEVERSION             "1.2"
+#define CODEVERSION             "1.3"
 
 //these two constants define the time before entering power saving mode and are in milliseconds
 // (the second commented out versions are for debugging)
@@ -81,4 +81,4 @@
 // Because the switches on the ChapR are mechanical, they will generate multiple presses
 // for every user press. The "debounce" is the time in milliseconds the ChapR waits after
 // noticing a button press before it reports the next one.
-#define DEBOUNCE 50
+#define DEBOUNCE 25

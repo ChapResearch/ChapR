@@ -59,11 +59,8 @@ bool nxtQueryDevice(VDIP *vdip, int usbDev, char **name, char **btAddress, long 
      int r = vdip->cmd(VDIP_DRD,cbuf,100);
 
      if(r != 33) {
-	  Serial.println("yikes, didn't get values back");
 	  return(0);
      } else {
-	  //Serial.println("yeah!  got 33 back");
-	  //dumpDataHex(cbuf,33);
           for (int i = 0; i < 15; i++){
             namebuf[i] = cbuf[3 + i];
           }
@@ -181,9 +178,15 @@ int nxtOpenFileToRead(BT *bt, char *buf, long *fileSize)
      //receive the rest of the data
        
      bt->recv(outbuff,size,1000);
-     
-     
-     dumpDataHex("openFileToRead", outbuff, 8);
+
+     if(outbuff[2] != 0) {
+	  // couldn't open file
+	  return(-1);
+     }
+
+//     dumpDataHex("openFileToRead return packet", outbuff, 8);
+     delay(10);
+
      // determines the size of the file
      
      *fileSize = outbuff[4];
@@ -192,13 +195,7 @@ int nxtOpenFileToRead(BT *bt, char *buf, long *fileSize)
      *fileSize |= outbuff[7] << 24;
      
      // returns the handle of the file
-     
-     Serial.print("nxtOpenFileToRead() handle ");
-     Serial.println(outbuff[3]);
-     
-     Serial.print("nxtOpenFileToRead() fileSize ");
-     Serial.println(*fileSize);
-     
+
      return outbuff[3];
 }
 
@@ -243,7 +240,7 @@ int nxtReadFile(BT *bt, char *buf, int numToRead, int handle)
        
      //receive the rest of the data
        
-     bt->recv(outbuff,numToRead+6,1000);
+     bt->recv(outbuff,size,1000);
        
      if (outbuff[2] != 0){ //checks that the read was successful
         return -1;
@@ -294,7 +291,8 @@ bool nxtCloseFile(BT *bt, int handle)
        
      bt->recv(outbuff,size,1000);
 
-     dumpDataHex("return after trying to close", outbuff, size);
+//     dumpDataHex("return after trying to close", outbuff, size);
+     delay(10);
 
      // checks that the handle of the file closed matches the given handle
 
@@ -315,21 +313,17 @@ bool nxtGetChosenProgram(BT *bt, char *buf)
 {
      long       fileSize;
      bool       retVal = false;
+     int	handle;
      
      if (!bt->connected()){
        return false;
      }
-      
-     int handle = nxtOpenFileToRead(bt, "FTCConfig.txt", &fileSize);
-      
-     Serial.print("handle is ");
-     Serial.println(handle);
-     
+
      handle = nxtOpenFileToRead(bt, "FTCConfig.txt", &fileSize);
+     if(handle == -1) {
+	  return(false);
+     }
       
-     Serial.print("handle is ");
-     Serial.println(handle);
-       
      if (fileSize < NXT_PRGM_NAME_SIZE){ //the name will not include the null terminator
      
          if (nxtReadFile(bt, buf, fileSize, handle) != -1){ //simply gets the bytes
@@ -340,9 +334,6 @@ bool nxtGetChosenProgram(BT *bt, char *buf)
      }
  
      (void) nxtCloseFile(bt, handle);
-
-     Serial.print("nxtGetChosenProgram() returned ");
-     Serial.println(retVal);
      return retVal;
 }
 
@@ -381,8 +372,6 @@ bool nxtRunProgram(BT *bt, char *buf)
        
        bt->recv(outbuff,size,1000); 
        
-       Serial.print("nxtRunProgram() returned ");
-       Serial.println(outbuff[2]);
        return outbuff[2] == NXT_ERR_NONE;
      }
      

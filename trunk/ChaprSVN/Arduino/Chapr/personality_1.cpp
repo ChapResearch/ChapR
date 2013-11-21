@@ -98,6 +98,9 @@ void Personality_1::ChangeButton(BT *bt, int mode, bool button)
 	  return;
      }
 
+     // in the other personalities, this button could possibly start a program
+     // for for this personality, there is no way to know what program to start
+
      size = nxtGBool(msgbuff,button);
      size = nxtBTMailboxMsgCompose(0,msgbuff,size);
      (void)bt->btWrite(msgbuff,size);

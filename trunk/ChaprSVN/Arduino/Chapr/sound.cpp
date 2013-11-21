@@ -85,7 +85,7 @@ void sound::start()
   SOUND_OFF;
 }
 
-void sound::up()
+void sound::beep()
 {
   SOUND_ON;
   noTone(_pin);
@@ -97,7 +97,7 @@ void sound::up()
   SOUND_OFF;
 }
 
-void sound::down()
+void sound::boop()
 {
   SOUND_ON;
   noTone(_pin);

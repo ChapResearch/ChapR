@@ -181,3 +181,6 @@ extern int nxtReadFile(BT *, char *, int, int);
 extern bool nxtCloseFile(BT *, int);
 extern bool nxtRunProgram(BT *, char *);
 
+// TESTING TESTING TESTING TESTING 
+extern void nxtBigTest(BT *);
+
