@@ -101,7 +101,7 @@ public:
      int getJoystick(int, char *);
      void zombieMode();
      int cmd(vdipcmd, char *rbuf, int timeout, int arg = 0);
-
+     void reset();
 
 private:
      uint8_t _resetPin;
@@ -120,7 +120,7 @@ private:
      void ejectNXT();
      void flush(int = 100);
      void init();
-     void reset();
+
      void updateDevices();
      void mapDevice(int, char *, portConfig *);
      void debugPortConfig(portConfig*);
