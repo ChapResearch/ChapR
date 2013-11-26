@@ -1,26 +1,26 @@
-r40. Manufacturing Test
-1. First Time Connection (USB)
-2. 2 Second Up/Down
-3. First Time Connection (BT)
-4. Normal Connection
-5. Personality 1
- - Joystick Input
-    - all 12 buttons and all 9 tophat
-    - x1, y1, x2, y2
- - Kill Switch
- - WFS
- - RobotC/LabView/Matrix
-6. Personality 2
- - Joystick Input
-    - all 12 buttons and all 9 tophat
-    - x1, y1, x2, y2
- - Kill Switch
- - WFS
-7. EEPROM Configuration
- - Initialization
- - From Console
- - From Flash
-	 - gripes properly
-8. Timeout Power-down
-9. Name Usage
-10. Mode Implementation
+Release QA
+
+1.Gather the following materials: 
+NXT with LabView
+NXT with RobotC
+NXT with NXT-G
+USB Cable
+ChapR to be tested
+9V battery
+Rachel’s laptop and the programmer
+2.Check that power up takes approximately 2 seconds
+3.Connect using USB cable for first time
+4.Connect using bluetooth for first time
+5.Disconnect and then reboot ChapR
+6.Test personality 1 by doing the following:
+Attaching 2 joysticks and testing all buttons on both
+Testing that the kill switch stops the program
+Testing that the wait for start begins the normal operation of the program
+7.Using the programmer switch over to personality 2 (please help, Rachel)
+8.Test personality 2 using the same steps as personality 1
+9.Repeat steps 7 and 8 with personality 3
+10.Configure EEPROM using programmer and correct values, connect to NXT and run test program to confirm, set timeout to 1 minute and make sure it happens on time
+11.Configure EEPROM using flash drive and correct values, connect to NXT and run test program to confirm, set timeout to 2 minutes and change all values from EEPROM programmer config.
+12.Attempt to configure EEPROM using incorrect values on flash drive, check for icky noise
+13.Reset all settings to default, check mode, personality, name and lag and wait ten minutes to ensure mode implementation is correct
+14.You’re done! Congratulations! Yay!
