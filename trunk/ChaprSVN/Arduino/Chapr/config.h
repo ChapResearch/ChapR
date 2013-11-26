@@ -57,8 +57,20 @@
 #define POWER_ON_HOLD	A4		// (==>board) keeps the power on, lower to turn off
 #define POWER_BUTTON	A5		// (<==button) asserted when pressed
 
+#define BATTERY_MONITOR	A6		// tied to RAW (9v) through 22k / 22k resistors (1/2 voltage)
+
 #endif
 
+//
+// Battery voltage monitor is on BATTERY_MONITOR and is a resistor network
+// that divides the 9v by two. This means that the max voltage is nominally
+// 4.5 volts, but in actuality it is sometimes close to 5 volts because
+// some batteries are well above 9v.  This routine gives voltage in the
+// long integer domain times 10 where 90 is 9 volts.  Note that this routine
+// can NEVER come back with 10v (100) because analogRead() comes back with
+// 1023 maximum.
+//
+#define BATTERY_VOLTAGE	(analogRead(BATTERY_MONITOR)*5L*2L*10L/1024L)
 
 //
 // the baud rate that the local serial port will operate in - talking to the IDE terminal
