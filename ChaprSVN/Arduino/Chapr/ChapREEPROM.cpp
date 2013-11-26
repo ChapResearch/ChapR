@@ -127,9 +127,9 @@ void ChapREEPROM::boardBringUp()
        if(buf[0] == '\0' || buf[0] != '!') {
 	    break;		// if return or something other than !, go on with life
        }
-       Serial.println(F("Resetting VDIP to allow flash, 10 seconds delay..."));
+       Serial.println(F("Resetting VDIP to allow flash, 20 seconds delay..."));
        vdip2.reset();
-       delay(10000);
+       delay(20000);
   }
 
   Serial.println(F("checking version of RN-42..."));

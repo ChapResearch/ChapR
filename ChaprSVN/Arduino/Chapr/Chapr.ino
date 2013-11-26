@@ -126,7 +126,11 @@ void setup()
           bt.configMode(myEEPROM.getName());
      } else {
 	  bt.opMode();
-	  lowPowerOperation();		// turn off all unused portions of the ARDUINO - including serial port
+	  // lowPowerOperation() is turned off to allow the ADC and Serial port to function
+	  // we "may" want to turn it back on eventually - but the savings has gotten quite
+	  // small with the turn-on of the ADC
+	  //
+	  // lowPowerOperation();		// turn off all unused portions of the ARDUINO - including serial port
      }
 
      beeper.confirm();
@@ -169,6 +173,7 @@ void loop()
      bool		js2 = false;
      bool               wfs = false;
      bool               pb = false;
+     bool		lowBattery = false;
 
     if (Serial.available() > 0){
       myEEPROM.setFromConsole(myEEPROM.getName(), myEEPROM.getTimeout(), myEEPROM.getPersonality(), myEEPROM.getSpeed(), myEEPROM.getMode());
@@ -202,6 +207,10 @@ void loop()
        }
      }
 
+     // check the battery - it is "low" if less than this amount
+
+     lowBattery = (BATTERY_VOLTAGE < 65);		// 6.5 volts
+
      // check each joystick that is connected, and grab a packet of information from it if there is any
      if (g2.update(&vdip)) {
 	  js2 = true;
@@ -231,13 +240,18 @@ void loop()
             inConfigMode = false;
             software_Reset();          //does not initialize the IO lines, just resets master/slave pairing
           }
+
+	  lowBattery?powerLED.fast():powerLED.on();
 	  indicateLED.on();
-	  powerLED.on();
+
 	  if (!wasConnected) {
 	       wasConnected = true;
 	       beeper.squeep();
 	  }
      } else {
+	  if(!inConfigMode && lowBattery) {
+	       powerLED.fast();
+	  }
 	  if (wasConnected) {
 	      wasConnected = false;
 	  }
