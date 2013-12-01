@@ -84,7 +84,7 @@ void Personality_2::ChangeButton(BT *bt, int mode, bool button)
          // program is running so the action button functions as a WFS button 
          // and is handled by the loop call of the personality
 	 buttonToggle = !buttonToggle;
-	 (buttonToggle)?beeper.beep():beeper.boop();
+	 (buttonToggle && bt->connected())?beeper.beep():beeper.boop();
        } else {
            if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf)){
              beeper.start();

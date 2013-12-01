@@ -85,7 +85,6 @@ void Personality_0::ChangeButton(BT *bt, int mode, bool button)
      char  buf[NXT_PRGM_NAME_SIZE];
      
      if (button){ 		//only executes if the button is in the down position
-
 	  if (nxtGetProgramName(bt, buf)){
 	       // program is running so the action button functions as a WFS button 
 	       // and is handled by the loop call of the personality
@@ -105,7 +104,9 @@ void Personality_0::ChangeButton(BT *bt, int mode, bool button)
        if (startedProgram){
          startedProgram = false;
        } else {
-         beeper.boop();
+         if (bt->connected()){
+           beeper.boop();
+         }
        }
      }
 }
