@@ -78,6 +78,8 @@ int ChapREEPROM::getStringFromMonitor(char *buffer, int size)
 
 void ChapREEPROM::boardBringUp()
 {
+     extern void software_Reset();
+
   flushSerial();
   
   char buf[25];
@@ -127,9 +129,17 @@ void ChapREEPROM::boardBringUp()
        if(buf[0] == '\0' || buf[0] != '!') {
 	    break;		// if return or something other than !, go on with life
        }
-       Serial.println(F("Resetting VDIP to allow flash, 20 seconds delay..."));
+
+       Serial.println(F("Put the flash drive with ftrfb.ftd on it in USB 2, and press RETURN."));
+       getStringFromMonitor(buf, 25);
+
+       Serial.println(F("Resetting VDIP to allow flash, 15 seconds delay..."));
+       Serial.println(F("Don't do anything until after that..."));
        vdip2.reset();
-       delay(20000);
+       delay(5000);
+       vdip2.flush(10000);
+       Serial.println(F("Remove flash drive, and hit RETURN to retest VDIP version..."));
+       getStringFromMonitor(buf, 25);
   }
 
   Serial.println(F("checking version of RN-42..."));

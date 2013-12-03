@@ -456,6 +456,7 @@ bool BT::checkVersion()
   if (buf[0] != '\0'){
   Serial.println(buf);
   }
+  flushReturnData();
   return true;
 }
 

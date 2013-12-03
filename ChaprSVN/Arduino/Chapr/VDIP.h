@@ -98,6 +98,7 @@ public:
      VDIP(uint8_t clockPin, uint8_t mosiPin, uint8_t misoPin, uint8_t csPin, uint8_t csReset);
      void deviceUpdate();
      bool sync();
+     void flush(int = 100);
      int getJoystick(int, char *);
      void zombieMode();
      int cmd(vdipcmd, char *rbuf, int timeout, int arg = 0);
@@ -118,7 +119,6 @@ private:
      void ejectDisk();
      void processNXT(portConfig *);
      void ejectNXT();
-     void flush(int = 100);
      void init();
 
      void updateDevices();
