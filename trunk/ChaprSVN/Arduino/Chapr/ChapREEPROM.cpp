@@ -33,14 +33,14 @@ void ChapREEPROM::markInitialized()
   setString(EEPROM_MAGIC,EEPROM_MAGICLENGTH,EEPROM_MAGICSTRING);
 }
 
-void ChapREEPROM::setUSBPhase(byte phase)
+void ChapREEPROM::setResetStatus(byte stat)
 {
-  EEPROM.write(EEPROM_USBPHASE, phase);
+  EEPROM.write(EEPROM_RSTATUS, stat);
 }
 
-byte ChapREEPROM::getUSBPhase()
+byte ChapREEPROM::getResetStatus()
 {
-  return EEPROM.read(EEPROM_USBPHASE);
+  return EEPROM.read(EEPROM_RSTATUS);
 }
 
 void ChapREEPROM::flushSerial()
@@ -215,7 +215,7 @@ void ChapREEPROM::setFromConsole(char *name, byte timeout, byte personality, byt
   
   Serial.println(F("Preferences saved!"));
   markInitialized();
-  setUSBPhase(0); //says the NXT has not been connected by USB yet
+  setResetStatus(0); //makes sure the ChapR knows it has not been (software) reset
 }
 
 //

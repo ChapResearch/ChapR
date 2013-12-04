@@ -16,7 +16,7 @@
 #define EEPROM_TIMEOUT         16
 #define EEPROM_PERSONALITY     17
 #define EEPROM_MAGIC           18
-#define EEPROM_USBPHASE        24
+#define EEPROM_RSTATUS         24
 #define EEPROM_SPEED           25 //23 - 33 is 0
 #define EEPROM_MODE            26
 
@@ -49,8 +49,8 @@ public:
      bool isInitialized();
      void setFromConsole(char *,byte, byte, byte, byte);
      void boardBringUp();
-     void setUSBPhase(byte phase);
-     byte getUSBPhase();
+     void setResetStatus(byte);
+     byte getResetStatus();
      
 private:
      int  getStringFromMonitor(char*, int);
