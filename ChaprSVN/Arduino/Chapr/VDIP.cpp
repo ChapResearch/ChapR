@@ -450,20 +450,20 @@ void VDIP::processNXT(portConfig *portConfigBuffer)
 	  char *btAddress;
 	  long	freeMemory;
           extern BT bt;
-          if (myEEPROM2.getUSBPhase() == (byte) 0){
+          if (myEEPROM2.getResetStatus() == (byte) 0){
 	    if(nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory)){
               bt.setRemoteAddress(btAddress);
               delay(100);
-              myEEPROM2.setUSBPhase(1);
+              myEEPROM2.setResetStatus(1);
               delay(1000);
-              software_Reset();
+              software_Reset(); // increments the "status" so that the ChapR knows it has been reset
             }
           }    
 }
 
 void VDIP::ejectNXT()
 {  
-     myEEPROM2.setUSBPhase(0);
+     myEEPROM2.setResetStatus(0);
 }
 
 //

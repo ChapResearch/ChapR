@@ -71,10 +71,16 @@ Gamepad		g2_prev(2);	// the buffer for the gamepad data before current changes
 
 byte emptyJSData[] = { 0x80, 0x80, 0x80, 0x80, 0x08, 0x00, 0x04, 0x00 };
 
-bool    inConfigMode; //whether or not the ChapR is in pairing mode
-long    powerTimeout; //how long until the ChapR turns itself off (configured by user)
-int    lag; //changes the delay between loops
-int    mode; //for FTC it means 0 is autonomous and 1 is teleOp
+bool    inConfigMode; // whether or not the ChapR is in pairing mode
+long    powerTimeout; // how long until the ChapR turns itself off (configured by user)
+int     lag; // changes the delay between loops
+int     mode; // for FTC it means 0 is autonomous and 1 is teleOp
+
+// set to true when the power button is pressed for the first time, which makes sure kill codes
+// aren't sent on power up (and the ChapR isn't turned off by having the power button pressed for
+// too long).
+bool	power_button_released = false;
+
 
 //
 // setup() - this routine is run ONCE by the Arduino upon start-up.
@@ -96,6 +102,14 @@ void setup()
        myEEPROM.boardBringUp();
        Serial.println("Please intialize your ChapR.");
        myEEPROM.setFromConsole("ChapRX", (byte) 10, (byte) 1, (byte) 0, (byte) USER_MODE_AUTONOMOUS);
+     }
+     
+     // checks to see if the ChapR has undergone a software reset, making sure it remembers that
+     // the power button had already been pressed (this makes sure the kill switch works the first
+     // time).
+     if (myEEPROM.getResetStatus() > 0){
+       myEEPROM.setResetStatus(myEEPROM.getResetStatus()-1);
+       power_button_released = true;
      }
 
      // check the WFS button to see if it was pressed upon boot, if so, enter config mode
@@ -157,6 +171,7 @@ void enterZombieMode()
 
 void software_Reset() // Restarts program from beginning but does not reset the peripherals and registers
 {
+    myEEPROM.setResetStatus(myEEPROM.getResetStatus()+1); // tell the ChapR it has undergone a software reset
     asm volatile ("  jmp 0");  
 }
 
@@ -164,7 +179,6 @@ void software_Reset() // Restarts program from beginning but does not reset the 
 
 void loop()
 {
-     static bool	power_button_released = false;
      static int	        loopCount = 0;
      static bool	wasConnected = false;
      static long         timeButtonPressed; //how long the power button has been pressed (makes sure the ChapR isn't accidentally turned off)
