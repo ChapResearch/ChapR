@@ -29,3 +29,29 @@ randomly got a bluetooth store is full error and the chapr tried to connect, but
   - must delete a few contacts on the brick
 
 the openFileToRead() command appears to return the wrong handle (always 0?)
+
+USB pairing doesn't work if the ChapR boots with an NXT already plugged in
+
+Coach's Version - ChapR-14
+in pairing mode - icky noise every once in a while
+in normal mode (and not connected) - icky noise on press of the action button (and randomly otherwise), but swallows several button presses afterwards
+
+12/1/13
+WFS is sticky on NXT-G
+kill switch didn't work the first time?
+
+Old Version - ChapR-15
+*connected to the computer via programmer (with a battery in) and reset using the Serial monitor, but the confirm tone sounded without the BT light flashing (bricked the ChapR!)
+	same procedure and it worked fine
+*made the "boop" noise when going into pairing mode
+
+Times When ChapR Has Locked Up (Old version)
+stopped button tester, then let it sit for a while (both LEDs were on and it wouldn't turn off) - ChapR15
+tried to load new settings from a USB first in port 1, which got an icky noise, then in port 2, which just sat there (all lights solid) - ChapR15
+
+*none of the above are repeatable?!
+
+**ChapR-19 killed itself while trying to flash VDIP (inserted USB before pressing !); BT LED won't come on
+**ChapR-15 had the same symptoms but that happened when I tried to boot it
+
+kill switch won't work the first time if the ChapR is plugged into the computer (not a bug)
