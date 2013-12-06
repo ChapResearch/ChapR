@@ -13,14 +13,16 @@ Purpose: TO determine if the hardware has been constructed appropriately
    - Check VDIP firmware
    - Verify messages to and from RN-42
 4. Hardware reset/escape hatch*
-5. Connect to a brick
+5. Plug in a battery and hold for 2 seconds to turn on the ChapR
+6. Connect to a brick
    - USB connection
    - BT connection
-6. Joystick input
+7. Remote start a test program
+7. Joystick input
    - basic responses
-7. WSF button
-8. Kill switch
-9. Power off ChapR
-10. Check labeling of case lid and base and outside label
+8. WSF button
+9. Kill switch
+10. Power off ChapR
+11. Check labeling of case lid and base and outside label
 
 *not currently tested
