@@ -1,0 +1,107 @@
+
+
+   ---- Transcoding 'C:\Users\Ben\Documents\Robotics\ChapR\ChapR Code\ChaprSVN\PCB\chapr.sol' ----   Sat Aug 31 11:19:58 2013
+
+D10   --> D100
+D11   --> D101
+D12   --> D102
+D13   --> D103
+D14   --> D104
+D15   --> D105
+D16   --> D106
+D17   --> D107
+D18   --> D108
+D19   --> D109
+D20   --> D110
+D21   --> D111
+D22   --> D112
+-----------------------------------------------------------------
+
+
+   ---- Transcoding 'C:\Users\Ben\Documents\Robotics\ChapR\ChapR Code\ChaprSVN\PCB\chapr.sol' ----   Sat Aug 31 11:20:43 2013
+
+D10   --> D113
+D11   --> D114
+D12   --> D115
+D13   --> D116
+D14   --> D117
+D15   --> D118
+D16   --> D119
+D17   --> D120
+D18   --> D121
+D19   --> D122
+D20   --> D123
+D21   --> D124
+D22   --> D125
+-----------------------------------------------------------------
+
+
+   ---- Transcoding 'C:\Users\Ben\Documents\Robotics\ChapR\ChapR Code\ChaprSVN\PCB\chapr.sol' ----   Sat Aug 31 11:21:47 2013
+
+D10   --> D126
+D11   --> D127
+D12   --> D128
+D13   --> D129
+D14   --> D130
+D15   --> D131
+D16   --> D132
+D17   --> D133
+D18   --> D134
+D19   --> D135
+D20   --> D136
+D21   --> D137
+D22   --> D138
+-----------------------------------------------------------------
+
+
+   ---- Transcoding 'C:\Users\Ben\Documents\Robotics\ChapR\ChapR Code\ChaprSVN\PCB\chapr.stc' ----   Sat Aug 31 11:21:47 2013
+
+D10   --> D139
+D11   --> D140
+D12   --> D141
+D13   --> D142
+D14   --> D143
+D15   --> D144
+D16   --> D145
+D17   --> D146
+D18   --> D147
+D19   --> D148
+D20   --> D149
+D21   --> D150
+D22   --> D151
+D23   --> D152
+-----------------------------------------------------------------
+
+
+   ---- Transcoding 'C:\Users\Ben\Documents\Robotics\ChapR\ChapR Code\ChaprSVN\PCB\chapr.sts' ----   Sat Aug 31 11:21:47 2013
+
+D10   --> D153
+D11   --> D154
+D12   --> D155
+D13   --> D156
+D14   --> D157
+D15   --> D158
+D16   --> D159
+D17   --> D160
+D18   --> D161
+D19   --> D162
+D20   --> D163
+D21   --> D164
+-----------------------------------------------------------------
+
+
+   ---- Transcoding 'C:\Users\Ben\Documents\Robotics\ChapR\ChapR Code\ChaprSVN\PCB\chapr.plc' ----   Sat Aug 31 11:21:47 2013
+
+D11   --> D165
+D12   --> D166
+D13   --> D167
+D14   --> D168
+D15   --> D169
+D16   --> D170
+D17   --> D171
+D18   --> D172
+D19   --> D173
+D20   --> D174
+D21   --> D175
+D22   --> D176
+-----------------------------------------------------------------
