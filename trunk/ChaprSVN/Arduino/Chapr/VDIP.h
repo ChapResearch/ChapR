@@ -114,7 +114,7 @@ private:
 
      bool readBytes(int count, char *, int);
      bool sendBytes(int count, const char *, int);
-     bool readFile(char *name, char *buf, byte numToRead);
+     bool readFile(char *name, char *buf, byte numToRead, bool lineOnly = false);
      void processDisk(portConfig *portConfigBuffer);
      void ejectDisk();
      void processNXT(portConfig *);

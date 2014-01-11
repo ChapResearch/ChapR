@@ -426,6 +426,65 @@ void BT::flushReturnData()
   } 
 }
 
+// 
+// addressFilter() - given a human constructed text-based BT address, convert it to
+//			something that is a valid BT hex address (for use in the RN-42).
+//
+//	      RETURNS: true if a "valid" address is there, "false" otherwise.
+//
+//		NOTES:  - the incoming buffer is changed.
+//			- the incoming buffer should be NULL terminated or the results
+//			  may be unexpected (though no crashes)
+//
+bool BT::addressFilter(char *buffer, int size)
+{
+     char	*ptr;
+     int	 i;
+
+     for(i=0, ptr = buffer; i < size; i++, ptr++) {
+
+	  if (*ptr == '\0') {			// reached the end
+	       break;
+	  }
+
+	  if (*ptr >= 'a' && *ptr <= 'f') {	// convert lower case hex to upper case
+	       *ptr -= '\x20';
+	       continue;			// this char is valid, move on
+	  }
+
+	  if (*ptr < '0' || *ptr > 'F' || (*ptr < 'A' && *ptr > '9')) {
+
+	       // slide down stuff to punt bad address characters
+	       // this REALLY counts on ASCII ordering!  Kinda' standard...
+	       // When this happens, the size of the string strinks
+
+	       char	*pfrom;
+	       char	*pto;
+	       int	 j;
+
+	       size--;
+
+	       for(pfrom = ptr+1, pto = ptr, j = i; j < size; j++, pto++, pfrom++) {
+		    *pto = *pfrom;
+		    if (*pto == '\0') {
+			 break;			// found and copied null terminator
+		    }
+	       }
+
+	       // we need to re-process the current character at this point
+	       // so prepare the variables for increment at the end of the loop...
+
+	       i--;
+	       ptr--;
+	  }
+
+     }
+
+     // only return true if we have exactly 12 characters (6 hex bytes)
+
+     return(strlen(buffer) == 12);
+}
+
 bool BT::checkVersion()
 {
   char buf[50];

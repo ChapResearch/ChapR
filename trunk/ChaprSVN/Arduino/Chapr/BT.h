@@ -60,6 +60,7 @@ public:
      int recv(char*, long);
      int recv(byte*, int, long);
      void flushReturnData();
+     bool addressFilter(char *, int);
 
 // BIG NOTE - the pins on the RN-42 need voltage dividers - but the current
 //		implementation ** Sun Apr 21 14:47:33 2013 ** doesn't have

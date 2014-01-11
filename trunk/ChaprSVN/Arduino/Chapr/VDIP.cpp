@@ -374,23 +374,46 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
 
 #define BIGENOUGH 20 //the maximum amount of data we read from flash files
 
-//readFile() - helper method used to read a file on the disk and returns the entire contents of the file
-bool VDIP::readFile(char *filename, char *buf, byte numToRead)
+//
+// readFile() - helper method used to read a file on the disk and returns
+//		the entire contents of the file, but only up to the "numToRead"
+//		number of bytes.  If "lineOnly" is set true, the only the first
+//		line is returned (up to the return or newline) - defaults to false.
+//
+//	RETURNS:  true if there was SOMETHING read, false if nothing
+//	NOTE: this routine counts on the fact that if the file doesn't exist,
+//		the VDIP will return the \xFE's.  It should "probabaly"
+//		check the return of the first open, and not do anything
+//		if the file can't be found.
+//
+bool VDIP::readFile(char *filename, char *buf, byte numToRead, bool lineOnly)
 {
-  cmd(VDIP_OPR, filename, DEFAULTTIMEOUT, 0); //last 0 is only necessary to fill argument requirements of the function
-  cmd(VDIP_RDF, buf, DEFAULTTIMEOUT, numToRead); //null to fill argument requirements
-  cmd(VDIP_CLF, filename, DEFAULTTIMEOUT, 0);
-  buf[numToRead - 1] = '\0';
-  for (int i = 0; i < BIGENOUGH; i++){
-    if (buf[i] == '\xFE'){
-      buf[i] = '\0';
-    }
-  }
-  return buf[0] != '\0';
+     // open the file for reading, then read, then close
+     
+     cmd(VDIP_OPR, filename, DEFAULTTIMEOUT, 0);
+     cmd(VDIP_RDF, buf, DEFAULTTIMEOUT, numToRead);
+     cmd(VDIP_CLF, filename, DEFAULTTIMEOUT, 0);
+
+     // make sure it is null terminated
+
+     buf[numToRead - 1] = '\0';
+
+     // also replace any \xFE's with \0 because an \xFE is returned by the
+     // VDIP when trying to read more bytes than are available in the file
+
+     for (int i = 0; i < numToRead; i++){
+	  if (buf[i] == '\xFE'){
+	       buf[i] = '\0';
+	  }
+	  if(lineOnly && (buf[i] == '\r' || buf[i] == '\n')) {
+	       buf[i] = '\0';
+	  }
+	       
+     }
+     return buf[0] != '\0';
 }
 
 //insert defines here for maxes and mins!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 
 //
 // processDisk() - called when a disk is discovered and properly located
@@ -401,41 +424,95 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 {    
      //Serial.println("starting processDisk");
      char buf[BIGENOUGH];
+
      //check that it's in port two (beep annoyingly otherwise)
+
      if(portConfigBuffer->port == 1) {
+
        //read through VDIP stuff looking for a text file with the name, personality etc.
+
+       // get the new name of the ChapR
+
        if(readFile("name.txt", buf, BIGENOUGH)){
          if (buf[EEPROM_NAMELENGTH - 1] == '\0'){
            myEEPROM2.setName(buf);
          }
        }
+
+       // get the new personality
+
        if(readFile("person.txt", buf, BIGENOUGH)){
          byte newNum = (byte) atoi(buf);
          if (newNum > 0 && newNum <= EEPROM_LASTPERSON){
            myEEPROM2.setPersonality(newNum);
          }
        }
-       if(readFile("timeout.txt", buf, BIGENOUGH)){ //maximum length of a filename is somewhere between 7 and 11 characters
+
+       // get the power-down timeout
+
+       if(readFile("timeout.txt", buf, BIGENOUGH)){
          byte newNum = (byte) atoi(buf);
          if (newNum >= 0 && newNum <= EEPROM_MAXTIMEOUT){
          myEEPROM2.setTimeout(newNum);
          }
        }
+
+       // get the lag time
+
        if(readFile("lag.txt", buf, BIGENOUGH)){
          byte newNum = (byte) atoi(buf);
          if (newNum >= 0 && newNum <= EEPROM_MAXLAG){
          myEEPROM2.setSpeed(newNum);
          }
        }
+
+       // get the user mode
+
        if(readFile("mode.txt", buf, BIGENOUGH)){
          byte newNum = (byte) atoi(buf);
          if (newNum >= 0 && newNum <= EEPROM_MAXMODE){
          myEEPROM2.setMode(newNum);
          }
        }
+
+       // get a target bluetooth connection name/ID AND connect if it is there
+       // this MAY need to be changed to do the connection AFTER getting
+       // done with the flash drive.  Note that this data IS NOT stored in
+       // the EEPROM - instead, it is just used as the current paired device
+       // and will be reset (like normal) whenever a new pairing is done.
+
+       extern BT bt;
+
+       if(readFile("targetID.txt", buf, BIGENOUGH,true)){
+	    if (bt.addressFilter(buf,BIGENOUGH)) {	// useful address?
+		 bt.setRemoteAddress(buf);
+		 delay(100);
+	    }
+       }
+
+       if(readFile("target.txt", buf, BIGENOUGH,true)){
+	    Serial.print("target: \"");
+	    Serial.print(buf);
+	    Serial.println("\"");
+//	    if(bt.nameToAddress(buf)) {
+//		 bt.setRemoteAddress(buf);
+//		 delay(100);
+//	    }
+       }
+
+
+
+       // the confirm beep indicates that all files that existed were read
+       // it doesn't confirm that all data was cool
+
        beeper2.confirm();			 
+
      } else {
+
+       // the disk was put in the wrong USB port!
+
        beeper2.icky();
+
      } 
 }
 
