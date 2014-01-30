@@ -172,18 +172,31 @@ bool VDIP::sync()
      // Below, we send out the sync/echo command and simply wait for its return.
      // This has the same effect as a flush, by-the-way.
 
-     sendBytes(2,sBuffer,0);		// a blocking fsendBy of the sync/echo string
+     // ** Sun Jan 12 14:34:22 2014 ** Change to include resending the sync character
+     // from time to time if we are stuck waiting for the VDIP.  Still, if we can't
+     // sync, we're toast anyway.  Though we may actually want to reboot if this
+     // occurs...
+
+     #define RESENDTIME		200
 
      while(true) {
-	  unsigned char	RChar, prevRChar;
+	     long	timeout;
 
-	  if(recv(&RChar)) {
-	       if(RChar == '\r' && prevRChar == 'E') {
-		    // we're sync'd up here!
-		    return(true);
-	       }
-	       prevRChar = RChar;
-	  }
+	     timeout = millis() + RESENDTIME;
+
+	     sendBytes(2,sBuffer,10);		// send of the sync/echo string
+
+	     while(millis() < timeout) {
+		     unsigned char	RChar, prevRChar;
+
+		     if(recv(&RChar)) {
+			     if(RChar == '\r' && prevRChar == 'E') {
+				     // we're sync'd up here!
+				     return(true);
+			     }
+			     prevRChar = RChar;
+		     }
+	     }
      }
 
      // we never get here
