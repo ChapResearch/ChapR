@@ -1,0 +1,38 @@
+Product Requirements
+*FTC 2 Joystick Control
+   - bluetooth
+   - no PC
+   - easy to use
+   - battery (rechargeable? monitor LED?)
+   - existing brick and software
+   - full-field range
+   - low lag
+   - waitForStart() release
+   - teleOp remote start
+   - changeable battery
+   - field upgrade-able (cable to computer or file on USB)
+   - companion website with FAQs and tutorials
+
+*FTC FCS Substitute
+   - all of the above requirements for FTC 2 Joystick Control
+   - waitForStart() coordination
+   - "look through" chapR to nxtBrick
+   - lag simulation
+
+Operations
+*First Time
+1. rBrick (robot's brick) on, bluetooth on and named "6710"
+2. chapR on, named "chapR-1" for now
+3. hold down the button on chapR to make it discoverable
+4. select the chapR (it will be named chapR - a number by default)
+5. start the desired program on the brick
+6. hit the button to release the waitForStart() and make sure two joysticks are plugged in if it is teleOp
+7. test your program, robot and driving!
+
+*Subsequent Uses
+1. rBrick on and bluetooth on
+2. chapR on (power LED will be red)
+3. bluetooth LED will blink while it pairs with the last known brick
+4. the bluetooth LED will shine blue once it is paired
+5. start the program on the brick, and hit the button to release waitForStart()
+6. continue testing!
