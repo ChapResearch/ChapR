@@ -822,34 +822,8 @@
 <symbol name="V2DIP2">
 <wire x1="0" y1="22.86" x2="-20.32" y2="22.86" width="0.254" layer="94"/>
 <wire x1="-20.32" y1="22.86" x2="-20.32" y2="-30.48" width="0.254" layer="94"/>
+<wire x1="-20.32" y1="-30.48" x2="0" y2="-30.48" width="0.254" layer="94"/>
 <wire x1="0" y1="-30.48" x2="0" y2="22.86" width="0.254" layer="94"/>
-<pin name="5V0" x="-25.4" y="20.32" length="middle"/>
-<pin name="NC1" x="-25.4" y="15.24" length="middle"/>
-<pin name="NC2" x="-25.4" y="10.16" length="middle"/>
-<pin name="P$4" x="-25.4" y="5.08" length="middle"/>
-<pin name="P$5" x="-25.4" y="0" length="middle"/>
-<pin name="P$6" x="-25.4" y="-5.08" length="middle"/>
-<pin name="P$7" x="-25.4" y="-10.16" length="middle"/>
-<pin name="P$8" x="-25.4" y="-15.24" length="middle"/>
-<pin name="P$9" x="-25.4" y="-20.32" length="middle"/>
-<pin name="P$10" x="-25.4" y="-25.4" length="middle"/>
-<pin name="P$11" x="-25.4" y="-30.48" length="middle"/>
-<pin name="P$12" x="-25.4" y="-35.56" length="middle"/>
-<pin name="P$13" x="5.08" y="-35.56" length="middle" rot="R180"/>
-<pin name="P$14" x="5.08" y="-30.48" length="middle" rot="R180"/>
-<pin name="P$15" x="5.08" y="-25.4" length="middle" rot="R180"/>
-<pin name="P$16" x="5.08" y="-20.32" length="middle" rot="R180"/>
-<pin name="P$17" x="5.08" y="-15.24" length="middle" rot="R180"/>
-<pin name="P$18" x="5.08" y="-10.16" length="middle" rot="R180"/>
-<pin name="P$19" x="5.08" y="-5.08" length="middle" rot="R180"/>
-<pin name="P$20" x="5.08" y="0" length="middle" rot="R180"/>
-<pin name="P$21" x="5.08" y="5.08" length="middle" rot="R180"/>
-<pin name="P$22" x="5.08" y="10.16" length="middle" rot="R180"/>
-<pin name="P$23" x="5.08" y="15.24" length="middle" rot="R180"/>
-<pin name="P$24" x="5.08" y="20.32" length="middle" rot="R180"/>
-<wire x1="-20.32" y1="-30.48" x2="-20.32" y2="-38.1" width="0.254" layer="94"/>
-<wire x1="-20.32" y1="-38.1" x2="0" y2="-38.1" width="0.254" layer="94"/>
-<wire x1="0" y1="-38.1" x2="0" y2="-30.48" width="0.254" layer="94"/>
 </symbol>
 </symbols>
 <devicesets>
