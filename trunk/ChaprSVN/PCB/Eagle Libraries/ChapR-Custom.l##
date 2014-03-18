@@ -826,8 +826,8 @@
 <pin name="5V0" x="-25.4" y="20.32" length="middle"/>
 <pin name="NC1" x="-25.4" y="15.24" length="middle"/>
 <pin name="NC2" x="-25.4" y="10.16" length="middle"/>
-<pin name="P$4" x="-25.4" y="5.08" length="middle"/>
-<pin name="P$5" x="-25.4" y="0" length="middle"/>
+<pin name="GND1" x="-25.4" y="5.08" length="middle"/>
+<pin name="GND2" x="-25.4" y="0" length="middle"/>
 <pin name="P$6" x="-25.4" y="-5.08" length="middle"/>
 <pin name="P$7" x="-25.4" y="-10.16" length="middle"/>
 <pin name="P$8" x="-25.4" y="-15.24" length="middle"/>
