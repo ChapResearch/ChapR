@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.05" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
+<grid distance="0.01" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -620,6 +620,39 @@
 <hole x="27.94" y="-7.62" drill="1.1"/>
 </package>
 <package name="V2DIP2">
+<wire x1="0" y1="0" x2="48.02" y2="0" width="0.127" layer="21"/>
+<wire x1="48.02" y1="0" x2="48.02" y2="17.78" width="0.127" layer="21"/>
+<wire x1="48.02" y1="17.78" x2="0" y2="17.78" width="0.127" layer="21"/>
+<wire x1="0" y1="17.78" x2="0" y2="15.47" width="0.127" layer="21"/>
+<wire x1="0" y1="15.47" x2="0" y2="2.36" width="0.127" layer="21"/>
+<wire x1="0" y1="2.36" x2="0" y2="0" width="0.127" layer="21"/>
+<wire x1="0" y1="2.36" x2="-7.56" y2="2.36" width="0.127" layer="21"/>
+<wire x1="-7.56" y1="2.36" x2="-7.56" y2="15.47" width="0.127" layer="21"/>
+<wire x1="-7.56" y1="15.47" x2="0" y2="15.47" width="0.127" layer="21"/>
+<pad name="P$1" x="40.97" y="1.27" drill="0.8" shape="square"/>
+<pad name="P$2" x="38.43" y="1.27" drill="0.8" shape="square"/>
+<pad name="P$3" x="35.89" y="1.27" drill="0.8" shape="square"/>
+<pad name="P$4" x="33.35" y="1.27" drill="0.8" shape="square"/>
+<pad name="P$5" x="30.81" y="1.27" drill="0.8" shape="square"/>
+<pad name="P$6" x="28.27" y="1.27" drill="0.8" shape="square"/>
+<pad name="P$7" x="25.73" y="1.27" drill="0.8" shape="square"/>
+<pad name="P$8" x="23.19" y="1.27" drill="0.8" shape="square"/>
+<pad name="P$9" x="20.65" y="1.27" drill="0.8" shape="square"/>
+<pad name="P$10" x="18.11" y="1.27" drill="0.8" shape="square"/>
+<pad name="P$11" x="15.57" y="1.27" drill="0.8" shape="square"/>
+<pad name="P$12" x="13.03" y="1.27" drill="0.8" shape="square"/>
+<pad name="P$13" x="40.97" y="16.51" drill="0.8" shape="square"/>
+<pad name="P$14" x="38.43" y="16.51" drill="0.8" shape="square"/>
+<pad name="P$15" x="35.89" y="16.51" drill="0.8" shape="square"/>
+<pad name="P$16" x="33.35" y="16.51" drill="0.8" shape="square"/>
+<pad name="P$17" x="30.81" y="16.51" drill="0.8" shape="square"/>
+<pad name="P$18" x="28.27" y="16.51" drill="0.8" shape="square"/>
+<pad name="P$19" x="25.73" y="16.51" drill="0.8" shape="square"/>
+<pad name="P$20" x="23.19" y="16.51" drill="0.8" shape="square"/>
+<pad name="P$21" x="20.65" y="16.51" drill="0.8" shape="square"/>
+<pad name="P$22" x="18.11" y="16.51" drill="0.8" shape="square"/>
+<pad name="P$23" x="15.57" y="16.51" drill="0.8" shape="square"/>
+<pad name="P$24" x="13.03" y="16.51" drill="0.8" shape="square"/>
 </package>
 </packages>
 <symbols>
@@ -822,42 +855,37 @@
 <pin name="NC(2)" x="-20.32" y="-12.7" length="middle" direction="pwr"/>
 </symbol>
 <symbol name="V2DIP2">
-<wire x1="-10.16" y1="17.78" x2="12.7" y2="17.78" width="0.254" layer="94"/>
-<wire x1="12.7" y1="17.78" x2="12.7" y2="-63.5" width="0.254" layer="94"/>
-<wire x1="-10.16" y1="-63.5" x2="-10.16" y2="17.78" width="0.254" layer="94"/>
-<pin name="P$1" x="-15.24" y="15.24" length="middle"/>
-<pin name="P$2" x="-15.24" y="10.16" length="middle"/>
-<pin name="P$3" x="-15.24" y="5.08" length="middle"/>
-<pin name="P$4" x="-15.24" y="0" length="middle"/>
-<pin name="P$5" x="-15.24" y="-5.08" length="middle"/>
-<pin name="P$6" x="-15.24" y="-10.16" length="middle"/>
-<pin name="P$7" x="-15.24" y="-15.24" length="middle"/>
-<pin name="P$8" x="-15.24" y="-20.32" length="middle"/>
-<pin name="P$9" x="-15.24" y="-25.4" length="middle"/>
-<pin name="P$10" x="-15.24" y="-30.48" length="middle"/>
-<pin name="P$11" x="-15.24" y="-35.56" length="middle"/>
-<pin name="P$12" x="-15.24" y="-40.64" length="middle"/>
-<pin name="P$13" x="-15.24" y="-45.72" length="middle"/>
-<pin name="P$14" x="-15.24" y="-50.8" length="middle"/>
-<pin name="P$15" x="-15.24" y="-55.88" length="middle"/>
-<pin name="P$16" x="-15.24" y="-60.96" length="middle"/>
-<wire x1="-10.16" y1="-63.5" x2="12.7" y2="-63.5" width="0.254" layer="94"/>
-<pin name="P$17" x="17.78" y="15.24" length="middle" rot="R180"/>
-<pin name="P$18" x="17.78" y="10.16" length="middle" rot="R180"/>
-<pin name="P$19" x="17.78" y="5.08" length="middle" rot="R180"/>
-<pin name="P$20" x="17.78" y="0" length="middle" rot="R180"/>
-<pin name="P$21" x="17.78" y="-5.08" length="middle" rot="R180"/>
-<pin name="P$22" x="17.78" y="-10.16" length="middle" rot="R180"/>
-<pin name="P$23" x="17.78" y="-15.24" length="middle" rot="R180"/>
-<pin name="P$24" x="17.78" y="-20.32" length="middle" rot="R180"/>
-<pin name="P$25" x="17.78" y="-25.4" length="middle" rot="R180"/>
-<pin name="P$26" x="17.78" y="-30.48" length="middle" rot="R180"/>
-<pin name="P$27" x="17.78" y="-35.56" length="middle" rot="R180"/>
-<pin name="P$28" x="17.78" y="-40.64" length="middle" rot="R180"/>
-<pin name="P$29" x="17.78" y="-45.72" length="middle" rot="R180"/>
-<pin name="P$30" x="17.78" y="-50.8" length="middle" rot="R180"/>
-<pin name="P$31" x="17.78" y="-55.88" length="middle" rot="R180"/>
-<pin name="P$32" x="17.78" y="-60.96" length="middle" rot="R180"/>
+<wire x1="10.16" y1="30.48" x2="-10.16" y2="30.48" width="0.254" layer="94"/>
+<wire x1="-10.16" y1="30.48" x2="-10.16" y2="-30.48" width="0.254" layer="94"/>
+<wire x1="10.16" y1="-30.48" x2="10.16" y2="30.48" width="0.254" layer="94"/>
+<pin name="5V0" x="-15.24" y="27.94" length="middle"/>
+<pin name="NC1" x="-15.24" y="22.86" length="middle"/>
+<pin name="NC2" x="-15.24" y="17.78" length="middle"/>
+<pin name="NC3" x="-15.24" y="12.7" length="middle"/>
+<pin name="NC4" x="-15.24" y="7.62" length="middle"/>
+<pin name="PRG" x="-15.24" y="2.54" length="middle"/>
+<pin name="RST" x="-15.24" y="-2.54" length="middle"/>
+<pin name="IOBUS0" x="-15.24" y="-7.62" length="middle"/>
+<pin name="IOBUS1" x="-15.24" y="-12.7" length="middle"/>
+<pin name="IOBUS2" x="-15.24" y="-17.78" length="middle"/>
+<pin name="IOBUS3" x="-15.24" y="-22.86" length="middle"/>
+<pin name="IOBUS4" x="-15.24" y="-27.94" length="middle"/>
+<pin name="3V3" x="15.24" y="-27.94" length="middle" rot="R180"/>
+<pin name="GND4" x="15.24" y="-22.86" length="middle" rot="R180"/>
+<pin name="GND3" x="15.24" y="-17.78" length="middle" rot="R180"/>
+<pin name="GND2" x="15.24" y="-12.7" length="middle" rot="R180"/>
+<pin name="GND1" x="15.24" y="-7.62" length="middle" rot="R180"/>
+<pin name="IOBUS11" x="15.24" y="-2.54" length="middle" rot="R180"/>
+<pin name="IOBUS10" x="15.24" y="2.54" length="middle" rot="R180"/>
+<pin name="IOBUS9" x="15.24" y="7.62" length="middle" rot="R180"/>
+<pin name="IOBUS8" x="15.24" y="12.7" length="middle" rot="R180"/>
+<pin name="IOBUS7" x="15.24" y="17.78" length="middle" rot="R180"/>
+<pin name="IOBUS6" x="15.24" y="22.86" length="middle" rot="R180"/>
+<pin name="IOBUS5" x="15.24" y="27.94" length="middle" rot="R180"/>
+<wire x1="-10.16" y1="-30.48" x2="10.16" y2="-30.48" width="0.254" layer="94"/>
+<text x="-10.16" y="30.48" size="1.778" layer="95">&gt;NAME</text>
+<text x="-10.16" y="-35.56" size="1.778" layer="96">&gt;VALUE
+</text>
 </symbol>
 </symbols>
 <devicesets>
@@ -1090,4 +1118,10 @@
 </devicesets>
 </library>
 </drawing>
+<compatibility>
+<note version="6.3" minversion="6.2.2" severity="warning">
+Since Version 6.2.2 text objects can contain more than one line,
+which will not be processed correctly with this version.
+</note>
+</compatibility>
 </eagle>

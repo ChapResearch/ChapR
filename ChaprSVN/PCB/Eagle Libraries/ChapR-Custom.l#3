@@ -51,7 +51,7 @@
 <layer number="56" name="wert" color="7" fill="1" visible="no" active="no"/>
 <layer number="91" name="Nets" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="92" name="Busses" color="1" fill="1" visible="yes" active="yes"/>
-<layer number="93" name="Pins" color="2" fill="1" visible="no" active="yes"/>
+<layer number="93" name="Pins" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="94" name="Symbols" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="95" name="Names" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="96" name="Values" color="7" fill="1" visible="yes" active="yes"/>
@@ -820,6 +820,36 @@
 <pin name="NC(2)" x="-20.32" y="-12.7" length="middle" direction="pwr"/>
 </symbol>
 <symbol name="V2DIP2">
+<wire x1="0" y1="22.86" x2="-20.32" y2="22.86" width="0.254" layer="94"/>
+<wire x1="-20.32" y1="22.86" x2="-20.32" y2="-30.48" width="0.254" layer="94"/>
+<wire x1="0" y1="-30.48" x2="0" y2="22.86" width="0.254" layer="94"/>
+<pin name="5V0" x="-25.4" y="20.32" length="middle"/>
+<pin name="NC1" x="-25.4" y="15.24" length="middle"/>
+<pin name="NC2" x="-25.4" y="10.16" length="middle"/>
+<pin name="NC3" x="-25.4" y="5.08" length="middle"/>
+<pin name="NC4" x="-25.4" y="0" length="middle"/>
+<pin name="PRG" x="-25.4" y="-5.08" length="middle"/>
+<pin name="RST" x="-25.4" y="-10.16" length="middle"/>
+<pin name="IOBUS0" x="-25.4" y="-15.24" length="middle"/>
+<pin name="IOBUS1" x="-25.4" y="-20.32" length="middle"/>
+<pin name="IOBUS2" x="-25.4" y="-25.4" length="middle"/>
+<pin name="IOBUS3" x="-25.4" y="-30.48" length="middle"/>
+<pin name="IOBUS4" x="-25.4" y="-35.56" length="middle"/>
+<pin name="3V3" x="5.08" y="-35.56" length="middle" rot="R180"/>
+<pin name="GND4" x="5.08" y="-30.48" length="middle" rot="R180"/>
+<pin name="GND3" x="5.08" y="-25.4" length="middle" rot="R180"/>
+<pin name="GND2" x="5.08" y="-20.32" length="middle" rot="R180"/>
+<pin name="GND1" x="5.08" y="-15.24" length="middle" rot="R180"/>
+<pin name="IOBUS11" x="5.08" y="-10.16" length="middle" rot="R180"/>
+<pin name="IOBUS10" x="5.08" y="-5.08" length="middle" rot="R180"/>
+<pin name="IOBUS9" x="5.08" y="0" length="middle" rot="R180"/>
+<pin name="IOBUS8" x="5.08" y="5.08" length="middle" rot="R180"/>
+<pin name="IOBUS7" x="5.08" y="10.16" length="middle" rot="R180"/>
+<pin name="IOBUS6" x="5.08" y="15.24" length="middle" rot="R180"/>
+<pin name="IOBUS5" x="5.08" y="20.32" length="middle" rot="R180"/>
+<wire x1="-20.32" y1="-30.48" x2="-20.32" y2="-38.1" width="0.254" layer="94"/>
+<wire x1="-20.32" y1="-38.1" x2="0" y2="-38.1" width="0.254" layer="94"/>
+<wire x1="0" y1="-38.1" x2="0" y2="-30.48" width="0.254" layer="94"/>
 </symbol>
 </symbols>
 <devicesets>
