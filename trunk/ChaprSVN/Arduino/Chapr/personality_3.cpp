@@ -38,7 +38,6 @@ void Personality_3::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
 
      if (bt->connected()) {
 
-
 	  // first convert the gamepad data and button to the cRIO structure
 	  size = cRIO.translate(msgbuff,g1,g2);
 

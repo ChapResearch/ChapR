@@ -43,13 +43,13 @@ byte cRIO::checksum(byte *msgbuff, int size)
 int cRIO::translateGamepad(byte *msgbuf, Gamepad *g1) 
 {
   msgbuf[0] = g1->x1;				// joystick 1 (left) X axis 
-  msgbuf[1] = g1->tophat;                            // joystick 1 tophat (0, 1 to 8)
+  msgbuf[1] = g1->tophat;                       // joystick 1 tophat (0, 1 to 8)
   msgbuf[2] = g1->y1;				// joystick 1 (left) Y axis 
-  msgbuf[3] = g1->buttons&0x3f;                      // joystick 1 B0 to B5
+  msgbuf[3] = g1->buttons&0x3f;                 // joystick 1 B0 to B5
   msgbuf[4] = g1->x2;				// joystick 1 (right) X axis 
-  msgbuf[5] = (g1->buttons>>6)&0x3f;                 // joystick 1 B6 to B11
+  msgbuf[5] = (g1->buttons>>6)&0x3f;            // joystick 1 B6 to B11
   msgbuf[6] = g1->y2;				// joystick 1 (right) Y axis 
-  msgbuf[7] = 0;                                     // a separator between the two joysticks
+  msgbuf[7] = 0;                                // a separator between the two joysticks
 
   return(8);
 }

@@ -21,6 +21,16 @@
 // data       - the information actually being sent
 // checksum   - verifies that the data sent is accurate (cannot be FF)
 
+// CRIO_CMD byte format
+// bit 0 : FPGA Checksum (unknown use)                - 0
+// bit 1 : Test (                                     - 0
+// bit 2 : Resync                                     - 0
+// bit 3 : FMS Attached                               - 0
+// bit 4 : Autonomous                                 - 0 (USB w/ auto.txt)
+// bit 5 : Enabled/disabled (0 - disabled)            - 0 (action button)
+// bit 6 : Emergency Stop (0 to stop)                 - 1 (kill switch)
+// bit 7 : Reset                                      - 0
+
 // CRIO_DATA packet
 // joy1_x1 : (-128 to 127)                            : 0
 // joy1_TH : (0, 1 to 8)                              : 1
