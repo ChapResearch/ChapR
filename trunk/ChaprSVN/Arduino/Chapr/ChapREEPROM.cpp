@@ -148,7 +148,18 @@ void ChapREEPROM::boardBringUp()
   Serial.println(F("Everything looks good!"));
 }
 
-void ChapREEPROM::setFromConsole(char *name, byte timeout, byte personality, byte speed, byte mode)
+void ChapREEPROM::setFromConsole(char *name, 
+				 byte timeout, 
+				 byte personality, 
+				 byte speed, 
+				 byte mode,
+				 int autoLen,
+				 int teleLen,
+				 byte dgtl, 
+				 float analog1,
+				 float analog2,
+				 float analog3,
+				 float analog4)
 {
   if (Serial.read() == '!'){
     boardBringUp();
@@ -213,6 +224,68 @@ void ChapREEPROM::setFromConsole(char *name, byte timeout, byte personality, byt
     Serial.println(getMode());
   }
   
+  Serial.print(F("Enter digital inputs (FRC only). Hit return for default: "));
+  Serial.println(dgtl, BIN);
+  getStringFromMonitor(buffer,sizeof(buffer));
+  if (buffer[0] == '\0'){
+    setDigitalInputs(dgtl);
+  } else {
+    byte newNum = 0;
+    char *ptr = buffer;
+    for (int i = 0; i < 8; i++){
+      byte val = (buffer[i] == '1')?1:0;
+      newNum |= val<<i;
+    }
+    setDigitalInputs(newNum);
+    Serial.print(F("ChapR digital inputs are now: "));
+    Serial.println(getDigitalInputs(), BIN);
+  } 
+
+  for (int i = 0; i < 4; i++){
+    Serial.print(F("Enter analog input "));
+    Serial.print(i);
+    Serial.print(F(" (FRC only). Hit return for default: "));
+    switch (i){
+    case 0: Serial.println(analog1); break;
+    case 1: Serial.println(analog2); break;
+    case 2:  Serial.println(analog3); break;
+    case 3:  Serial.println(analog4); break;
+    }
+    getStringFromMonitor(buffer,sizeof(buffer));
+    if (buffer[0] == '\0'){
+          switch (i){
+	  case 0: setAnalogInput(i, analog1); break;
+	  case 1: setAnalogInput(i, analog2); break;
+	  case 2: setAnalogInput(i, analog3); break;
+	  case 3: setAnalogInput(i, analog4); break;
+	  }
+    } else {
+      setAnalogInput(i, atof(buffer));
+      Serial.print(F("ChapR analog input "));
+      Serial.print(i);
+      Serial.print(" is now: ");
+      Serial.println(getAnalogInput(i, true)); //indicates value should be translated to be between 0 and 5
+    }
+  }
+  
+  Serial.print(F("Enter length of autonomous (in seconds). Hit return for default: "));
+  Serial.println(autoLen);
+  getStringFromMonitor(buffer,sizeof(buffer));
+  if (buffer[0] != '\0'){
+    Serial.print("Autonomous length is now: ");
+    Serial.println(atoi(buffer));
+    setAutoLen(atoi(buffer));
+  }
+
+  Serial.print(F("Enter length of teleOp (in seconds). Hit return for default: "));
+  Serial.println(teleLen);
+  getStringFromMonitor(buffer,sizeof(buffer));
+  if (buffer[0] != '\0'){
+    Serial.print("TeleOp length is now: ");
+    Serial.println(atoi(buffer));
+    setTeleLen(atoi(buffer));
+  }
+  
   Serial.println(F("Preferences saved!"));
   markInitialized();
   setResetStatus(0); //makes sure the ChapR knows it has not been (software) reset
@@ -237,6 +310,25 @@ void ChapREEPROM::setString(int start, int maxLength, char *thing)
   EEPROM.write(start, '\0'); //null terminates the string
 }
 
+//
+// setShort() - writes in little endian, starting from the
+//              index given
+void ChapREEPROM::setShort(int start, short value)
+{
+  EEPROM.write(start,(byte) (value&0x00FF));
+  EEPROM.write(start + 1, (byte) ((value&0xFF00)>>8));
+}
+
+//
+// getShort() - read in little endian, starting from the
+//              index given
+short ChapREEPROM::getShort(int start)
+{
+  short value = 0x00FF&((short) EEPROM.read(start));
+  value |= 0xFF00&(((short) EEPROM.read(start+1))<<8);
+  return value;
+}
+
 char* ChapREEPROM::getString(int start, int length)
 {
   int size = length;
@@ -253,7 +345,6 @@ char* ChapREEPROM::getString(int start, int length)
 void ChapREEPROM::setName(char *name)
 {
   setString(EEPROM_NAME,EEPROM_NAMELENGTH,name);
-  markInitialized();
 }
 
 char* ChapREEPROM::getName()
@@ -264,23 +355,21 @@ char* ChapREEPROM::getName()
 void ChapREEPROM::setTimeout(byte time)
 {
   EEPROM.write(EEPROM_TIMEOUT, time);
-  markInitialized();
 }
 
 byte ChapREEPROM::getTimeout()
 {
-  EEPROM.read(EEPROM_TIMEOUT);
+  return (EEPROM.read(EEPROM_TIMEOUT));
 }
 
 void ChapREEPROM::setPersonality(byte p)
 {
   EEPROM.write(EEPROM_PERSONALITY, p);
-  //markInitialized();
 }
 
 byte ChapREEPROM::getPersonality()
 {
-  EEPROM.read(EEPROM_PERSONALITY);
+  return (EEPROM.read(EEPROM_PERSONALITY));
 }
 
 void ChapREEPROM::setSpeed(byte s)
@@ -290,7 +379,7 @@ void ChapREEPROM::setSpeed(byte s)
 
 byte ChapREEPROM::getSpeed()
 {
-  EEPROM.read(EEPROM_SPEED);
+  return (EEPROM.read(EEPROM_SPEED));
 }
 
 void ChapREEPROM::setMode(byte m)
@@ -300,5 +389,51 @@ void ChapREEPROM::setMode(byte m)
 
 byte ChapREEPROM::getMode()
 {
-  EEPROM.read(EEPROM_MODE);
+  return (EEPROM.read(EEPROM_MODE));
 }
+
+void ChapREEPROM::setDigitalInputs(byte d)
+{
+  EEPROM.write(EEPROM_DIGITALIN, d);
+}
+
+byte ChapREEPROM::getDigitalInputs()
+{
+  return (EEPROM.read(EEPROM_DIGITALIN));
+}
+
+void ChapREEPROM::setAnalogInput(byte index, float a)
+{
+  a = (a*1023)/5; // scales the value to be from 0 to 1023 (the way LabView wants it)
+  setShort(EEPROM_ANALOGIN + index*2, a);
+}
+
+float ChapREEPROM::getAnalogInput(byte index, bool trans)
+{
+  if (trans){
+    return ((float)getShort(EEPROM_ANALOGIN + index*2))*5/1023;}
+  return getShort(EEPROM_ANALOGIN + index*2);
+}
+
+void ChapREEPROM::setAutoLen(byte a)
+{
+  EEPROM.write(EEPROM_AUTOLEN, a);
+}
+
+void ChapREEPROM::setTeleLen(byte t)
+{
+  EEPROM.write(EEPROM_TELELEN, t);
+}
+
+byte ChapREEPROM::getTeleLen()
+{
+  EEPROM.read(EEPROM_TELELEN);
+}
+
+
+byte ChapREEPROM::getAutoLen()
+{
+  EEPROM.read(EEPROM_AUTOLEN);
+}
+
+

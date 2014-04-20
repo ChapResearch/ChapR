@@ -6,6 +6,7 @@
 #include "VDIP.h"
 #include "gamepad.h"
 #include "cRIO.h"
+#include "ChapREEPROM.h"
 
 // cRIO::CMDCompose() - given a command, and a data set, composes the buffer
 //                      to be sent to the cRIO according to the general
@@ -15,15 +16,30 @@
 int cRIO::CMDCompose(byte *msgbuff, int cmd, int size)
 {
   byte cs = checksum(msgbuff, size);
+  extern ChapREEPROM myEEPROM;
 
-  memmove(msgbuff+3,msgbuff,size);	// shift over by the 3 needed to package the message
+  memmove(msgbuff+17,msgbuff,size);	// shift over by the 17 needed to package the message
 
   msgbuff[0] = 0xff;
   msgbuff[1] = 0xff;
   msgbuff[2] = (byte) cmd;
-  msgbuff[size+3] = cs;
+  msgbuff[3] = myEEPROM.getDigitalInputs();
+  msgbuff[4] = 0;
+  msgbuff[5] = myEEPROM.getAnalogInput(0); // TODO
+  msgbuff[6] = 0;
+  msgbuff[7] = 0;
+  msgbuff[8] = myEEPROM.getAnalogInput(1);
+  msgbuff[9] = 0;
+  msgbuff[10] = 0;
+  msgbuff[11] = myEEPROM.getAnalogInput(2);
+  msgbuff[12] = 0;
+  msgbuff[13] = 0;
+  msgbuff[14] = myEEPROM.getAnalogInput(3);
+  msgbuff[15] = 0;
+  msgbuff[16] = 0;
+  msgbuff[size+17] = cs;
 
-  return(size+4);			// total size of the message going over BT
+  return(size+18);			// total size of the message going over BT
 }
 
 byte cRIO::checksum(byte *msgbuff, int size)

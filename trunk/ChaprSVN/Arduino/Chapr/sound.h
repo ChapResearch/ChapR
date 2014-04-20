@@ -15,6 +15,7 @@ public:
      void beep();
      void boop();
      void kill();
+     void select();
 
 private:
      int	_pin;
