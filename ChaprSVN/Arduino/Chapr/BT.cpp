@@ -186,6 +186,11 @@ void BT::configMode(char *name)
 
      delay(30);
 
+     btSend("SA,4");            // tells the RN-42 to use simple pin mode authentication
+     btSend("\r");
+
+     delay(30);
+
      btSend("SM,4");		// auto connect mode
      btSend("\r");
 

@@ -8,11 +8,6 @@
 #ifndef CRIO_H
 #define CRIO_H
 
-#define CRIO_KILL            0x00 // stops the program running on the cRIO
-#define CRIO_DATA            0x01 // sends the current status of the joysticks (buttons and sticks)
-#define CRIO_STARTAUTO       0x02 // begins the autonomous portion of the program
-#define CRIO_STARTTELE       0x03 // begins the teleOp portion of the program
-
 // General Structure
 // sync bytes - two 0xFFs (the following data is organized so that 
 //              it is "impossible" to ever get two FFs in a row (if
@@ -21,7 +16,13 @@
 // data       - the information actually being sent
 // checksum   - verifies that the data sent is accurate (cannot be FF)
 
-// CRIO_CMD byte format
+#define TELE_OFF                                       64
+#define TELE_ON                                        96
+#define AUTO_OFF                                       80 // potentially obsolete because the cRIO can start teleOp after this mode just fine
+#define AUTO_ON                                       112
+#define E_STOP                                          0
+
+// CRIO_CMD byte format -- CAN NEVER BE 0xFF!!!!!!!!!!!!
 // bit 0 : FPGA Checksum (unknown use)                - 0
 // bit 1 : Test (                                     - 0
 // bit 2 : Resync                                     - 0
@@ -31,7 +32,24 @@
 // bit 6 : Emergency Stop (0 to stop)                 - 1 (kill switch)
 // bit 7 : Reset                                      - 0
 
-// CRIO_DATA packet
+// CRIO_INFO format
+// dgtl_in : (each bit is an input)                   : 0
+// zero    : (0)                                      : 1
+// analog1 : (double)                                 : 2
+// analog1 : (continued)                              : 3
+// zero    : (0)                                      : 4
+// analog2 : (double)                                 : 5
+// analog2 : (continued)                              : 6
+// zero    : (0)                                      : 7
+// analog3 : (continued)                              : 8
+// analog3 : (double)                                 : 9
+// zero    : (0)                                      : 10
+// analog4 : (double)                                 : 11
+// analog4 : (continued)                              : 12
+// zero    : (0)                                      : 13
+//                                                    : 14 total bytes
+
+// CRIO_DATA format
 // joy1_x1 : (-128 to 127)                            : 0
 // joy1_TH : (0, 1 to 8)                              : 1
 // joy1_y1 : (-128 to 127)                            : 2

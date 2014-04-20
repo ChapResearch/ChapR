@@ -372,7 +372,7 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
      return(rbytes);
 }
 
-#define BIGENOUGH 20 //the maximum amount of data we read from flash files
+#define BIGENOUGH 25
 
 //
 // readFile() - helper method used to read a file on the disk and returns
@@ -422,14 +422,16 @@ bool VDIP::readFile(char *filename, char *buf, byte numToRead, bool lineOnly)
 //
 void VDIP::processDisk(portConfig *portConfigBuffer)
 {    
-     //Serial.println("starting processDisk");
+     // Serial.println("starting processDisk");
      char buf[BIGENOUGH];
 
-     //check that it's in port two (beep annoyingly otherwise)
+     // check that it's in port two (beep annoyingly otherwise)
 
      if(portConfigBuffer->port == 1) {
 
-       //read through VDIP stuff looking for a text file with the name, personality etc.
+       // read through VDIP stuff looking for a text file with the name, personality etc.
+
+       // PLEASE NOTE -- FILE NAMES MUST BE FEWER THAN 8 CHARACTERS
 
        // get the new name of the ChapR
 
@@ -474,6 +476,71 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
          myEEPROM2.setMode(newNum);
          }
        }
+       
+       // allows user to determine number of seconds in autonomous and teleOp (for FRC, aka ChapR3 of EEPROM)
+       // zero for either mode skips the mode
+
+       if(readFile("mConfig.txt",buf, BIGENOUGH)){
+	 char *ptr = buf;
+	 for (int i = 0; i < 2; i++){
+	   switch(i){
+	   case 0: myEEPROM2.setAutoLen(atoi(ptr));break;
+	   case 1: myEEPROM2.setTeleLen(atoi(ptr));break;
+	   }
+	   while (*ptr != '\r' && *ptr != '\0' && *ptr != '\n'){
+	     ptr++;
+	   }
+	   while (*ptr == '\r' && *ptr == '\n'){
+	     ptr++;
+	   }
+	   if (*ptr == '\0'){
+	     break;
+	   }
+	 }
+       }
+     
+
+       // contains the settings for the digital I/O pins (for FRC, aka ChapR3 of EEPROM)
+     
+       if (readFile("dgtlIn.txt", buf, BIGENOUGH)){
+	 byte newNum = 0;
+	 
+	 for (int i = 0, ptr = 0; i < 8; i++){
+	   byte bit = (buf[ptr] == '1')?1:0;
+	   newNum |= bit<<i;
+	   while (buf[ptr] != '\r' && buf[ptr] != '\0' && buf[ptr] != '\n'){
+	     ptr++;
+	   }
+	   while (buf[ptr] == '\r' || buf[ptr] == '\n'){
+	     ptr++;
+	   }
+	   if (buf[ptr] == '\0'){
+	     break;
+	   }
+	 }
+	 
+	 myEEPROM2.setDigitalInputs(newNum);
+       }
+
+       // contains the 4 analog inputs (for FRC, aka ChapR3 of EEPROM)
+       
+       if (readFile("analogIn.txt", buf, BIGENOUGH)){
+	 char *ptr = buf;
+	 for (int i = 0; i < 4; i++){
+	   double value = atof(ptr);
+	   if (value > 0 && value <= 5)
+	     myEEPROM2.setAnalogInput(i, value); //translation to LabView preferences occurs inside
+	   while (*ptr != '\r' && *ptr != '\0' && *ptr != '\n'){
+	     ptr++;
+	   }
+	   while (*ptr == '\r' || *ptr == '\n'){
+	     ptr++;
+	   }
+	   if (*ptr == '\0'){
+	     break;
+	   }
+	 }
+       }
 
        // get a target bluetooth connection name/ID AND connect if it is there
        // this MAY need to be changed to do the connection AFTER getting
@@ -499,8 +566,6 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 //		 delay(100);
 //	    }
        }
-
-
 
        // the confirm beep indicates that all files that existed were read
        // it doesn't confirm that all data was cool
@@ -529,11 +594,16 @@ void VDIP::processNXT(portConfig *portConfigBuffer)
           extern BT bt;
           if (myEEPROM2.getResetStatus() == (byte) 0){
 	    if(nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory)){
+	      Serial.print("btAddress: \"");
+	      Serial.print(btAddress);
+	      Serial.print("\"");
               bt.setRemoteAddress(btAddress);
               delay(100);
-              myEEPROM2.setResetStatus(1);
+	      Serial.print(myEEPROM2.getResetStatus());
+              myEEPROM2.setResetStatus(1); // increments the "status" so that the ChapR knows it has been reset
+	      Serial.print(myEEPROM2.getResetStatus());
               delay(1000);
-              software_Reset(); // increments the "status" so that the ChapR knows it has been reset
+              software_Reset();
             }
           }    
 }

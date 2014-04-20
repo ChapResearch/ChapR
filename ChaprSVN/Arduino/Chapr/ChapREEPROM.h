@@ -19,7 +19,10 @@
 #define EEPROM_RSTATUS         24
 #define EEPROM_SPEED           25 //23 - 33 is 0
 #define EEPROM_MODE            26
-
+#define EEPROM_DIGITALIN       27
+#define EEPROM_ANALOGIN        28
+#define EEPROM_AUTOLEN         36
+#define EEPROM_TELELEN         37
 
 //constants
 #define EEPROM_NAMELENGTH      15 //without null terminator (15 - 0)
@@ -29,7 +32,7 @@
 #define EEPROM_LASTPERSON      PERSONALITYCOUNT //last personality that has been coded
 #define EEPROM_MAXLAG          255
 #define EEPROM_MAXMODE         1
-#define EEPROM_MAGICSTRING   "Chap2" //number shows a new set of EEPROM settings
+#define EEPROM_MAGICSTRING   "Chap3" //number shows a new set of EEPROM settings
 
 class ChapREEPROM
 {
@@ -47,10 +50,18 @@ public:
      void setMode(byte);
      byte getMode();
      bool isInitialized();
-     void setFromConsole(char *,byte, byte, byte, byte);
+     void setFromConsole(char *name,byte timeout, byte personality, byte lag, byte mode, int auto, int tele, byte dgtlIn, float a1, float a2, float a3, float a4);
      void boardBringUp();
      void setResetStatus(byte);
      byte getResetStatus();
+     void setDigitalInputs(byte);
+     byte getDigitalInputs();
+     void setAnalogInput(byte, float);
+     float getAnalogInput(byte, bool = false);
+     void setAutoLen(byte);
+     void setTeleLen(byte);
+     byte getTeleLen();
+     byte getAutoLen();
      
 private:
      int  getStringFromMonitor(char*, int);
@@ -58,6 +69,8 @@ private:
      char *getString(int, int);
      void markInitialized();
      void flushSerial();
+     void setShort(int, short);
+     short getShort(int);
 };
 
 

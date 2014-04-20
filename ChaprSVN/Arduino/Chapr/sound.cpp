@@ -121,3 +121,23 @@ void sound::kill()
   noTone(_pin);
   SOUND_OFF;
 }
+
+void sound::select()
+{
+  SOUND_ON;
+  noTone(_pin);
+  
+  tone(_pin,1500);
+  delay(50);
+
+  tone(_pin,1000);
+  delay(50);
+
+  tone(_pin,1500);
+  delay(50);
+  
+  noTone(_pin);
+  SOUND_OFF;
+}
+
+
