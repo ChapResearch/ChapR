@@ -1,0 +1,97 @@
+FRC cRIO Compatibility
+
+Switching modes
+     - use red button as a way of switching between modes:
+     - teleOp
+       - takes input from two joysticks
+       - unlimited time in teleOp
+     - matchMode (called practice on Driver Station)
+       - starts with 10 seconds of autnomous, beeping to indicate
+         each second
+       - squeeps and starts teleOp, ending it after 2 min 20 sec
+     - matchConfig.txt
+       - allows user to determine number of seconds in autonomous and teleOp
+       - zero for either mode just skips the mode
+     **clicking red set disabled mode (so matchMode would have to be restarted)	
+     **clicking black toggles disabled mode (matchMode is paused)
+     **if nothing is running when you hit the black button, something starts up
+     **if nothing is running when you hit the red button, it reports your current mode
+     	  **if pressed again in under 2 seconds, the mode will change and be reported
+Send digital inputs
+     - readFromFile("digitalIn.txt")
+       - see options below (all in ASCII)
+       - figure out failure modes
+     - entered into EEPROM as a setting
+     - personality 3 reads EEPROM and sends digital IO
+Send analog inputs -- UPDATE FROM SERIAL MONITOR
+     - readFromFile("analogIn.txt")
+       - see options below (all in ASCII)
+       - figure out failure modes
+     - entered into EEPROM as a setting
+     - personality 3 reads EEPROM and sends analog IO
+       - each of four analog inputs is a U16 (0 to 65535)
+       - interpreted as I16, and multiply by 0.0048875855
+       - empirical study and web research needed
+       - scale on driver station is 0 to 5 (although any values, positive
+         or negative can be entered)
+Toggling wait for start
+In-situ upgrade of EEPROM data
+   - recognizing current(past) EEPROM version, recovering GOOD data translating to new format
+Emergency stop
+	  - research the difference between disabling teleOp and killing it
+	  - though keep in mind the cRIO currently has to be rebooted every time the ChapR
+	    is turned off when connected
+Support other controllers
+Default to 2468
+Testing with other BT/Serial dongles
+DOCUMENT!(white paper)
+Specs
+
+
+-------------------- digitalIn.txt ---------------------
+OPTION 1:
+       01011011 (where bit 8 is on the left)
+
+*OPTION 2:
+       1 (this is bit 1 - mirrors the driver's station)
+       1 (multiple lines)
+       0
+       1
+       1
+       0
+       1
+       0
+
+*OPTION 2.5:
+       X (this is bit 1 - mirrors the driver's station)
+       X (multiple lines)
+       -
+       X
+       X
+       -
+       X
+       -
+       
+OPTION 3:
+       0x5b
+
+-------------------- analog.txt ----------------------------
+*OPTION 1:
+       1
+       2.000112
+       3.5
+       4.
+
+OPTION 2:
+       1,5,3.2,4.567
+
+OPTION 3:
+       34567,100,0,65535
+
+-------------------- matchConfig.txt -----------------------
+*OPTION 1:
+       10
+       90
+
+OPTION 2:
+       10,90
