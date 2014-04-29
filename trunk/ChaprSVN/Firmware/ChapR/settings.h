@@ -12,17 +12,20 @@
 // 17                  personality (numbered based on information from the website)
 // 18 - 23             null-terminated "ChapR" to verify EEPROM has been written
 
-#define EEPROM_NAME             0
-#define EEPROM_TIMEOUT         16
-#define EEPROM_PERSONALITY     17
-#define EEPROM_MAGIC           18
-#define EEPROM_RSTATUS         24
-#define EEPROM_SPEED           25 //23 - 33 is 0
-#define EEPROM_MODE            26
-#define EEPROM_DIGITALIN       27
-#define EEPROM_ANALOGIN        28
-#define EEPROM_AUTOLEN         36
-#define EEPROM_TELELEN         37
+#define EEPROM_NAME             0	// 15 characters + null termination
+#define EEPROM_TIMEOUT         16	// byte
+#define EEPROM_PERSONALITY     17	// byte
+#define EEPROM_MAGIC           18	// magic string to identify version
+#define EEPROM_RSTATUS         24	// reset status used for self-rebooting
+#define EEPROM_SPEED           25	// byte (lag)
+#define EEPROM_MODE            26	// byte
+#define EEPROM_DIGITALIN       27	// byte
+#define EEPROM_ANALOGIN1       28	// 2 bytes
+#define EEPROM_ANALOGIN2       30	// 2 bytes
+#define EEPROM_ANALOGIN3       32	// 2 bytes
+#define EEPROM_ANALOGIN4       34	// 2 bytes
+#define EEPROM_AUTOLEN         36	// byte
+#define EEPROM_TELELEN         37	// byte
 
 //constants
 #define EEPROM_NAMELENGTH      15 //without null terminator (15 - 0)
@@ -50,20 +53,29 @@ public:
      void setMode(byte);
      byte getMode();
      bool isInitialized();
-     void setFromConsole(char *name,byte timeout, byte personality, byte lag, byte mode, int auto, int tele, byte dgtlIn, float a1, float a2, float a3, float a4);
+     void setFromConsole();
      void boardBringUp();
      void setResetStatus(byte);
      byte getResetStatus();
      void setDigitalInputs(byte);
      byte getDigitalInputs();
-     void setAnalogInput(byte, float);
-     float getAnalogInput(byte, bool = false);
+     void setAnalogInput1(short);
+     void setAnalogInput2(short);
+     void setAnalogInput3(short);
+     void setAnalogInput4(short);
+     short getAnalogInput1();
+     short getAnalogInput2();
+     short getAnalogInput3();
+     short getAnalogInput4();
      void setAutoLen(byte);
      void setTeleLen(byte);
      byte getTeleLen();
      byte getAutoLen();
+     void setDefaults(char *,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int);
      
 private:
+     void doSetting(int,const __FlashStringHelper *, const __FlashStringHelper *,unsigned int,unsigned int,int);
+     void printCurrentValue(int,unsigned int, int);
      int  getStringFromMonitor(char*, int);
      void setString(int, int, char*);
      char *getString(int, int);
@@ -71,6 +83,9 @@ private:
      void flushSerial();
      void setShort(int, short);
      short getShort(int);
+     void hitReturn();
+     void hitReturnForDefault();
 };
+
 
 #endif SETTINGS_H

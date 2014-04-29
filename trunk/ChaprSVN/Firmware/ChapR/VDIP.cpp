@@ -8,17 +8,18 @@
 #include "sound.h"
 #include "debug.h"
 #include "config.h"
-#include "ChapREEPROM.h"
+#include "settings.h"
 
 extern void software_Reset();
 
-ChapREEPROM      myEEPROM2;
+settings      myEEPROM2;
 
 sound  	         beeper2(TONEPIN);
 
 //#define HAVE_JOY1	(_p1 && _p1_dev != -1 && !(_p1_devtype & CLASS_BOMS) )
 //#define HAVE_JOY2	(_p2 && _p2_dev != -1 && !(_p2_devtype & CLASS_BOMS) )
 
+#ifdef DEBUG
 void DEBUG_PORT_CONFIG(portConfig *config)
 {
      Serial.print("port: ");
@@ -35,6 +36,8 @@ void DEBUG_PORT_CONFIG(portConfig *config)
      DEBUG_PORT_CONFIG(&ports[0]);
      DEBUG_PORT_CONFIG(&ports[1]);
 }*/
+
+#endif
 
 //
 // deviceUpdate() - update the USB devices if necessary.
@@ -72,13 +75,17 @@ void VDIP::deviceUpdate()
 
 	       if(ports[portConfigBuffer.port].port != portConfigBuffer.port ||
 		  ports[portConfigBuffer.port].type != portConfigBuffer.type ||
-		  ports[portConfigBuffer.port].usbDev != portConfigBuffer.usbDev) {
+		  ports[portConfigBuffer.port].usbDev != portConfigBuffer.usbDev ||
+		  ports[portConfigBuffer.port].vid != portConfigBuffer.vid ||
+		  ports[portConfigBuffer.port].pid != portConfigBuffer.pid) {
 		    
 		    // this port HAS CHANGED
 
 		    ports[portConfigBuffer.port].port = portConfigBuffer.port;
 		    ports[portConfigBuffer.port].usbDev = portConfigBuffer.usbDev;
 		    ports[portConfigBuffer.port].type = portConfigBuffer.type;
+		    ports[portConfigBuffer.port].vid = portConfigBuffer.vid;
+		    ports[portConfigBuffer.port].pid = portConfigBuffer.pid;
 
 		    // check incoming device and call process routines if needed
                     //DEBUG_PORT_CONFIG(&portConfigBuffer);
@@ -159,6 +166,26 @@ void DEBUG_USB_QD(int dev, unsigned char *buffer)
 #endif
 
 //
+// portConnection() - returns the type, the VID, and the PID of the device connected to 
+//		      the given port (either 0 or 1).  This "port" refers to the ChapR/VDIP
+//		      USB connector 1 and 2.  Normally this is called by the gamepad object
+//		      that is associated with a particular gamepad (1 or 2).
+//	RETURNS: true if there is something connected, and the pointers are filled in
+//		false if nothing is connected, and the pointers aren't touched
+//
+bool VDIP::portConnection(int port, int *type, unsigned short *vid, unsigned short *pid)
+{
+     if (ports[port].usbDev != -1) {
+	  *type = ports[port].type;
+	  *vid = ports[port].vid;
+	  *pid = ports[port].pid;
+	  return(true);
+     }
+
+     return(false);
+}
+
+//
 // mapDevice() - given an incoming array from a QD command, map the device to the
 //		 internal variables used for interacting with the device.
 //		 The given "dev" is the logical USB port that is used when talking
@@ -174,7 +201,20 @@ void VDIP::mapDevice(int dev, char *deviceReport, portConfig *returnPortConfig)
      returnPortConfig->port = deviceReport[DEV_LOCATION] - 1;	// maps 1 => 0, and 2=> 1, and 0 => -1
      returnPortConfig->usbDev = dev;
 
-     if((deviceReport[DEV_VID] == '\x94') && (deviceReport[DEV_VID+1] == '\x06')) {
+     returnPortConfig->vid = (deviceReport[DEV_VID+1] << 8) | deviceReport[DEV_VID];
+     returnPortConfig->pid = (deviceReport[DEV_PID+1] << 8) | deviceReport[DEV_PID];
+
+     Serial.print("vid 0x");
+     Serial.print(returnPortConfig->vid,HEX);
+     Serial.print(" pid 0x");
+     Serial.print(returnPortConfig->pid,HEX);
+     Serial.print(" usbDev 0x");
+     Serial.print(returnPortConfig->usbDev,HEX);
+
+// OLD WAY TO DO THIS
+//     if(deviceReport[DEV_VID] == '\x94') && (deviceReport[DEV_VID+1] == '\x06')) {
+
+     if(returnPortConfig->vid == (unsigned short)0x0694) {
 	  returnPortConfig->type = DEVICE_NXT;
      } else if(deviceReport[DEV_TYPE] == '\x08') {
 	  returnPortConfig->type = DEVICE_CONTROLLER;
@@ -183,6 +223,13 @@ void VDIP::mapDevice(int dev, char *deviceReport, portConfig *returnPortConfig)
      } else {
 	  returnPortConfig->type = DEVICE_UNKNOWN;
      }
+
+     Serial.print(" type 0x");
+     Serial.print(returnPortConfig->type,HEX);
+     Serial.print(" (0x");
+     Serial.print(deviceReport[DEV_TYPE],HEX);
+     Serial.println(")");
+
 }
 
 
@@ -348,6 +395,10 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
 	       // only a return line is expected.
 
 	       readBytes(rbytes,cbuf,timeout);	// don't overwrite buffer yet
+
+	       Serial.print("\"");
+	       Serial.print(cbuf);
+	       Serial.println("\"");
 
 	       rbytes = cbuf[0];
 
@@ -528,8 +579,15 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 	 char *ptr = buf;
 	 for (int i = 0; i < 4; i++){
 	   double value = atof(ptr);
-	   if (value > 0 && value <= 5)
-	     myEEPROM2.setAnalogInput(i, value); //translation to LabView preferences occurs inside
+	   if (value > 0 && value <= 5) {
+		// TODO - translate to labview preferences here
+		switch(i) {
+		case 0:		myEEPROM2.setAnalogInput1(value); break;
+		case 1:		myEEPROM2.setAnalogInput2(value); break;
+		case 2:		myEEPROM2.setAnalogInput3(value); break;
+		case 3:		myEEPROM2.setAnalogInput4(value); break;
+		}
+	   }
 	   while (*ptr != '\r' && *ptr != '\0' && *ptr != '\n'){
 	     ptr++;
 	   }
@@ -620,7 +678,8 @@ void VDIP::ejectNXT()
 
 int VDIP::getJoystick(int num, char *databuf)
 {
-     if (ports[num].usbDev >= 0 && ports[num].type == DEVICE_CONTROLLER) {
+//     if (ports[num].usbDev >= 0 && ports[num].type == DEVICE_CONTROLLER) {
+     if (ports[num].usbDev >= 0) {
 	  cmd(VDIP_SC,NULL,100,ports[num].usbDev);
 	  return(cmd(VDIP_DRD,databuf,100));
      } else {
