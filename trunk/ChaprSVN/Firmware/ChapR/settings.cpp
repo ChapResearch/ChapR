@@ -9,14 +9,14 @@
 #include "debug.h"
 #include "sound.h"
 
-button	theButton2(BUTTON);
+extern button theButton;
 
-blinky	powerLED2(LED_POWER);
-blinky	indicateLED2(LED_INDICATE);
+extern blinky powerLED;
+extern blinky indicateLED;
 
-VDIP	vdip2(VDIP_CLOCK, VDIP_MOSI, VDIP_MISO, VDIP_CS, VDIP_RESET);
+extern VDIP vdip;
 
-BT	bt2(BT_RX, BT_TX, BT_RESET, BT_MODE, BT_9600BAUD, BT_CONNECTED);
+extern BT bt;
 
 settings::settings()
 {
@@ -102,23 +102,23 @@ void settings::boardBringUp()
   Serial.print(F("Running test program version "));
   Serial.println(BOARDBRINGUPVERSION);
   Serial.println(F("Don't forget to switch the top jumper on the VDIP"));
-  indicateLED2.off();
+  indicateLED.off();
   Serial.println(F("Testing power LED..."));
-  powerLED2.on();
+  powerLED.on();
   hitReturn();
   getStringFromMonitor(buf, 2);
   while (buf[0] != '\0'){
     getStringFromMonitor(buf, 2);
   }
   Serial.println(F("Testing BT LED..."));
-  powerLED2.off();
-  indicateLED2.on();
+  powerLED.off();
+  indicateLED.on();
   hitReturn();
   getStringFromMonitor(buf, 1);
   while (buf[0] != '\0'){
     getStringFromMonitor(buf, 1);
   }
-  indicateLED2.off();
+  indicateLED.off();
   Serial.println(F("Hit RET to squeep"));
   getStringFromMonitor(buf, 2);
   while (buf[0] != '\0'){
@@ -126,7 +126,7 @@ void settings::boardBringUp()
   }
   beeper.squeep();
   Serial.println(F("Press WFS button to continue"));
-  while (theButton2.check() != true){
+  while (theButton.check() != true){
   }
 
   while(true) {
@@ -134,7 +134,7 @@ void settings::boardBringUp()
        for (int i = 0; i < sizeof(buf); i++){
 	    buf[i] ='\0';
        }
-       vdip2.cmd(VDIP_FWV, buf, DEFAULTTIMEOUT, 15); //expects 15 bytes back see pg 23 of Viniculum Firmware reference
+       vdip.cmd(VDIP_FWV, buf, DEFAULTTIMEOUT, 15); //expects 15 bytes back see pg 23 of Viniculum Firmware reference
        Serial.print(F("VDIP version: "));
        Serial.println(buf);
        Serial.print(F("Should be 3.69 - enter \"!\" to flash it now - "));
@@ -150,16 +150,16 @@ void settings::boardBringUp()
 
        Serial.println(F("Resetting VDIP to allow flash, 15 sec delay..."));
        Serial.println(F("Don't do anything ..."));
-       vdip2.reset();
+       vdip.reset();
        delay(5000);
-       vdip2.flush(10000);
+       vdip.flush(10000);
        Serial.print(F("Remove flash drive, and "));
        hitReturn();
        getStringFromMonitor(buf, 25);
   }
 
   Serial.println(F("checking RN-42 version..."));
-  bt2.checkVersion();
+  bt.checkVersion();
   Serial.println(F("Should be 6.15"));
   Serial.println(F("Done."));
 }

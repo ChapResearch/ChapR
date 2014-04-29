@@ -1,4 +1,3 @@
-
 #include <Arduino.h>
 
 #include "VDIPSPI.h"
@@ -12,9 +11,9 @@
 
 extern void software_Reset();
 
-settings      myEEPROM2;
+extern settings myEEPROM;
 
-sound  	         beeper2(TONEPIN);
+extern sound beeper;
 
 //#define HAVE_JOY1	(_p1 && _p1_dev != -1 && !(_p1_devtype & CLASS_BOMS) )
 //#define HAVE_JOY2	(_p2 && _p2_dev != -1 && !(_p2_devtype & CLASS_BOMS) )
@@ -488,7 +487,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 
        if(readFile("name.txt", buf, BIGENOUGH)){
          if (buf[EEPROM_NAMELENGTH - 1] == '\0'){
-           myEEPROM2.setName(buf);
+           myEEPROM.setName(buf);
          }
        }
 
@@ -497,7 +496,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
        if(readFile("person.txt", buf, BIGENOUGH)){
          byte newNum = (byte) atoi(buf);
          if (newNum > 0 && newNum <= EEPROM_LASTPERSON){
-           myEEPROM2.setPersonality(newNum);
+           myEEPROM.setPersonality(newNum);
          }
        }
 
@@ -506,7 +505,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
        if(readFile("timeout.txt", buf, BIGENOUGH)){
          byte newNum = (byte) atoi(buf);
          if (newNum >= 0 && newNum <= EEPROM_MAXTIMEOUT){
-         myEEPROM2.setTimeout(newNum);
+         myEEPROM.setTimeout(newNum);
          }
        }
 
@@ -515,7 +514,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
        if(readFile("lag.txt", buf, BIGENOUGH)){
          byte newNum = (byte) atoi(buf);
          if (newNum >= 0 && newNum <= EEPROM_MAXLAG){
-         myEEPROM2.setSpeed(newNum);
+         myEEPROM.setSpeed(newNum);
          }
        }
 
@@ -524,7 +523,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
        if(readFile("mode.txt", buf, BIGENOUGH)){
          byte newNum = (byte) atoi(buf);
          if (newNum >= 0 && newNum <= EEPROM_MAXMODE){
-         myEEPROM2.setMode(newNum);
+         myEEPROM.setMode(newNum);
          }
        }
        
@@ -535,8 +534,8 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 	 char *ptr = buf;
 	 for (int i = 0; i < 2; i++){
 	   switch(i){
-	   case 0: myEEPROM2.setAutoLen(atoi(ptr));break;
-	   case 1: myEEPROM2.setTeleLen(atoi(ptr));break;
+	   case 0: myEEPROM.setAutoLen(atoi(ptr));break;
+	   case 1: myEEPROM.setTeleLen(atoi(ptr));break;
 	   }
 	   while (*ptr != '\r' && *ptr != '\0' && *ptr != '\n'){
 	     ptr++;
@@ -570,7 +569,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 	   }
 	 }
 	 
-	 myEEPROM2.setDigitalInputs(newNum);
+	 myEEPROM.setDigitalInputs(newNum);
        }
 
        // contains the 4 analog inputs (for FRC, aka ChapR3 of EEPROM)
@@ -580,12 +579,13 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 	 for (int i = 0; i < 4; i++){
 	   double value = atof(ptr);
 	   if (value > 0 && value <= 5) {
+	     value = (value*1023)/5;
 		// TODO - translate to labview preferences here
 		switch(i) {
-		case 0:		myEEPROM2.setAnalogInput1(value); break;
-		case 1:		myEEPROM2.setAnalogInput2(value); break;
-		case 2:		myEEPROM2.setAnalogInput3(value); break;
-		case 3:		myEEPROM2.setAnalogInput4(value); break;
+		case 0:		myEEPROM.setAnalogInput1(value); break;
+		case 1:		myEEPROM.setAnalogInput2(value); break;
+		case 2:		myEEPROM.setAnalogInput3(value); break;
+		case 3:		myEEPROM.setAnalogInput4(value); break;
 		}
 	   }
 	   while (*ptr != '\r' && *ptr != '\0' && *ptr != '\n'){
@@ -628,13 +628,13 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
        // the confirm beep indicates that all files that existed were read
        // it doesn't confirm that all data was cool
 
-       beeper2.confirm();			 
+       beeper.confirm();			 
 
      } else {
 
        // the disk was put in the wrong USB port!
 
-       beeper2.icky();
+       beeper.icky();
 
      } 
 }
@@ -650,16 +650,16 @@ void VDIP::processNXT(portConfig *portConfigBuffer)
 	  char *btAddress;
 	  long	freeMemory;
           extern BT bt;
-          if (myEEPROM2.getResetStatus() == (byte) 0){
+          if (myEEPROM.getResetStatus() == (byte) 0){
 	    if(nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory)){
 	      Serial.print("btAddress: \"");
 	      Serial.print(btAddress);
 	      Serial.print("\"");
               bt.setRemoteAddress(btAddress);
               delay(100);
-	      Serial.print(myEEPROM2.getResetStatus());
-              myEEPROM2.setResetStatus(1); // increments the "status" so that the ChapR knows it has been reset
-	      Serial.print(myEEPROM2.getResetStatus());
+	      Serial.print(myEEPROM.getResetStatus());
+              myEEPROM.setResetStatus(1); // increments the "status" so that the ChapR knows it has been reset
+	      Serial.print(myEEPROM.getResetStatus());
               delay(1000);
               software_Reset();
             }
@@ -668,7 +668,7 @@ void VDIP::processNXT(portConfig *portConfigBuffer)
 
 void VDIP::ejectNXT()
 {  
-     myEEPROM2.setResetStatus(0);
+     myEEPROM.setResetStatus(0);
 }
 
 //
