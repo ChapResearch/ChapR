@@ -80,10 +80,12 @@ typedef enum _deviceType {
 } deviceType;
 
 typedef struct {
-     int	port;		// the physical port number for the configuration
-     int	usbDev;		// the USB device associated with this config (-1 means not in use)
-     deviceType	type;		// the type of device in use on the port
-     int	flag;		// the updated/touched flag
+     int		port;		// the physical port number for the configuration
+     int		usbDev;		// the USB device associated with this config (-1 means not in use)
+     deviceType		type;		// the type of device in use on the port
+     unsigned short	vid;		// vendor ID of the device
+     unsigned short	pid;		// product ID of the device
+     int		flag;		// the updated/touched flag
 } portConfig;
 
 //
@@ -103,6 +105,7 @@ public:
      void zombieMode();
      int cmd(vdipcmd, char *rbuf, int timeout, int arg = 0);
      void reset();
+     bool portConnection(int,int*,unsigned short *,unsigned short *);
 
 private:
      uint8_t _resetPin;

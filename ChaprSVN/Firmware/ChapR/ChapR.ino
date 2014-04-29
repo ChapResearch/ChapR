@@ -1,5 +1,5 @@
 #include <arduino.h>
-#include <settings.h>
+#include <EEPROM.h>
 #include <avr/sleep.h>
 #include <SoftwareSerial.h>
 #include "config.h"
@@ -70,8 +70,6 @@ Gamepad		g2_prev(2);	// the buffer for the gamepad data before current changes
 /*											*/
 /****************************************************************************************/
 
-byte emptyJSData[] = { 0x80, 0x80, 0x80, 0x80, 0x08, 0x00, 0x04, 0x00 };
-
 bool    inConfigMode; // whether or not the ChapR is in pairing mode
 long    powerTimeout; // how long until the ChapR turns itself off (configured by user)
 int     lag; // changes the delay between loops
@@ -102,7 +100,7 @@ void setup()
        Serial.println("Beginning board bring-up");
        myEEPROM.boardBringUp();
        Serial.println("Please intialize your ChapR.");
-       myEEPROM.setFromConsole("ChapRX", (byte) 10, (byte) 3, (byte) 35, (byte) USER_MODE_AUTONOMOUS, (int) 10, (int) 140, (byte) 0, (short) 0, (short) 0, (short) 0, (short) 0);
+       myEEPROM.setDefaults("ChapRX", 10, 3, 35, USER_MODE_AUTONOMOUS, 10, 140, 0, 0, 0, 0, 0);
      }
      
      // checks to see if the ChapR has undergone a software reset, making sure it remembers that
@@ -132,10 +130,13 @@ void setup()
      }
 
      vdip.deviceUpdate();		// get initial device setup
+     g1.deviceUpdate(&vdip);
+     g2.deviceUpdate(&vdip);
+
      current_personality = myEEPROM.getPersonality();
 
-     g1.load(emptyJSData);
-     g2.load(emptyJSData);
+     g1.clear();
+     g2.clear();
 
      if (inConfigMode) {
           bt.configMode(myEEPROM.getName());
@@ -191,11 +192,11 @@ void loop()
      bool		lowBattery = false;
 
     if (Serial.available() > 0){
-      myEEPROM.setFromConsole(myEEPROM.getName(), myEEPROM.getTimeout(), myEEPROM.getPersonality(), myEEPROM.getSpeed(), myEEPROM.getMode(), myEEPROM.getAutoLen(), myEEPROM.getTeleLen(), myEEPROM.getDigitalInputs(), myEEPROM.getAnalogInput(0, true), myEEPROM.getAnalogInput(1, true), myEEPROM.getAnalogInput(2, true), myEEPROM.getAnalogInput(3, true));
-      current_personality = myEEPROM.getPersonality();	// in case the personality changed
-      powerTimeout = 60000 * (long) myEEPROM.getTimeout();
-      lag = myEEPROM.getSpeed();
-      mode = myEEPROM.getMode();
+	 myEEPROM.setFromConsole();
+	 current_personality = myEEPROM.getPersonality();	// in case the personality changed
+	 powerTimeout = 60000 * (long) myEEPROM.getTimeout();
+	 lag = myEEPROM.getSpeed();
+	 mode = myEEPROM.getMode();
     }
     
      // when we first boot, the power button is pressed in, so ensure that it changes before monitoring it for shutdown
@@ -247,6 +248,8 @@ void loop()
 
      if((loopCount % DEVICE_UPDATE_LOOP_COUNT) == 0) {
 	  vdip.deviceUpdate();
+	  g1.deviceUpdate(&vdip);
+	  g2.deviceUpdate(&vdip);
      }
 
      // check to see if we're connected to the robot - turn on the light if so if not connected, blink the thing

@@ -4,7 +4,7 @@
 
 // constructor - loads up a blank (but valid) gamepad
 
-Gamepad::Gamepad(int _id) : id(_id), x1(0), y1(0), x2(0), y2(0), buttons(0), tophat(0)
+Gamepad::Gamepad(int _id) : id(_id), x1(0), y1(0), x2(0), y2(0), buttons(0), tophat(0), translator(NULL)
 {
 }
 
@@ -27,6 +27,17 @@ void Gamepad::debugPrint(char *prefix)
 }
 
 #endif
+
+//
+// clear() - clear the data in the gamepad, setting it to the "neutral" position
+//	     for all things.  Centered joysticks, unpressed buttons.
+//
+void Gamepad::clear()
+{
+     x1 = y1 = x2 = y2 = 0;
+     buttons = 0;
+     tophat = 0;
+}
 
 //
 // load() - given a byte array of data from a USB read of a gamepad, load it into
@@ -61,11 +72,42 @@ void Gamepad::load(byte *usbdata)
 //
 bool Gamepad::update(VDIP *vdip)
 {
-     byte	data[8];
+     byte	data[MAXTRANSLATE];
+     int	count;
 
-     if (vdip->getJoystick(id-1,(char *)data) == 8) {	// note, ID is either 0 or 1 (not 1 or 2)
-	  load(data);
-	  return(true);
+     count = vdip->getJoystick(id-1,(char *)data);	// note, ID is either 0 or 1 (not 1 or 2)
+     if(translator != NULL) {
+	  return((*translator)(data,count,*this));
      }
      return(false);
+}
+
+//
+// deviceUpdate() - update the internal concept of the device that is plugged into
+//		    this particular gamepad.
+//
+void Gamepad::deviceUpdate(VDIP *vdip)
+{
+     unsigned short	vid, pid;
+     int		type;
+
+     // note that we ignore the type - we just match on vid/pid
+
+     Serial.print("device Update on ");
+     Serial.print(id-1);
+
+     if (vdip->portConnection(id-1,&type,&vid,&pid)) {	// ID is either 0 or 1 (not 1 or 2) in VDIP
+	  translator = driverLookup(vid,pid);		// may come back as NULL too
+	  Serial.print("   VID:0x");
+	  Serial.print(vid,HEX);
+	  Serial.print("   PID:0x");
+	  Serial.print(pid,HEX);
+     } else {
+	  translator = NULL;
+     }
+
+     if(translator == NULL) {
+	  Serial.print("  (no translator)");
+     }
+     Serial.println("");
 }

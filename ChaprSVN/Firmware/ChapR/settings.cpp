@@ -9,14 +9,14 @@
 #include "debug.h"
 #include "sound.h"
 
-extern button theButton;
+button	theButton2(BUTTON);
 
-extern blinky powerLED;
-extern blinky indicateLED;
+blinky	powerLED2(LED_POWER);
+blinky	indicateLED2(LED_INDICATE);
 
-extern VDIP vdip;
+VDIP	vdip2(VDIP_CLOCK, VDIP_MOSI, VDIP_MISO, VDIP_CS, VDIP_RESET);
 
-extern BT bt;
+BT	bt2(BT_RX, BT_TX, BT_RESET, BT_MODE, BT_9600BAUD, BT_CONNECTED);
 
 settings::settings()
 {
@@ -52,27 +52,41 @@ void settings::flushSerial()
   }
 }
 
+void settings::hitReturn()
+{
+     Serial.println(F("Hit RET to continue"));
+}
+
+//
+// getStringFromMonitor() - read a string from the serial monitor.  The data
+//			    is put into the given buffer.  The given size is
+//			    the size of the BUFFER not of the string.  The
+//			    string will have a '\0' termination so the maximum
+//			    string length will be size - 1.
+//
+//			    The neat thing about this routine is that you can
+//			    use a real small buffer and it will only read that
+//			    number of characters from the serial monitor and
+//			    just flush the rest...very efficient!
+//
 int settings::getStringFromMonitor(char *buffer, int size)
 {
   int index = 0;
   char incoming;
   
-  while (index < size){
-    if (Serial.available() > 0){
-      incoming = Serial.read();
-    } else {
-      incoming = 0;
-    }
-    if (incoming){
-      if (incoming == '\r'){
-        buffer[index] = '\0';
-        return index;
-      }
-      buffer[index++] = incoming;
-    }
+  while (index < size){			// only loop through for "size" loops
+       incoming = '\0';
+       if (Serial.available() > 0){
+	    incoming = Serial.read();
+	    if (incoming == '\r'){	// we stop when the user hits return
+		 buffer[index] = '\0';
+		 return index;
+	    }
+	    buffer[index++] = incoming;
+       }
   }
-  buffer[index - 1] = '\0';
-  flushSerial();
+  buffer[index - 1] = '\0';		// or we stop when we've run out of buffer
+  flushSerial();			// need to flush until we get the return in this case
   return size;
 }
 
@@ -88,31 +102,31 @@ void settings::boardBringUp()
   Serial.print(F("Running test program version "));
   Serial.println(BOARDBRINGUPVERSION);
   Serial.println(F("Don't forget to switch the top jumper on the VDIP"));
-  indicateLED.off();
+  indicateLED2.off();
   Serial.println(F("Testing power LED..."));
-  powerLED.on();
-  Serial.println(F("Hit return to continue"));
+  powerLED2.on();
+  hitReturn();
   getStringFromMonitor(buf, 2);
   while (buf[0] != '\0'){
     getStringFromMonitor(buf, 2);
   }
   Serial.println(F("Testing BT LED..."));
-  powerLED.off();
-  indicateLED.on();
-  Serial.println(F("Hit return to continue"));
+  powerLED2.off();
+  indicateLED2.on();
+  hitReturn();
   getStringFromMonitor(buf, 1);
   while (buf[0] != '\0'){
     getStringFromMonitor(buf, 1);
   }
-  indicateLED.off();
-  Serial.println(F("Hit return to squeep"));
+  indicateLED2.off();
+  Serial.println(F("Hit RET to squeep"));
   getStringFromMonitor(buf, 2);
   while (buf[0] != '\0'){
     getStringFromMonitor(buf, 2);
   }
   beeper.squeep();
   Serial.println(F("Press WFS button to continue"));
-  while (theButton.check() != true){
+  while (theButton2.check() != true){
   }
 
   while(true) {
@@ -120,10 +134,11 @@ void settings::boardBringUp()
        for (int i = 0; i < sizeof(buf); i++){
 	    buf[i] ='\0';
        }
-       vdip.cmd(VDIP_FWV, buf, DEFAULTTIMEOUT, 15); //expects 15 bytes back see pg 23 of Viniculum Firmware reference
+       vdip2.cmd(VDIP_FWV, buf, DEFAULTTIMEOUT, 15); //expects 15 bytes back see pg 23 of Viniculum Firmware reference
        Serial.print(F("VDIP version: "));
        Serial.println(buf);
-       Serial.println(F("Should be 3.69 (enter \"!\" to flash it now - press return to cont)"));
+       Serial.print(F("Should be 3.69 - enter \"!\" to flash it now - "));
+       hitReturn();
 
        getStringFromMonitor(buf, 25);
        if(buf[0] == '\0' || buf[0] != '!') {
@@ -133,162 +148,218 @@ void settings::boardBringUp()
        Serial.println(F("Put the flash drive with ftrfb.ftd on it in USB 2, and press RETURN."));
        getStringFromMonitor(buf, 25);
 
-       Serial.println(F("Resetting VDIP to allow flash, 15 seconds delay..."));
-       Serial.println(F("Don't do anything until after that..."));
-       vdip.reset();
+       Serial.println(F("Resetting VDIP to allow flash, 15 sec delay..."));
+       Serial.println(F("Don't do anything ..."));
+       vdip2.reset();
        delay(5000);
-       vdip.flush(10000);
-       Serial.println(F("Remove flash drive, and hit RETURN to retest VDIP version..."));
+       vdip2.flush(10000);
+       Serial.print(F("Remove flash drive, and "));
+       hitReturn();
        getStringFromMonitor(buf, 25);
   }
 
-  Serial.println(F("checking version of RN-42..."));
-  bt.checkVersion();
+  Serial.println(F("checking RN-42 version..."));
+  bt2.checkVersion();
   Serial.println(F("Should be 6.15"));
-  Serial.println(F("Everything looks good!"));
+  Serial.println(F("Done."));
 }
 
-void settings::setFromConsole(char *name, 
-				 byte timeout, 
-				 byte personality, 
-				 byte speed, 
-				 byte mode,
-				 int autoLen,
-				 int teleLen,
-				 byte dgtl, 
-				 float analog1,
-				 float analog2,
-				 float analog3,
-				 float analog4)
+//
+// Here is a new way to read settings from the user.  It should save a TON of space.
+// The structure below is an ordered list of settings that are asked of the user.
+// The different types cause different "reading" behavior from the user.  The data
+// is then written straight to EEPROM.
+//
+// NOTE - the prompt/help components are meant to be in PROGMEM, specified with F().
+//	  The __FlashStringHelper declaration comes from Print.ccp in the Arduino libraries.
+
+#define PROMPT_STRING	0
+#define PROMPT_BYTE	1
+#define PROMPT_BITS	2
+#define PROMPT_SHORT	3
+
+void settings::printCurrentValue(int eAddress, unsigned int max, int type)
 {
-  if (Serial.read() == '!'){
-    boardBringUp();
-  }
-  
-  flushSerial();
-  
-  Serial.print(F("Enter ChapR name (1 thru 15 chars). Hit return for default: "));
-  Serial.println(name);
-  int index = 0;
-  char buffer[EEPROM_MAXSTRINGLENGTH];
-  getStringFromMonitor(buffer, sizeof(buffer));
-  if (buffer[0] == '\0'){ //checks to see if only a return was pressed
-    setName(name);
-  } else {  
-    setName(buffer);
-    Serial.print(F("ChapR name is now: "));
-    Serial.println(getName());
-  }
-  
-  Serial.print(F("Enter ChapR timeout (0 (no timeout) - 120 min).  Hit return for default: "));
-  Serial.println(timeout);
-  getStringFromMonitor(buffer,sizeof(buffer));
-  if (buffer[0] == '\0'){
-    setTimeout(timeout);
-  } else {
-    setTimeout(atoi(buffer));
-    Serial.print(F("ChapR timeout is now: "));
-    Serial.println(getTimeout());
-  }
+     switch(type) {
 
-  Serial.print(F("Enter ChapR personality (numbers explained on www.thechapr.com). Hit return for default: "));
-  Serial.println(personality);
-  getStringFromMonitor(buffer,sizeof(buffer));
-  if (buffer[0] == '\0' || atoi(buffer) > EEPROM_LASTPERSON){
-    setPersonality(personality);
-  } else {
-    setPersonality(atoi(buffer));
-    Serial.print(F("ChapR personality is now: "));
-    Serial.println(getPersonality());
-  }
-  
-  Serial.print(F("Enter ChapR lag (0-255, 0 being the least lag). Hit return for default: "));
-  Serial.println(speed);
-  getStringFromMonitor(buffer,sizeof(buffer));
-  if (buffer[0] == '\0' || atoi(buffer) > EEPROM_MAXLAG || atoi(buffer) < 0){
-    setSpeed(speed);
-  } else {
-    setSpeed(atoi(buffer));
-    Serial.print(F("ChapR lag is now: "));
-    Serial.println(getSpeed());
-  }
-  
-  Serial.print(F("Enter ChapR mode. Hit return for default: "));
-  Serial.println(mode);
-  getStringFromMonitor(buffer,sizeof(buffer));
-  if (buffer[0] == '\0' || atoi(buffer) > EEPROM_MAXMODE){
-    setMode(mode);
-  } else {
-    setMode(atoi(buffer));
-    Serial.print(F("ChapR mode is now: "));
-    Serial.println(getMode());
-  }
-  
-  Serial.print(F("Enter digital inputs (FRC only). Hit return for default: "));
-  Serial.println(dgtl, BIN);
-  getStringFromMonitor(buffer,sizeof(buffer));
-  if (buffer[0] == '\0'){
-    setDigitalInputs(dgtl);
-  } else {
-    byte newNum = 0;
-    char *ptr = buffer;
-    for (int i = 0; i < 8; i++){
-      byte val = (buffer[i] == '1')?1:0;
-      newNum |= val<<i;
-    }
-    setDigitalInputs(newNum);
-    Serial.print(F("ChapR digital inputs are now: "));
-    Serial.println(getDigitalInputs(), BIN);
-  } 
+       case PROMPT_STRING:
+	  Serial.print(getString(eAddress,max));
+	  break;
 
-  for (int i = 0; i < 4; i++){
-    Serial.print(F("Enter analog input "));
-    Serial.print(i);
-    Serial.print(F(" (FRC only). Hit return for default: "));
-    switch (i){
-    case 0: Serial.println(analog1); break;
-    case 1: Serial.println(analog2); break;
-    case 2:  Serial.println(analog3); break;
-    case 3:  Serial.println(analog4); break;
-    }
-    getStringFromMonitor(buffer,sizeof(buffer));
-    if (buffer[0] == '\0'){
-          switch (i){
-	  case 0: setAnalogInput(i, analog1); break;
-	  case 1: setAnalogInput(i, analog2); break;
-	  case 2: setAnalogInput(i, analog3); break;
-	  case 3: setAnalogInput(i, analog4); break;
+       case PROMPT_BYTE:
+	  Serial.print(EEPROM.read(eAddress));
+	  break;
+
+       case PROMPT_SHORT:
+	  Serial.print(getShort(eAddress));
+	  break;
+
+       case PROMPT_BITS:
+	  for (int i=0, d=EEPROM.read(eAddress); i < max; i++) {
+	       Serial.print((d&0x01)?"1":"0");
+	       d = d>>1;
 	  }
-    } else {
-      setAnalogInput(i, atof(buffer));
-      Serial.print(F("ChapR analog input "));
-      Serial.print(i);
-      Serial.print(" is now: ");
-      Serial.println(getAnalogInput(i, true)); //indicates value should be translated to be between 0 and 5
-    }
-  }
-  
-  Serial.print(F("Enter length of autonomous (in seconds). Hit return for default: "));
-  Serial.println(autoLen);
-  getStringFromMonitor(buffer,sizeof(buffer));
-  if (buffer[0] != '\0'){
-    Serial.print("Autonomous length is now: ");
-    Serial.println(atoi(buffer));
-    setAutoLen(atoi(buffer));
-  }
+     }
+}
 
-  Serial.print(F("Enter length of teleOp (in seconds). Hit return for default: "));
-  Serial.println(teleLen);
-  getStringFromMonitor(buffer,sizeof(buffer));
-  if (buffer[0] != '\0'){
-    Serial.print("TeleOp length is now: ");
-    Serial.println(atoi(buffer));
-    setTeleLen(atoi(buffer));
-  }
-  
-  Serial.println(F("Preferences saved!"));
-  markInitialized();
-  setResetStatus(0); //makes sure the ChapR knows it has not been (software) reset
+//
+// doSetting() - given a pointer to a particular prompt, present it to the user and write
+//		the data to the appropriate spot.  The current data (or default) is always
+//		given as either a string or int, with interpretation of which one by the
+//		type of the prompt.  The general format for the output is (for example):
+//
+//			Enter ChapR Analog Input 3 (from 0 to 65535) [0]:
+//
+//		Note that the default is presented in the []'s - assuming that the user
+//		understands that they just hit the RETURN for the default.  In other words,
+//		there are no extra words telling them to "hit return for the default".
+//
+void settings::doSetting(int			 eAddress, 	// EEPROM address of this setting
+			    const __FlashStringHelper *prompt,	// the general name or "prompt" for the given setting
+			    const __FlashStringHelper *help,		// the "help" string - used only during setting, not confirmation
+			    unsigned int   	 min,		// minimum value for error checking
+			    unsigned int   	 max,		// maximum value for error checking
+			    int	    	   	 type)		// how the input is read from the user
+{
+#define MAXLINE		50
+     char	lineBuffer[MAXLINE];		// just statically set - will cover all read types
+     long	num;
+     bool	invalid;
+     int	i;
+
+     while(true) {
+	  Serial.print(F("Enter ChapR "));
+	  Serial.print(prompt);
+	  Serial.print(F(" ("));
+	  Serial.print(help);
+	  Serial.print(F(") ["));
+	  printCurrentValue(eAddress,max,type);
+	  Serial.println("]: ");
+
+	  // now read - if RETURN is pressed with something, check and set the value
+	  // appropriately.  If the user just presses RETURN do nothing.
+
+	  getStringFromMonitor(lineBuffer, MAXLINE);	// only get 20 characters
+	  flushSerial();				// and flush the rest
+
+	  if (lineBuffer[0] == '\0'){
+	       // user just pressed RETURN with no data
+	       return;
+	  }
+
+	  // go ahead and validate the values, write them later (saves a bit of space)
+
+	  switch(type) {
+	    case PROMPT_BYTE:
+	    case PROMPT_SHORT:
+		 num = atol(lineBuffer);
+		 invalid = (num < min || num > max);
+		 break;
+
+	    case PROMPT_BITS:
+	    case PROMPT_STRING:
+		 invalid = (strlen(lineBuffer) < min || strlen(lineBuffer) > max);
+		 break;
+	  }
+
+	  if(invalid) {
+	       Serial.print(help);
+	       Serial.println(F(". Try again."));
+	       continue;				// jump back to the top of the loop
+	  }
+
+	  // if the value IS valid, store it
+
+	  switch(type) {
+	    case PROMPT_STRING:
+		 setString(eAddress,max,lineBuffer);
+		 break;
+
+	    case PROMPT_BYTE:
+		 EEPROM.write(eAddress,(byte)num);
+		 break;
+
+	    case PROMPT_SHORT:
+		 setShort(eAddress,(short)num);
+		 break;
+
+	    case PROMPT_BITS:
+		 num = 0;
+		 for(i=0; i < max; i++) {
+		      switch(lineBuffer[i]) {
+		      case '1':	num |= 1<<i; break;
+		      case '0':	break;
+		      default:	Serial.print(help); continue;
+		      }
+		 }
+		 EEPROM.write(eAddress,(byte)num);
+		 break;
+	  }
+	  
+	  // if we got here, then we need to exit the loop
+	  break;
+     } 
+
+     // before returning, print out the current value of the given address
+
+     Serial.print(F("ChapR "));
+     Serial.print(prompt);
+     Serial.print(F(" is now \""));
+     printCurrentValue(eAddress,max,type);
+     Serial.println(F("\""));
+}
+     
+void settings::setFromConsole()
+{
+     if (Serial.read() == '!'){
+	  boardBringUp();
+     }
+     flushSerial();
+
+     Serial.println(F("--- Enter ChapR settings ---"));
+
+     doSetting(EEPROM_NAME,		F("Name"),              F("max 15 chars"),           1, 15,    PROMPT_STRING);
+     doSetting(EEPROM_TIMEOUT,		F("Timeout"),           F("mins: 0 (none) - 120"),   0, 120,   PROMPT_BYTE  );
+     doSetting(EEPROM_PERSONALITY,	F("Personality"),       F("1 - 4"),                  1, 4,     PROMPT_BYTE  );
+     doSetting(EEPROM_SPEED,		F("Lag"),               F("0 is none"),              0, 255,   PROMPT_BYTE  );
+     doSetting(EEPROM_MODE,		F("Mode"),              F("0 or 1"),                 0, 1,     PROMPT_BYTE  );
+     doSetting(EEPROM_DIGITALIN,	F("Digital Inputs"),    F("8 bits from LSB to MSB"), 8, 8,     PROMPT_BITS  );
+     doSetting(EEPROM_ANALOGIN1,	F("Analog Input 1"),    F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+     doSetting(EEPROM_ANALOGIN2,	F("Analog Input 2"),    F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+     doSetting(EEPROM_ANALOGIN3,	F("Analog Input 3"),    F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+     doSetting(EEPROM_ANALOGIN4,	F("Analog Input 4"),    F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+     doSetting(EEPROM_AUTOLEN,		F("Autonomous Length"), F("secs"),                   0, 255,   PROMPT_BYTE  );
+     doSetting(EEPROM_TELELEN,		F("TeleOp Length"),     F("secs"),                   0, 255,   PROMPT_BYTE  );
+
+     Serial.println(F("--- Done with settings ---"));
+     flushSerial();
+}
+
+void settings::setDefaults(char *name, 
+			      unsigned int   timeout, 
+			      unsigned int   personality, 
+			      unsigned int   speed, 
+			      unsigned int   mode,
+			      unsigned int   autoLen,
+			      unsigned int   teleLen,
+			      unsigned int   dgtl, 
+			      unsigned int   analog1,
+			      unsigned int   analog2,
+			      unsigned int   analog3,
+			      unsigned int   analog4)
+{
+     setName(name);
+     setTimeout((byte)timeout);
+     setPersonality((byte)personality);
+     setSpeed((byte)speed);
+     setMode((byte)mode);
+     setAutoLen((byte)autoLen);
+     setTeleLen((byte)teleLen);
+     setDigitalInputs((byte)dgtl);
+     setAnalogInput1(analog1);
+     setAnalogInput2(analog2);
+     setAnalogInput3(analog3);
+     setAnalogInput4(analog4);
 }
 
 //
@@ -311,8 +382,32 @@ void settings::setString(int start, int maxLength, char *thing)
 }
 
 //
-// setShort() - writes in little endian, starting from the
-//              index given
+// getString() - read in a string from EEPROM into a static  buffer, which needs to be
+//		 copied before this routine is called again.  
+//
+//		 NOTE - this routine always reads ONE EXTRA than what length specified,
+//		 and it is assumed that this one extra is a \0, but just in case it is
+//		 automatically added at the last byte
+//
+char* settings::getString(int start, int length)
+{
+  int size = length;
+  int i;
+  static char buffer[EEPROM_MAXSTRINGLENGTH];
+  
+  for (i = 0; i < length + 1; i++){
+    buffer[i] = EEPROM.read(start);
+    start++;
+  }
+
+  buffer[i-1] = '\0';
+  
+  return (buffer);
+}
+
+//
+// setShort() - writes in little endian, starting from the index given
+//
 void settings::setShort(int start, short value)
 {
   EEPROM.write(start,(byte) (value&0x00FF));
@@ -320,26 +415,13 @@ void settings::setShort(int start, short value)
 }
 
 //
-// getShort() - read in little endian, starting from the
-//              index given
+// getShort() - read in little endian, starting from the index given
+//
 short settings::getShort(int start)
 {
   short value = 0x00FF&((short) EEPROM.read(start));
   value |= 0xFF00&(((short) EEPROM.read(start+1))<<8);
   return value;
-}
-
-char* settings::getString(int start, int length)
-{
-  int size = length;
-  static char buffer[EEPROM_MAXSTRINGLENGTH];
-  
-  for (int i = 0; i < length + 1; i++){
-    buffer[i] = EEPROM.read(start);
-    start++;
-  }
-  
-  return (buffer);
 }
 
 void settings::setName(char *name)
@@ -402,38 +484,60 @@ byte settings::getDigitalInputs()
   return (EEPROM.read(EEPROM_DIGITALIN));
 }
 
-void settings::setAnalogInput(byte index, float a)
+void settings::setAnalogInput1(short a)
 {
-  a = (a*1023)/5; // scales the value to be from 0 to 1023 (the way LabView wants it)
-  setShort(EEPROM_ANALOGIN + index*2, a);
+     setShort(EEPROM_ANALOGIN1, a);
+}
+void settings::setAnalogInput2(short a)
+{
+     setShort(EEPROM_ANALOGIN2, a);
+}
+void settings::setAnalogInput3(short a)
+{
+     setShort(EEPROM_ANALOGIN3, a);
+}
+void settings::setAnalogInput4(short a)
+{
+     setShort(EEPROM_ANALOGIN4, a);
 }
 
-float settings::getAnalogInput(byte index, bool trans)
+short settings::getAnalogInput1()
 {
-  if (trans){
-    return ((float)getShort(EEPROM_ANALOGIN + index*2))*5/1023;}
-  return getShort(EEPROM_ANALOGIN + index*2);
+     return getShort(EEPROM_ANALOGIN1);
+}
+
+short settings::getAnalogInput2()
+{
+     return getShort(EEPROM_ANALOGIN2);
+}
+
+short settings::getAnalogInput3()
+{
+     return getShort(EEPROM_ANALOGIN3);
+}
+
+short settings::getAnalogInput4()
+{
+     return getShort(EEPROM_ANALOGIN4);
 }
 
 void settings::setAutoLen(byte a)
 {
-  EEPROM.write(EEPROM_AUTOLEN, a);
-}
-
-void settings::setTeleLen(byte t)
-{
-  EEPROM.write(EEPROM_TELELEN, t);
-}
-
-byte settings::getTeleLen()
-{
-  EEPROM.read(EEPROM_TELELEN);
+     EEPROM.write(EEPROM_AUTOLEN, a);
 }
 
 
 byte settings::getAutoLen()
 {
-  EEPROM.read(EEPROM_AUTOLEN);
+     return(EEPROM.read(EEPROM_AUTOLEN));
 }
 
+void settings::setTeleLen(byte t)
+{
+     EEPROM.write(EEPROM_TELELEN, t);
+}
 
+byte settings::getTeleLen()
+{
+     return(EEPROM.read(EEPROM_TELELEN));
+}
