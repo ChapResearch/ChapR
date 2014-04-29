@@ -319,7 +319,7 @@ void settings::setFromConsole()
      Serial.println(F("--- Enter ChapR settings ---"));
 
      doSetting(EEPROM_NAME,		F("Name"),              F("max 15 chars"),           1, 15,    PROMPT_STRING);
-     doSetting(EEPROM_TIMEOUT,		F("Timeout"),           F("mins: 0 (none) - 120"),   0, 120,   PROMPT_BYTE  );
+     doSetting(EEPROM_TIMEOUT,		F("Timeout"),           F("0 (none) - 120 mins"),    0, 120,   PROMPT_BYTE  );
      doSetting(EEPROM_PERSONALITY,	F("Personality"),       F("1 - 4"),                  1, 4,     PROMPT_BYTE  );
      doSetting(EEPROM_SPEED,		F("Lag"),               F("0 is none"),              0, 255,   PROMPT_BYTE  );
      doSetting(EEPROM_MODE,		F("Mode"),              F("0 or 1"),                 0, 1,     PROMPT_BYTE  );
@@ -328,8 +328,8 @@ void settings::setFromConsole()
      doSetting(EEPROM_ANALOGIN2,	F("Analog Input 2"),    F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
      doSetting(EEPROM_ANALOGIN3,	F("Analog Input 3"),    F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
      doSetting(EEPROM_ANALOGIN4,	F("Analog Input 4"),    F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
-     doSetting(EEPROM_AUTOLEN,		F("Autonomous Length"), F("secs"),                   0, 255,   PROMPT_BYTE  );
-     doSetting(EEPROM_TELELEN,		F("TeleOp Length"),     F("secs"),                   0, 255,   PROMPT_BYTE  );
+     doSetting(EEPROM_AUTOLEN,		F("Autonomous Length"), F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
+     doSetting(EEPROM_TELELEN,		F("TeleOp Length"),     F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
 
      Serial.println(F("--- Done with settings ---"));
      flushSerial();
