@@ -165,8 +165,14 @@ void BT::configMode(char *name)
      //		Note, too, that it is dependent upon the BT firmware 4.77 vs. 6.15
 
 #define btV615
+//#define btV477
 
 #ifdef btV615
+     btSend("SA,4");            // tells the RN-42 to use simple pin mode authentication
+     btSend("\r");
+
+     delay(30);
+
      btSend("SY,000C\r");	// set power to 12 db
 #endif
 #ifdef btV477
@@ -182,11 +188,6 @@ void BT::configMode(char *name)
 
      btSend("SN,");		// set the appropriate name
      btSend(name);
-     btSend("\r");
-
-     delay(30);
-
-     btSend("SA,4");            // tells the RN-42 to use simple pin mode authentication
      btSend("\r");
 
      delay(30);
