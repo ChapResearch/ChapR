@@ -71,10 +71,10 @@
 //	---------------		--
 //	Left Analog		analog #1
 //		up/down		-128 up, 127 down
-//		left/right	-128 up, 127 down
+//		left/right	-128 left, 127 right
 //	Right Analog		analog #2
 //		up/down		-128 up, 127 down
-//		left/right	-128 up, 127 down
+//		left/right	-128 left, 127 right
 //
 //	TOPHAT
 //	---------------
@@ -90,6 +90,7 @@ class Gamepad
 {
 private:
      xlateFn		translator;	// translator for incoming USB data
+     initFn		init;		// initialize function for the gamepad
 
 public:
      Gamepad(int);			// constructor simply loads default data
@@ -107,6 +108,8 @@ public:
      bool		update(VDIP *);
      void		deviceUpdate(VDIP *);
      void		clear();
+
+     bool		initialized;	// true if this gamepad has been initialized, false otherwise
 };
 
 #endif GAMEPAD_H
