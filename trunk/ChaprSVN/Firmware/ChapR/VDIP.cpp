@@ -18,6 +18,9 @@ extern sound beeper;
 //#define HAVE_JOY1	(_p1 && _p1_dev != -1 && !(_p1_devtype & CLASS_BOMS) )
 //#define HAVE_JOY2	(_p2 && _p2_dev != -1 && !(_p2_devtype & CLASS_BOMS) )
 
+// turn this on for some useful debugging code
+//#define DEBUG
+
 #ifdef DEBUG
 void DEBUG_PORT_CONFIG(portConfig *config)
 {
@@ -39,15 +42,19 @@ void DEBUG_PORT_CONFIG(portConfig *config)
 #endif
 
 //
-// deviceUpdate() - update the USB devices if necessary.
+// deviceUpdate() - update the USB devices if necessary.  If there was a change
+//			then this returns true, otherwise false.  Note that there
+//			isn't any differentiation as to which port changed in
+//			the return value.
 //
-void VDIP::deviceUpdate()
+bool VDIP::deviceUpdate()
 {
      char		incoming[32];
      portConfig		portConfigBuffer;
      int		i;
+     bool		changed = false;
 
-//     Serial.println("attempting device update");
+     // mark the two ports so we know when they've been assigned
 
      for(i=2; i--; ) {
 	  ports[i].flag = false;
@@ -60,8 +67,9 @@ void VDIP::deviceUpdate()
      // Note, too, that each port must be accounted for, or its configuration gets
      // zero'd out.
 
-     for (int i = 0; i < 2; i++) {
-
+//     for (int i = 0; i < 2; i++) {
+     for (int i = 0; i < 8; i++) {	// each xbox controller uses 4 usb devices - plan for two
+	                                // potential xbox controllers
 	  cmd(VDIP_QD,incoming,100,i);
 
 	  // given a configuration buffer, get this port's data
@@ -69,6 +77,13 @@ void VDIP::deviceUpdate()
 	  mapDevice(i,incoming,&portConfigBuffer);
 
 	  if(portConfigBuffer.port >= 0 && portConfigBuffer.port < 2) {	// we have a good assignment
+
+	       if(ports[portConfigBuffer.port].flag == true) {
+		    // this port has already been assigned during this update
+		    // so ignore the rest of the logical devices. We assume that
+		    // the first one is always the command device.
+		    continue;
+	       }
 
 	       ports[portConfigBuffer.port].flag = true;	// mark this port as assigned
 
@@ -79,6 +94,8 @@ void VDIP::deviceUpdate()
 		  ports[portConfigBuffer.port].pid != portConfigBuffer.pid) {
 		    
 		    // this port HAS CHANGED
+
+		    changed = true;
 
 		    ports[portConfigBuffer.port].port = portConfigBuffer.port;
 		    ports[portConfigBuffer.port].usbDev = portConfigBuffer.usbDev;
@@ -105,6 +122,8 @@ void VDIP::deviceUpdate()
 	       if (ports[i].usbDev >= 0) {
 		    // this port must now be empty
 
+		    changed = true;
+
 		    ports[i].usbDev = -1;
 
 		    if(ports[i].type == DEVICE_DISK) {
@@ -117,10 +136,9 @@ void VDIP::deviceUpdate()
 	  }
      }
 
-//     Serial.println("done with device update");
+     return(changed);
 }
 
-// #define DEBUG
 #ifdef DEBUG
 
 void DEBUG_HEX_BYTE(unsigned char c)
@@ -193,22 +211,15 @@ bool VDIP::portConnection(int port, int *type, unsigned short *vid, unsigned sho
 //
 void VDIP::mapDevice(int dev, char *deviceReport, portConfig *returnPortConfig)
 {
-//     DEBUG_USB_QD(dev, deviceReport);
+//     DEBUG_USB_QD(dev, (unsigned char *) deviceReport);
 
      // given the report, map the port number = -1 means that it not a useful report
 
      returnPortConfig->port = deviceReport[DEV_LOCATION] - 1;	// maps 1 => 0, and 2=> 1, and 0 => -1
      returnPortConfig->usbDev = dev;
 
-     returnPortConfig->vid = (deviceReport[DEV_VID+1] << 8) | deviceReport[DEV_VID];
-     returnPortConfig->pid = (deviceReport[DEV_PID+1] << 8) | deviceReport[DEV_PID];
-
-     Serial.print("vid 0x");
-     Serial.print(returnPortConfig->vid,HEX);
-     Serial.print(" pid 0x");
-     Serial.print(returnPortConfig->pid,HEX);
-     Serial.print(" usbDev 0x");
-     Serial.print(returnPortConfig->usbDev,HEX);
+     returnPortConfig->vid = (deviceReport[DEV_VID+1] << 8) | (deviceReport[DEV_VID]&0x00ff);
+     returnPortConfig->pid = (deviceReport[DEV_PID+1] << 8) | (deviceReport[DEV_PID]&0x00ff);
 
 // OLD WAY TO DO THIS
 //     if(deviceReport[DEV_VID] == '\x94') && (deviceReport[DEV_VID+1] == '\x06')) {
@@ -223,17 +234,26 @@ void VDIP::mapDevice(int dev, char *deviceReport, portConfig *returnPortConfig)
 	  returnPortConfig->type = DEVICE_UNKNOWN;
      }
 
+#ifdef DEBUG
+     Serial.print("vid 0x");
+     Serial.print(returnPortConfig->vid,HEX);
+     Serial.print(" pid 0x");
+     Serial.print(returnPortConfig->pid,HEX);
+     Serial.print(" usbDev 0x");
+     Serial.print(returnPortConfig->usbDev,HEX);
+
      Serial.print(" type 0x");
      Serial.print(returnPortConfig->type,HEX);
      Serial.print(" (0x");
      Serial.print(deviceReport[DEV_TYPE],HEX);
      Serial.println(")");
-
+#endif
 }
 
 
 //
 // cmd() - submit a VDIP command.
+// portCmd() - a version of cmd that uses the right usb device based upon the port number (1 or 2)
 //
 //	This routine is somewhat "low-level" in that it communicates with the VDIP
 //	about sending/receiving data - but much of that data is to/from the devices
@@ -257,6 +277,15 @@ void VDIP::mapDevice(int dev, char *deviceReport, portConfig *returnPortConfig)
 //	The number of bytes put into buf is returned.  This hides a lot of errors...
 //
 // 	NOTE - the timeout isn't fully implemented here - could be a problem
+
+int VDIP::portCmd(int port, vdipcmd vcmd, char *buf, int timeout, int arg /* = 0 */)
+{
+     cmd(VDIP_SC,NULL,100,ports[port-1].usbDev);	// set the target VDIP port
+
+     // first set the right output port, then issue the command
+
+     return(cmd(vcmd,buf,timeout,arg));
+}
 
 int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
 {
@@ -395,10 +424,6 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
 
 	       readBytes(rbytes,cbuf,timeout);	// don't overwrite buffer yet
 
-	       Serial.print("\"");
-	       Serial.print(cbuf);
-	       Serial.println("\"");
-
 	       rbytes = cbuf[0];
 
 	       // there seems to be the possibility that either "Bad Command" (BC) or "Command Failed" (CF)
@@ -472,7 +497,6 @@ bool VDIP::readFile(char *filename, char *buf, byte numToRead, bool lineOnly)
 //
 void VDIP::processDisk(portConfig *portConfigBuffer)
 {    
-     // Serial.println("starting processDisk");
      char buf[BIGENOUGH];
 
      // check that it's in port two (beep annoyingly otherwise)
@@ -615,10 +639,12 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 	    }
        }
 
+// TODO: make target.txt work - it should take a NAME and find the BT ID for it
+
        if(readFile("target.txt", buf, BIGENOUGH,true)){
-	    Serial.print("target: \"");
-	    Serial.print(buf);
-	    Serial.println("\"");
+//	    Serial.print("target: \"");
+//	    Serial.print(buf);
+//	    Serial.println("\"");
 //	    if(bt.nameToAddress(buf)) {
 //		 bt.setRemoteAddress(buf);
 //		 delay(100);
@@ -652,14 +678,15 @@ void VDIP::processNXT(portConfig *portConfigBuffer)
           extern BT bt;
           if (myEEPROM.getResetStatus() == (byte) 0){
 	    if(nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory)){
-	      Serial.print("btAddress: \"");
-	      Serial.print(btAddress);
-	      Serial.print("\"");
+//	      Serial.print("btAddress: \"");
+//	      Serial.print(btAddress);
+//	      Serial.print("\"");
               bt.setRemoteAddress(btAddress);
               delay(100);
-	      Serial.print(myEEPROM.getResetStatus());
+//	      Serial.print(myEEPROM.getResetStatus());
               myEEPROM.setResetStatus(1); // increments the "status" so that the ChapR knows it has been reset
-	      Serial.print(myEEPROM.getResetStatus());
+//	      Serial.print(myEEPROM.getResetStatus());
+
               delay(1000);
               software_Reset();
             }
