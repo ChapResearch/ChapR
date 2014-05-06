@@ -331,6 +331,9 @@ void settings::setFromConsole()
      doSetting(EEPROM_AUTOLEN,		F("Autonomous Length"), F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
      doSetting(EEPROM_TELELEN,		F("TeleOp Length"),     F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
 
+     markInitialized();
+     setResetStatus(0); //makes sure the ChapR knows it has not been (software) reset
+
      Serial.println(F("--- Done with settings ---"));
      flushSerial();
 }
