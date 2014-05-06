@@ -247,9 +247,10 @@ void loop()
      }
 
      if((loopCount % DEVICE_UPDATE_LOOP_COUNT) == 0) {
-	  vdip.deviceUpdate();
-	  g1.deviceUpdate(&vdip);
-	  g2.deviceUpdate(&vdip);
+	  if(vdip.deviceUpdate()) {
+	       g1.deviceUpdate(&vdip);
+	       g2.deviceUpdate(&vdip);
+	  }
      }
 
      // check to see if we're connected to the robot - turn on the light if so if not connected, blink the thing
