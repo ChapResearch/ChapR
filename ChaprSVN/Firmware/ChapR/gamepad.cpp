@@ -4,7 +4,7 @@
 
 // constructor - loads up a blank (but valid) gamepad
 
-Gamepad::Gamepad(int _id) : id(_id), x1(0), y1(0), x2(0), y2(0), buttons(0), tophat(0), translator(NULL)
+Gamepad::Gamepad(int _id) : id(_id), x1(0), y1(0), x2(0), y2(0), buttons(0), tophat(0), translator(NULL), init(NULL), initialized(false)
 {
 }
 
@@ -75,6 +75,13 @@ bool Gamepad::update(VDIP *vdip)
      byte	data[MAXTRANSLATE];
      int	count;
 
+     if(!initialized) {
+	  initialized = true;
+	  if(init != NULL) {
+	       (*init)(id,vdip);	// port is 1 or 2 in this case
+	  }
+     }
+
      count = vdip->getJoystick(id-1,(char *)data);	// note, ID is either 0 or 1 (not 1 or 2)
      if(translator != NULL) {
 	  return((*translator)(data,count,*this));
@@ -91,23 +98,25 @@ void Gamepad::deviceUpdate(VDIP *vdip)
      unsigned short	vid, pid;
      int		type;
 
+     initialized = false;
+
      // note that we ignore the type - we just match on vid/pid
 
-     Serial.print("device Update on ");
-     Serial.print(id-1);
+//     Serial.print("device Update on ");
+//     Serial.print(id-1);
 
      if (vdip->portConnection(id-1,&type,&vid,&pid)) {	// ID is either 0 or 1 (not 1 or 2) in VDIP
-	  translator = driverLookup(vid,pid);		// may come back as NULL too
-	  Serial.print("   VID:0x");
-	  Serial.print(vid,HEX);
-	  Serial.print("   PID:0x");
-	  Serial.print(pid,HEX);
+	  driverLookup(vid,pid,&translator,&init);	// may come back as NULL too
+//	  Serial.print("   VID:0x");
+//	  Serial.print(vid,HEX);
+//	  Serial.print("   PID:0x");
+//	  Serial.print(pid,HEX);
      } else {
 	  translator = NULL;
+	  init = NULL;
      }
-
-     if(translator == NULL) {
-	  Serial.print("  (no translator)");
-     }
-     Serial.println("");
+//     if(translator == NULL) {
+//	  Serial.print("  (no translator)");
+//     }
+//     Serial.println("");
 }
