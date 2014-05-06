@@ -4,9 +4,8 @@
 //	These are the "drivers" for the differing USB devices the
 //	ChapR supports.  The main part of this file is the translator
 //	functions for converting a specific USB gamepad's data to the
-//	canonical form required by the gamepad object.  These are
-//	really the "drivers" for any USB HID device.  New drivers are
-//	added here.
+//	canonical form required by the gamepad object.
+//	New drivers are added here.
 //
 //	Note that all of these functions take a reference to the gamepad object
 //	and load it up appropriately.  It could simply be a pointer, but I'm
@@ -43,29 +42,39 @@
 // There would undoubtedly be a mechanism for clearing the controller data too.
 
 #include <arduino.h>
-#include "drivers.h"
 #include "VDIP.h"
+#include "drivers.h"
 #include "gamepad.h"
 
 //
 // The following table maps USB VID/PID entries to translator functions.
 // It is very specific.  Only those matching VID/PID exactly can be
 // translated.
+//
+// NOTES:
+//	- the PS3 driver doesn't work and I haven't taken the time to figure it out
+//	  so it is commented out in the driver database and the code is also commented
+//	  out below.
+//	- Only a few drivers will ever need the "init" function.  For the Xbox it
+//	  turns on the right LED to identify the controller - it will do the same for PS3
+//
 
 struct {
      short	vid;	// vendor ID
      short	pid;	// product ID
      xlateFn	xlate;	// function to xlate to gamepad canonical form
+     initFn	init;	// function to init gamepad the first time
 } usbIDTable[] = {
-     { 0x0E6F, 0x0401, driverXbox360 },	// the Gamestop Xbox 360 controller
-     { 0x046D, 0xC216, driverF310 },	// "dual action" Logitech 310 (3 face buttons) (colored & #'d buttons)
-     { 0x046D, 0xC218, driverF310 },	// "rumblepad" Logitech 310 (4 face buttons)
-     { 0x046D, 0xC214, driverAttack3 },	// "attack 3" Logitech
+     { 0x0E6F, 0x0401, driverXbox360, initXbox360 },	// the Gamestop Xbox 360 controller
+     { 0x046D, 0xC216, driverF310, (initFn) NULL },	// "dual action" Logitech 310 (3 face buttons) (colored & #'d buttons)
+     { 0x046D, 0xC218, driverF310, (initFn) NULL },	// "rumblepad" Logitech 310 (4 face buttons)
+     { 0x046D, 0xC214, driverAttack3, (initFn) NULL },	// "attack 3" Logitech
+//     { 0x054C, 0x0268, driverPS3, initPS3 },		// generic PS3 controller
 
-     { 0x0000, 0x0000, (xlateFn) NULL }	// last one in table must be this
+     { 0x0000, 0x0000, (xlateFn) NULL, (initFn) NULL }	// last one in table must be this
 };
 
-xlateFn driverLookup(int vid, int pid)
+void driverLookup(int vid, int pid, xlateFn *xlate, initFn *init)
 {
      int	i = 0;
 
@@ -75,7 +84,8 @@ xlateFn driverLookup(int vid, int pid)
 	  }
 	  i++;
      } 
-     return(usbIDTable[i].xlate);
+     *xlate = usbIDTable[i].xlate;
+     *init = usbIDTable[i].init;
 }
 
 //
@@ -135,25 +145,6 @@ bool driverF310(byte *data, int count, Gamepad &target)
 
 // XBOX 360 Controller Map
 // ------------------------
-//
-//   XBOX Button	Map
-//   -----------	---
-//	1(A)		B2
-//	2(B)		B3
-//	3(X)		B1
-//	4(Y)		B4
-//
-//	5(LB)		B5
-//	6(RB)		B6
-//
-//   The 360 controller has analog sticks for B7/B8, so they are
-//   mapped to two things - B7/B8 and analog 3.  They are really weird
-//   BTW in that there is no difference in the report when both are pressed
-//   and when both aren't pressed.  I imagine creative programming can deal
-//   with that issue.
-//
-//	7/left(back)	B9
-//	8/right(start)	B10
 //                        _                            _
 //                   _.-'` `-._                    _,-' `'-._
 //                ,-'          `-.,____________,.-'    .-.   `-.
@@ -176,62 +167,135 @@ bool driverF310(byte *data, int count, Gamepad &target)
 // driverXbox360() - translation of Logitech F310 type controller data.
 //		    Assumes 14 bytes data.
 //
+// [3] upper nibble 0x10 A (south)
+//		    0x20 B (east)
+//		    0x40 X (west)
+//		    0x80 Y (north)
+// [3] lower nibble 0x01 5 (upper left shoulder)
+//		    0x02 6 (upper right shoulder)
+//		    0x04 center X button
+// [2] lower nibble 0x01 TH N
+//		    0x09 TH NE
+//		    0x08 TH E
+//		    0x0A TH SE
+//		    0x02 TH S
+//		    0x06 TH SW
+//		    0x04 TH W
+//		    0x05 TH NW
+// [2] upper nibble 0x10 Start button
+//		    0x20 Back button
+// 		    0x40 Left Joystick press
+//		    0x80 Right Joystick press
+// [4] lower left shoulder 0 - FF
+// [5] lower right shoulder 0 - FF
+// [6] left stick sub-x
+// [7] left stick x - 0x00 center 0x80 right, 0x7f left (looks simply signed)
+// [8] left stick sub-y
+// [9] left stick y - top is 0x7f
+// [10] right stick sub-x
+// [11] right stick x - left is 0x7f
+// [12] right stick sub-y
+// [13] right stick y - top is 0x7f
+//
+
+//
+// initXbox360() - just turns on the LED - port is 1 or 2
+//
+//	0x00	 All off
+//	0x01	 All blinking
+//	0x02	 1 flashes, then on
+//	0x03	 2 flashes, then on
+//	0x04	 3 flashes, then on
+//	0x05	 4 flashes, then on
+//	0x06	 1 on
+//	0x07	 2 on
+//	0x08	 3 on
+//	0x09	 4 on
+//	0x0A	 Rotating (e.g. 1-2-4-3)
+//	0x0B	 Blinking*
+//	0x0C	 Slow blinking*
+//	0x0D	 Alternating (e.g. 1+4-2+3), then back to previous*
+//
+bool initXbox360(int port, VDIP *vdip)
+{
+     char	cbuf[3];
+
+    // all xbox init does is turn on the correct LED
+
+     cbuf[0] = 0x01;
+     cbuf[1] = 0x03;
+     cbuf[2] = (port==1)?0x02:0x03;
+
+     vdip->portCmd(port,VDIP_DSD,cbuf,100,3);		// send the command
+
+     return(true);
+}
+
 bool driverXbox360(byte *data, int count, Gamepad &target)
 {
-     Serial.println(count);
+     extern void dumpDataHex(char *,byte *,int);
 
-     if(count != 14) {
+     if(count != 20) {
 	  return(false);
      }
 
      // the joysticks are a bit funny - they have 2 bytes of resolution
+     // but they are also already in negative format (0x80 - 0x00 - 0x7F)
+     // so we let the sign extension occur below.  Note that the Y axis
+     // needs to be flipped.
 
-     target.x1 = ((int)(data[1]))-128;		// data[0] has more resolution for x1
-     target.y1 = ((int)(data[3]))-128;		// data[2] has more resolution for y1
-     target.x2 = ((int)(data[5]))-128;		// data[4] has more resolution for x1
-     target.y2 = ((int)(data[7]))-128;		// data[5] has more resolution for y1
+     target.x1 = data[7];		// data[6] has more resolution for x1 - ignored
+     target.y1 = data[9] ^ 0xff;	// data[8] has more resolution for y1 - ignored
+     target.x2 = data[11];		// data[10] has more resolution for x2 - ignored
+     target.y2 = data[13] ^ 0xff;	// data[12] has more resolution for y2 - ignored
 
      // now to translate the buttons appropriately
 
      target.buttons = 0;
-     target.buttons |= (data[10] & 0x01)<<1;	// xbox S --> B2
-     target.buttons |= (data[10] & 0x02)<<1;	// xbox E --> B3
-     target.buttons |= (data[10] & 0x04)>>2;	// xbox W --> B1
-     target.buttons |= (data[10] & 0x08);	// xbox N --> B4
+     target.buttons |= (data[3] & 0x10)>>3;	// xbox S --> B2
+     target.buttons |= (data[3] & 0x20)>>3;	// xbox E --> B3
+     target.buttons |= (data[3] & 0x40)>>6;	// xbox W --> B1
+     target.buttons |= (data[3] & 0x80)>>4;	// xbox N --> B4
 
-     target.buttons |= (data[10] & 0x30);	// grab the two near shoulder buttons
+     target.buttons |= (data[3] & 0x03)<<4;	// grab the two near shoulder buttons
 
-     target.buttons |= ((int)(data[10] & 0xc0)) << 2;	// get two face buttons
+     // the two far shoulder buttons on the xbox 360 are analog, so interpret them
 
-     target.buttons |= ((int)(data[11] & 0x03)) << 10;	// get two joystick buttons
-
-     // now, grab the far shoulder buttons with a bit of a heuristic
-     // these two analog'ish buttons cancel either other out with a center
-     // at 0x80.  If I press them down exactly together, data[9] will stay
-     // at 0x80. Essentially data[9] is the difference between the two with
-     // numbers < 0x80 meaning the right button is "more" pressed and numbers
-     // above 0x80 means the left button is "more" pressed.
-
-     if (((int)(data[9])) > 0xa0) {
+     if(data[4] > 0x7f) {
 	  target.buttons |= 0x40;
      }
-     if (((int)(data[9])) < 0x60) {
+     if(data[5] > 0x7f) {
 	  target.buttons |= 0x80;
      }
 
-     // the tophat is pretty much the same as canonical form, just needs shifting
-     //
-     // none = 0000 0000   (if shifted right by 2)
-     //   N  = 0000 0100 =	1
-     //   NE = 0000 1000 =	2
-     //   E  = 0000 1100 =	3
-     //   SE = 0001 0000 =	4
-     //   S  = 0001 0100 =	5
-     //   SW = 0001 1000 =	6
-     //   W  = 0001 1100 =	7
-     //   NW = 0010 0000 =	8
+     target.buttons |= ((int)(data[2] & 0x30)) << 4;	// get two face buttons
 
-     target.tophat = data[11] >> 2;
+     target.buttons |= ((int)(data[2] & 0xc0)) << 4;	// get two joystick buttons
+
+     target.buttons |= ((int)(data[3] &0x04)) << 10;	// get the big X
+
+     // tophat is really different.  the four major compass points are the major
+     // LSB bits, and when combined they just AND together for the minor points.
+     //
+     //               0x01 (N)
+     //			 ^
+     //                  |
+     //      0x04(W)  <--|-->  0x08 (E)
+     //			 |
+     //			 v
+     //               0x02 (S)
+
+     switch(data[2]) {
+     case 0x01:	target.tophat = 1; break;
+     case 0x09:	target.tophat = 2; break;
+     case 0x08:	target.tophat = 3; break;
+     case 0x0A:	target.tophat = 4; break;
+     case 0x02:	target.tophat = 5; break;
+     case 0x06:	target.tophat = 6; break;
+     case 0x04:	target.tophat = 7; break;
+     case 0x05:	target.tophat = 8; break;
+     default:	target.tophat = 0; break;
+     }
 
      return(true);
 }
@@ -260,3 +324,47 @@ bool driverXbox360(byte *data, int count, Gamepad &target)
 //
 //
 //
+
+#ifdef NOTDEF		// PS3 not working yet
+
+bool initPS3(int port, VDIP *vdip)
+{
+     int	i=0;
+     char	cbuf[15];
+
+     Serial.println("PS3 Init");
+
+     // the PS3 needs a special command before it will start sending data
+
+     cbuf[i++] = 0x21;
+     cbuf[i++] = 0x09;
+     cbuf[i++] = 0x03;  //
+     cbuf[i++] = 0xF4;	// flip of not little endian
+     cbuf[i++] = 0x00;
+     cbuf[i++] = 0x00;
+     cbuf[i++] = 0x00;	//
+     cbuf[i++] = 0x04;	// flip of not little endian
+
+     vdip->portCmd(port,VDIP_DSD,cbuf,100,i);		// send the command
+     delay(1000);
+     i = 0;
+
+     cbuf[i++] = 0x42;
+     cbuf[i++] = 0x0c;
+     cbuf[i++] = 0x00;
+     cbuf[i++] = 0x00;
+     
+     vdip->portCmd(port,VDIP_DSD,cbuf,100,i);		// send the command
+
+     return(true);
+}
+
+bool driverPS3(byte *data, int count, Gamepad &target)
+{
+     Serial.println(count);
+
+     if(count != 20) {
+	  return(false);
+     }
+}
+#endif
