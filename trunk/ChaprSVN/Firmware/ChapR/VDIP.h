@@ -98,12 +98,13 @@ class VDIP : public VDIPSPI
 public:
 
      VDIP(uint8_t clockPin, uint8_t mosiPin, uint8_t misoPin, uint8_t csPin, uint8_t csReset);
-     void deviceUpdate();
+     bool deviceUpdate();
      bool sync();
      void flush(int = 100);
      int getJoystick(int, char *);
      void zombieMode();
      int cmd(vdipcmd, char *rbuf, int timeout, int arg = 0);
+     int portCmd(int port, vdipcmd, char *rbuf, int timeout, int arg = 0);
      void reset();
      bool portConnection(int,int*,unsigned short *,unsigned short *);
 
