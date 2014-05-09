@@ -26,6 +26,7 @@
 #define EEPROM_ANALOGIN4       34	// 2 bytes
 #define EEPROM_AUTOLEN         36	// byte
 #define EEPROM_TELELEN         37	// byte
+#define EEPROM_ENDLEN          38       // byte
 
 //constants
 #define EEPROM_NAMELENGTH      15 //without null terminator (15 - 0)
@@ -69,11 +70,27 @@ public:
      short getAnalogInput4();
      void setAutoLen(byte);
      void setTeleLen(byte);
+     void setEndLen(byte);
+     byte getEndLen();
      byte getTeleLen();
      byte getAutoLen();
      void setDefaults(char *,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int);
+     void loadCache();
      
-private:
+ private:
+     byte mode;              // copies of EEPROM settings (initialized during setup, then
+     byte speed;             // updated every time EEPROM changes)
+     byte personality;
+     byte timeout;
+     long autoLen;             
+     long teleLen; 
+     long endLen;
+     byte dgtlIn;
+     short analog1;
+     short analog2;
+     short analog3;
+     short analog4;
+
      void doSetting(int,const __FlashStringHelper *, const __FlashStringHelper *,unsigned int,unsigned int,int);
      void printCurrentValue(int,unsigned int, int);
      int  getStringFromMonitor(char*, int);

@@ -318,20 +318,22 @@ void settings::setFromConsole()
 
      Serial.println(F("--- Enter ChapR settings ---"));
 
-     doSetting(EEPROM_NAME,		F("Name"),              F("max 15 chars"),           1, 15,    PROMPT_STRING);
-     doSetting(EEPROM_TIMEOUT,		F("Timeout"),           F("0 (none) - 120 mins"),    0, 120,   PROMPT_BYTE  );
-     doSetting(EEPROM_PERSONALITY,	F("Personality"),       F("1 - 4"),                  1, 4,     PROMPT_BYTE  );
-     doSetting(EEPROM_SPEED,		F("Lag"),               F("0 is none"),              0, 255,   PROMPT_BYTE  );
-     doSetting(EEPROM_MODE,		F("Mode"),              F("0 or 1"),                 0, 1,     PROMPT_BYTE  );
-     doSetting(EEPROM_DIGITALIN,	F("Digital Inputs"),    F("8 bits from LSB to MSB"), 8, 8,     PROMPT_BITS  );
-     doSetting(EEPROM_ANALOGIN1,	F("Analog Input 1"),    F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
-     doSetting(EEPROM_ANALOGIN2,	F("Analog Input 2"),    F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
-     doSetting(EEPROM_ANALOGIN3,	F("Analog Input 3"),    F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
-     doSetting(EEPROM_ANALOGIN4,	F("Analog Input 4"),    F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
-     doSetting(EEPROM_AUTOLEN,		F("Autonomous Length"), F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
-     doSetting(EEPROM_TELELEN,		F("TeleOp Length"),     F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
+     doSetting(EEPROM_NAME,		F("Name"),               F("max 15 chars"),           1, 15,    PROMPT_STRING);
+     doSetting(EEPROM_TIMEOUT,		F("Timeout"),            F("0 (none) - 120 mins"),    0, 120,   PROMPT_BYTE  );
+     doSetting(EEPROM_PERSONALITY,	F("Personality"),        F("1 - 4"),                  1, 4,     PROMPT_BYTE  );
+     doSetting(EEPROM_SPEED,		F("Lag"),                F("0 is none"),              0, 255,   PROMPT_BYTE  );
+     doSetting(EEPROM_MODE,		F("Mode"),               F("0 or 1"),                 0, 1,     PROMPT_BYTE  );
+     doSetting(EEPROM_DIGITALIN,	F("Digital Inputs"),     F("8 bits from LSB to MSB"), 8, 8,     PROMPT_BITS  );
+     doSetting(EEPROM_ANALOGIN1,	F("Analog Input 1"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+     doSetting(EEPROM_ANALOGIN2,	F("Analog Input 2"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+     doSetting(EEPROM_ANALOGIN3,	F("Analog Input 3"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+     doSetting(EEPROM_ANALOGIN4,	F("Analog Input 4"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+     doSetting(EEPROM_AUTOLEN,		F("Autonomous Length"),  F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
+     doSetting(EEPROM_TELELEN,		F("TeleOp Length"),      F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
+     doSetting(EEPROM_ENDLEN,		F("Endgame Length"),     F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
 
      markInitialized();
+     loadCache();
      setResetStatus(0); //makes sure the ChapR knows it has not been (software) reset
 
      Serial.println(F("--- Done with settings ---"));
@@ -429,118 +431,157 @@ short settings::getShort(int start)
 
 void settings::setName(char *name)
 {
+  // not cached
   setString(EEPROM_NAME,EEPROM_NAMELENGTH,name);
 }
 
 char* settings::getName()
 {
+  // still not cached
   return getString(EEPROM_NAME,EEPROM_NAMELENGTH);
 }
 
 void settings::setTimeout(byte time)
 {
+  timeout = time;
   EEPROM.write(EEPROM_TIMEOUT, time);
 }
 
 byte settings::getTimeout()
 {
-  return (EEPROM.read(EEPROM_TIMEOUT));
+  return (timeout);
 }
 
 void settings::setPersonality(byte p)
 {
+  personality = p;
   EEPROM.write(EEPROM_PERSONALITY, p);
 }
 
 byte settings::getPersonality()
 {
-  return (EEPROM.read(EEPROM_PERSONALITY));
+  return (personality);
 }
 
 void settings::setSpeed(byte s)
 {
+  speed = s;
   EEPROM.write(EEPROM_SPEED, s);
 }
 
 byte settings::getSpeed()
 {
-  return (EEPROM.read(EEPROM_SPEED));
+  return (speed);
 }
 
 void settings::setMode(byte m)
 {
+  mode = m;
   EEPROM.write(EEPROM_MODE, m);
 }
 
 byte settings::getMode()
 {
-  return (EEPROM.read(EEPROM_MODE));
+  return (mode);
 }
 
 void settings::setDigitalInputs(byte d)
 {
+  dgtlIn = d;
   EEPROM.write(EEPROM_DIGITALIN, d);
 }
 
 byte settings::getDigitalInputs()
 {
-  return (EEPROM.read(EEPROM_DIGITALIN));
+  return (dgtlIn);
 }
 
 void settings::setAnalogInput1(short a)
 {
-     setShort(EEPROM_ANALOGIN1, a);
+  analog1 = a;
+  setShort(EEPROM_ANALOGIN1, a);
 }
 void settings::setAnalogInput2(short a)
 {
-     setShort(EEPROM_ANALOGIN2, a);
+  analog2 = a;
+  setShort(EEPROM_ANALOGIN2, a);
 }
 void settings::setAnalogInput3(short a)
 {
-     setShort(EEPROM_ANALOGIN3, a);
+  analog3 = a;
+  setShort(EEPROM_ANALOGIN3, a);
 }
 void settings::setAnalogInput4(short a)
 {
-     setShort(EEPROM_ANALOGIN4, a);
+  analog4 = a;
+  setShort(EEPROM_ANALOGIN4, a);
 }
 
 short settings::getAnalogInput1()
 {
-     return getShort(EEPROM_ANALOGIN1);
+  return analog1;
 }
 
 short settings::getAnalogInput2()
 {
-     return getShort(EEPROM_ANALOGIN2);
+  return analog2;
 }
 
 short settings::getAnalogInput3()
 {
-     return getShort(EEPROM_ANALOGIN3);
+  return analog3;
 }
 
 short settings::getAnalogInput4()
 {
-     return getShort(EEPROM_ANALOGIN4);
+  return analog4;
 }
 
 void settings::setAutoLen(byte a)
 {
-     EEPROM.write(EEPROM_AUTOLEN, a);
+  autoLen = a;
+  EEPROM.write(EEPROM_AUTOLEN, a);
 }
-
 
 byte settings::getAutoLen()
 {
-     return(EEPROM.read(EEPROM_AUTOLEN));
+  return(autoLen);
 }
 
 void settings::setTeleLen(byte t)
 {
-     EEPROM.write(EEPROM_TELELEN, t);
+  teleLen = t;
+  EEPROM.write(EEPROM_TELELEN, t);
 }
 
 byte settings::getTeleLen()
 {
-     return(EEPROM.read(EEPROM_TELELEN));
+  return(teleLen);
+}
+
+void settings::setEndLen(byte t)
+{
+  endLen = t;
+  EEPROM.write(EEPROM_ENDLEN, t);
+}
+
+byte settings::getEndLen()
+{
+  return(endLen);
+}
+
+void settings::loadCache()
+{
+  timeout =  EEPROM.read(EEPROM_TIMEOUT);
+  personality =  EEPROM.read(EEPROM_PERSONALITY);
+  speed =  EEPROM.read(EEPROM_SPEED);
+  mode = EEPROM.read(EEPROM_MODE);
+  dgtlIn =  EEPROM.read(EEPROM_DIGITALIN);
+  analog1 =  getShort(EEPROM_ANALOGIN1);
+  analog2 =  getShort(EEPROM_ANALOGIN2);
+  analog3 =  getShort(EEPROM_ANALOGIN3);
+  analog4 =  getShort(EEPROM_ANALOGIN4);
+  autoLen =  EEPROM.read(EEPROM_AUTOLEN);
+  teleLen =  EEPROM.read(EEPROM_TELELEN);
+  endLen =  EEPROM.read(EEPROM_ENDLEN));
 }

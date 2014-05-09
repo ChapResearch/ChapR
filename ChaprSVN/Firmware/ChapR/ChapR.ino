@@ -100,7 +100,7 @@ void setup()
        Serial.println("Beginning board bring-up");
        myEEPROM.boardBringUp();
        Serial.println("Please intialize your ChapR.");
-       myEEPROM.setDefaults("ChapRX", 10, 3, 35, USER_MODE_AUTONOMOUS, 10, 140, 0, 0, 0, 0, 0);
+       myEEPROM.setDefaults(DEF_NAME, DEF_TIMEOUT, DEF_PERSON, DEF_LAG, DEF_MODE, DEF_AUTOLEN, DEF_TELELEN, DEF_DGTLIN, DEF_ANALOG1, DEF_ANALOG2, DEF_ANALOG3, DEF_ANALOG4);
      }
      
      // checks to see if the ChapR has undergone a software reset, making sure it remembers that
@@ -134,6 +134,8 @@ void setup()
      g2.deviceUpdate(&vdip);
 
      current_personality = myEEPROM.getPersonality();
+     
+     myEEPROM.loadCache();
 
      g1.clear();
      g2.clear();

@@ -18,15 +18,18 @@
 #include "debug.h"
 
 cRIO   cRIO;                    // the container for all of the cRIO calls (makes life pretty)
+extern settings myEEPROM;
+extern sound beeper;
+
 int    cmd = TELE_OFF;          // specifies which command is being sent to the cRIO (teleop on/off
-                                // or auto on/off or emergency stop)
+                                // or auto on/off)
 bool   buttonToggle = true;
-bool   matchMode = false;       // matchMode switches from autonomous to teleOp for the user, as opposed to
+bool   matchMode2 = false;       // matchMode switches from autonomous to teleOp for the user, as opposed to
                                 // just teleOp, which is unlimited drive practice
 
-long  target;           // used in determining the mode of the ChapR (and dealing with time)
-long  autoStart;        // TODO
-long  teleStart;
+long  target2 = -2500;           // used in determining the mode of the ChapR (and dealing with time)
+long  autoStart2;        // TODO
+long  teleStart2;
 
 Personality_3::Personality_3() : startedProgram(false)
 {
@@ -43,17 +46,16 @@ void Personality_3::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
 {
      byte	msgbuff[64];	// max size of a BT message
      int	size;
-     extern settings myEEPROM;
      
      if (bt->connected()) {
 
        // deals with matchMode switching
-       if (matchMode){
-	 if (millis() - autoStart == myEEPROM.getAutoLen()){
+       if (matchMode2){
+	 if (millis() - autoStart2 == myEEPROM.getAutoLen()){
 	   cmd = TELE_ON;
-	   teleStart = millis();
+	   teleStart2 = millis();
 	 }
-	 if (millis() - teleStart == myEEPROM.getTeleLen()){
+	 if (millis() - teleStart2 == myEEPROM.getTeleLen()){
 	   cmd = TELE_OFF;
 	 }
        }
@@ -71,9 +73,7 @@ void Personality_3::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
 
 void Personality_3::Kill(BT *bt, int mode)
 {
-  extern sound beeper;
-  
-  if (matchMode){
+  if (matchMode2){
     beeper.select();
     delay(150);
     beeper.select();
@@ -81,10 +81,10 @@ void Personality_3::Kill(BT *bt, int mode)
     beeper.select();
   }
 
-  if (millis() - target <= 2000) //checks to see if the button was pressed twice within 2 seconds
-      matchMode = !matchMode;
+  if (millis() - target2 <= 2000) //checks to see if the button was pressed twice within 2 seconds
+      matchMode2 = !matchMode2;
 
-    target = millis();
+    target2 = millis();
 
   /*  if (cmd == TELE_ON || cmd == AUTO_ON){ // if a program is running
     cmd = E_STOP;
@@ -100,13 +100,11 @@ void Personality_3::ChangeInput(BT *bt, int mode, int device, Gamepad *old, Game
 
 void Personality_3::ChangeButton(BT *bt, int mode, bool button)
 { 
-  extern sound beeper;
-
   if (button){
     if (buttonToggle){
-      if (matchMode){
+      if (matchMode2){
 	cmd = AUTO_ON;
-	autoStart = millis();
+	autoStart2 = millis();
       } else {
 	cmd = TELE_ON;
       }

@@ -31,7 +31,7 @@ void dumpDataHex(byte *buffer, int count)
 	  }
      }
 
-     // if we didnt' end on an even boundary, kick out a newline
+     // if we didn't end on an even boundary, kick out a newline
 
      if(i%8 != 0) {
 	  Serial.println("");
