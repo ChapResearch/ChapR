@@ -94,3 +94,18 @@
 // for every user press. The "debounce" is the time in milliseconds the ChapR waits after
 // noticing a button press before it reports the next one.
 #define DEBOUNCE 25
+
+// default settings
+
+#define DEF_NAME               "ChapRX"
+#define DEF_TIMEOUT            10 // ten minutes
+#define DEF_PERSON             3 // corresponds to LabView personality
+#define DEF_LAG                35
+#define DEF_MODE               0 //autonomous mode
+#define DEF_AUTOLEN            10 // ten seconds
+#define DEF_TELELEN            140 // 140 seconds
+#define DEF_DGTLIN             0
+#define DEF_ANALOG1            0
+#define DEF_ANALOG2            0
+#define DEF_ANALOG3            0
+#define DEF_ANALOG4            0

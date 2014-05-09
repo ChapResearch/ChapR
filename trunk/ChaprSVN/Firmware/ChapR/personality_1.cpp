@@ -20,6 +20,8 @@
 
 #define GPADSCALE(x)	(x+((x<0)?0:1))*100/128
 
+extern sound beeper;
+
 //
 // ChangeInput() - called when one of the input devices change.  This routine
 //		   gets the whole state of the gamepad, so it needs to figure
@@ -108,8 +110,6 @@ void Personality_1::ChangeButton(BT *bt, int mode, bool button)
 
 void Personality_1::Kill(BT *bt, int mode)
 {
-     extern sound beeper;
-
      if (nxtBTKillCommand(bt)){
          beeper.kill();
      }

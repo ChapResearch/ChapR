@@ -551,15 +551,16 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
          }
        }
        
-       // allows user to determine number of seconds in autonomous and teleOp (for FRC, aka ChapR3 of EEPROM)
+       // allows user to determine number of seconds in autonomous, teleOp and endgame (ChapR3 of EEPROM)
        // zero for either mode skips the mode
 
        if(readFile("mConfig.txt",buf, BIGENOUGH)){
 	 char *ptr = buf;
-	 for (int i = 0; i < 2; i++){
+	 for (int i = 0; i < 3; i++){
 	   switch(i){
 	   case 0: myEEPROM.setAutoLen(atoi(ptr));break;
 	   case 1: myEEPROM.setTeleLen(atoi(ptr));break;
+	   case 2: myEEPROM.setEndLen(atoi(ptr));break;
 	   }
 	   while (*ptr != '\r' && *ptr != '\0' && *ptr != '\n'){
 	     ptr++;

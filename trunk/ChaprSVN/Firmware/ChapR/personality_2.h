@@ -1,7 +1,7 @@
 //
 // personality_2.h
 //
-//   This file (along with the associated personality_0.cpp) implement the Personality #0, which is
+//   This file (based off of the associated personality_0.cpp) implements the Personality #3, which is
 //
 //		NXT-LabView
 //
@@ -29,7 +29,7 @@ public:
      virtual void ChangeButton(BT *bt, int mode, bool button);
      virtual void Loop(BT *bt, int mode, bool, Gamepad *, Gamepad *);
      virtual void Kill(BT *bt, int mode);
-
+     
 };
 
 #endif PERSONALITY_2_H
