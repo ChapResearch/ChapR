@@ -64,7 +64,7 @@
 class cRIO
 {
  public:
-  int createPacket(byte *msgbuff, int cmd, int size, Gamepad *g1, Gamepad *g2);
+  int createPacket(byte *msgbuff, int cmd, Gamepad *g1, Gamepad *g2);
  private:
   byte checksum(byte *msgbuff, int size);
 
