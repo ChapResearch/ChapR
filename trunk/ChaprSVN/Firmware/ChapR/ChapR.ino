@@ -121,6 +121,8 @@ void setup()
 	  powerLED.on();
      }
 
+     myEEPROM.loadCache();
+
      powerTimeout = 60000 * (long) myEEPROM.getTimeout(); //sets the timeout from EEPROM
      lag = myEEPROM.getSpeed(); //sets the lag from EEPROM
      mode = myEEPROM.getMode();
@@ -135,8 +137,6 @@ void setup()
 
      current_personality = myEEPROM.getPersonality();
      
-     myEEPROM.loadCache();
-
      g1.clear();
      g2.clear();
 

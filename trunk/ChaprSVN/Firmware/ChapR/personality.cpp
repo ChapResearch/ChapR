@@ -19,31 +19,42 @@ extern settings myEEPROM;
 
 Personality::Personality()
 {
-  pwrTarget = 0;
-  autoStart = 0;
-  teleStart = 0;
-  timePassed = 0;
-  matchMode = AUTO;
+  pwrTarget, autoStart, teleStart, timePassed = 0;
+  matchMode = NONE;
+  inMatchMode = false;
 }
 
 bool Personality::updateMode()
 {
   int oldMode = matchMode;
+  
+  Serial.print("endStart: ");
+  Serial.println(endStart);
 
-  if (millis() - endStart >= myEEPROM.getEndLen()){
+  Serial.print("teleStart: ");
+  Serial.println(teleStart);
+
+  Serial.print("autoStart: ");
+  Serial.println(autoStart);
+
+  if (endStart != 0 && millis() - endStart >= myEEPROM.getEndLen()*1000){
     matchMode = NONE;
   }
-  else if (millis() - teleStart >= myEEPROM.getTeleLen()){
-    matchMode = END;
-    endStart = millis();
+  else if (teleStart != 0 && millis() - teleStart >= myEEPROM.getTeleLen()*1000){
+    if (matchMode != END){
+      endStart = millis();
+      matchMode = END;
+    }
   }
-  else if (millis() - autoStart >= myEEPROM.getAutoLen()){
-    matchMode = TELE;
-    teleStart = millis();
+  else if (autoStart != 0 && millis() - autoStart >= myEEPROM.getAutoLen()*1000){
+    if (matchMode != TELE){
+      teleStart = millis();
+      matchMode = TELE;
+    }
   }
   else {
-    matchMode = AUTO;
-    autoStart = millis();
+    // matchMode = AUTO;
+    // autoStart = millis();
   }
 
   return (oldMode != matchMode);
@@ -66,16 +77,18 @@ void Personality::pauseMatchCycle()
 
 void Personality::playMatchCycle(){
   switch (matchMode){
-  case 'a' : autoStart = millis() - timePassed; break;
-  case 't' : teleStart = millis() - timePassed; break;
-  case 'e' : endStart = millis() - timePassed; break;
+    // case NONE : autoStart = millis(); break;
+  case AUTO : autoStart = millis() - timePassed; break;
+  case TELE : teleStart = millis() - timePassed; break;
+  case END  : endStart = millis() - timePassed; break;
   }
 }
 
 void Personality::swapInMatchMode(){
+
   if (pwrTarget > 0 && millis() - pwrTarget <= 3000) // checks to see if the button was pressed 
-    matchMode = !matchMode; // twice within 2 seconds
-  if (matchMode){
+    inMatchMode = !inMatchMode; // twice within 2 seconds
+  if (inMatchMode){
     beeper.select();
     delay(150);
     beeper.select();

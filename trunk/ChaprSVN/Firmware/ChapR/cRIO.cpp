@@ -9,11 +9,11 @@
 #include "settings.h"
 
 // createPacket() - also translates 
-int cRIO::createPacket(byte *msgbuff, int cmd, int size, Gamepad *g1, Gamepad *g2)
+int cRIO::createPacket(byte *msgbuff, int cmd, Gamepad *g1, Gamepad *g2)
 {
   extern settings myEEPROM;
  
-  size = 0;
+  int size = 0;
 
   msgbuff[size++] = 0xff;
   msgbuff[size++] = 0xff;

@@ -92,25 +92,24 @@ int settings::getStringFromMonitor(char *buffer, int size)
 
 void settings::boardBringUp()
 {
-     extern void software_Reset();
+  extern void software_Reset();
 
   flushSerial();
   
   char buf[25];
   extern sound beeper;
   buf[0] = ' ';
-  Serial.print(F("Running test program version "));
+  Serial.print(F("Test prog v"));
   Serial.println(BOARDBRINGUPVERSION);
-  Serial.println(F("Don't forget to switch the top jumper on the VDIP"));
   indicateLED.off();
-  Serial.println(F("Testing power LED..."));
+  Serial.println(F("Power LED..."));
   powerLED.on();
   hitReturn();
   getStringFromMonitor(buf, 2);
   while (buf[0] != '\0'){
     getStringFromMonitor(buf, 2);
   }
-  Serial.println(F("Testing BT LED..."));
+  Serial.println(F("BT LED..."));
   powerLED.off();
   indicateLED.on();
   hitReturn();
@@ -119,25 +118,25 @@ void settings::boardBringUp()
     getStringFromMonitor(buf, 1);
   }
   indicateLED.off();
-  Serial.println(F("Hit RET to squeep"));
+  Serial.println(F("RET to squeep"));
   getStringFromMonitor(buf, 2);
   while (buf[0] != '\0'){
     getStringFromMonitor(buf, 2);
   }
   beeper.squeep();
-  Serial.println(F("Press WFS button to continue"));
+  Serial.println(F("WFS to cont."));
   while (theButton.check() != true){
   }
 
   while(true) {
-       Serial.println(F("checking VDIP version..."));
+       Serial.println(F("VDIP version(3.69)...?"));
        for (int i = 0; i < sizeof(buf); i++){
 	    buf[i] ='\0';
        }
        vdip.cmd(VDIP_FWV, buf, DEFAULTTIMEOUT, 15); //expects 15 bytes back see pg 23 of Viniculum Firmware reference
-       Serial.print(F("VDIP version: "));
+       Serial.print(F("v"));
        Serial.println(buf);
-       Serial.print(F("Should be 3.69 - enter \"!\" to flash it now - "));
+       Serial.print(F("Enter \"!\" to flash now"));
        hitReturn();
 
        getStringFromMonitor(buf, 25);
@@ -145,22 +144,20 @@ void settings::boardBringUp()
 	    break;		// if return or something other than !, go on with life
        }
 
-       Serial.println(F("Put the flash drive with ftrfb.ftd on it in USB 2, and press RETURN."));
+       Serial.println(F("Put flash in USB 2; press RETURN."));
        getStringFromMonitor(buf, 25);
 
-       Serial.println(F("Resetting VDIP to allow flash, 15 sec delay..."));
-       Serial.println(F("Don't do anything ..."));
+       Serial.println(F("15 sec delay (don't do stuff)..."));
        vdip.reset();
        delay(5000);
        vdip.flush(10000);
-       Serial.print(F("Remove flash drive, and "));
+       Serial.print(F("Remove flash; "));
        hitReturn();
        getStringFromMonitor(buf, 25);
   }
 
-  Serial.println(F("checking RN-42 version..."));
+  Serial.println(F("RN-42 version (should be 6.15)...?"));
   bt.checkVersion();
-  Serial.println(F("Should be 6.15"));
   Serial.println(F("Done."));
 }
 
@@ -319,7 +316,7 @@ void settings::setFromConsole()
      Serial.println(F("--- Enter ChapR settings ---"));
 
      doSetting(EEPROM_NAME,		F("Name"),               F("max 15 chars"),           1, 15,    PROMPT_STRING);
-     doSetting(EEPROM_TIMEOUT,		F("Timeout"),            F("0 (none) - 120 mins"),    0, 120,   PROMPT_BYTE  );
+     doSetting(EEPROM_TIMEOUT,		F("Timeout"),            F("0 (none) - 120 min"),    0, 120,   PROMPT_BYTE  );
      doSetting(EEPROM_PERSONALITY,	F("Personality"),        F("1 - 4"),                  1, 4,     PROMPT_BYTE  );
      doSetting(EEPROM_SPEED,		F("Lag"),                F("0 is none"),              0, 255,   PROMPT_BYTE  );
      doSetting(EEPROM_MODE,		F("Mode"),               F("0 or 1"),                 0, 1,     PROMPT_BYTE  );
@@ -336,7 +333,7 @@ void settings::setFromConsole()
      loadCache();
      setResetStatus(0); //makes sure the ChapR knows it has not been (software) reset
 
-     Serial.println(F("--- Done with settings ---"));
+     Serial.println(F("--- Done ---"));
      flushSerial();
 }
 
@@ -583,5 +580,5 @@ void settings::loadCache()
   analog4 =  getShort(EEPROM_ANALOGIN4);
   autoLen =  EEPROM.read(EEPROM_AUTOLEN);
   teleLen =  EEPROM.read(EEPROM_TELELEN);
-  endLen =  EEPROM.read(EEPROM_ENDLEN));
+  endLen =  EEPROM.read(EEPROM_ENDLEN);
 }

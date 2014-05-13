@@ -60,11 +60,8 @@ void Personality_3::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
 	 }
        }
 
-       // first convert the gamepad data and button to the cRIO structure
-       size = cRIO.translate(msgbuff,g1,g2);
-       
-       // compose the message to the cRIO with appropriate framing
-       size = cRIO.CMDCompose(msgbuff,cmd,size);
+       // first create a packet using the cRIO structure
+       size = cRIO.createPacket(msgbuff,cmd,g1,g2);
        
        // then send it over BT, again, operating on the message buffer
        (void)bt->btWrite(msgbuff,size);

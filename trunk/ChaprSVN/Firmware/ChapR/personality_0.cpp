@@ -19,10 +19,6 @@
 extern sound beeper;
 extern settings myEEPROM;
 
-long target = 0;
-long autoStart = 0;
-long teleStart = 0;
-
 bool matchMode = true;
 
 Personality_0::Personality_0() : startedProgram(false)
@@ -47,38 +43,40 @@ void Personality_0::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
      // deals with reseting the startedProgram
 
      if(startedProgram) {
-	  button = false;
+       button = false;
      }
 
      // override the mode if we have run a program - stays there until a Kill() is called
 
      if(forceMode) {
-	  mode = USER_MODE_TELEOP;
+       mode = USER_MODE_TELEOP;
      }
 
      if (bt->connected()) {
        
        // deals with matchMode switching
        if (matchMode){
-	 if (teleStart > 0 && millis() - teleStart >= myEEPROM.getTeleLen()*1000){
-	   Serial.println("thereotically ended tele");
-	   if (nxtBTKillCommand(bt)){
-	     beeper.kill();
+	 if (updateMode()){ // determines if the mode has changed
+	   switch (matchMode){
+	   case AUTO :
+	     break;
+	   case TELE :                     // just became teleOp
+	     if (nxtBTKillCommand(bt)) 
+	       beeper.kill(); 
+	     if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf))
+	       beeper.start();
+	     break;
+	   case END :                     // just entered endgame
+	     //beeper.warning(); TODO
+	     break;
+	   case NONE :
+	     if (nxtBTKillCommand(bt)) 
+	       beeper.kill(); 
+	     break;
 	   }
-	   teleStart = 0;
-	   buttonToggle = false;
-	 }
-	 else if (autoStart > 0 && (millis() - autoStart) >= (myEEPROM.getAutoLen()*1000)){
-	   Serial.println("thereotically ended auto");
-	   nxtBTKillCommand(bt);
-	   if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf)){
-	     beeper.start();
-	   }
-	   autoStart = 0;
-	   buttonToggle = false; // TODO where is this declared?
 	 }
        }
-       
+
        // first convert the gamepad data and button to the robotC structure
        size = robotcTranslate(msgbuff,button,g1,g2, mode);
 
@@ -118,14 +116,6 @@ void Personality_0::Kill(BT *bt, int mode)
 
   // always turn off forcemode when the Kill is done
   forceMode = false;
-
-  // reset everything
-  buttonToggle = false;
-  autoStart = 0;
-  teleStart = 0;
-
-  Serial.print("matchMode");
-  Serial.println(matchMode);
 }
 
 void Personality_0::ChangeInput(BT *bt, int mode, int device, Gamepad *old, Gamepad *gnu)
@@ -221,4 +211,4 @@ void Personality_0::ChangeButton(BT *bt, int mode, bool button)
        }
        }*/
 }
-#endif
+

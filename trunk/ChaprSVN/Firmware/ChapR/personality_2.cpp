@@ -45,10 +45,11 @@ void Personality_2::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
      if (bt->connected()) {
 
        // deals with matchMode switching
-       if (matchMode){
+       if (inMatchMode){
 	 if (updateMode()){ // determines if the mode has changed
-	   switch (matchMode){
+	   switch (getMatchMode()){
 	   case AUTO :
+	     Serial.println("auto mode");
 	     break;
 	   case TELE :                     // just became teleOp
 	     if (nxtBTKillCommand(bt)) 
@@ -56,16 +57,20 @@ void Personality_2::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
 	     if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf))
 	       beeper.start();
 	     buttonToggle = false;
+	     Serial.println("tele mode");
 	     break;
 	   case END :                     // just entered endgame
 	     //beeper.warning(); TODO
+	     Serial.println("end mode");
 	     break;
 	   case NONE :
 	     if (nxtBTKillCommand(bt)) 
 	       beeper.kill(); 
+	     Serial.println("none mode");
 	     break;
 	   }
 	 }
+       }
 	 
 	 /* if (teleStart > 0 && millis() - teleStart >= myEEPROM.getTeleLen()*1000){
 	   Serial.println("thereotically ended tele");
@@ -99,6 +104,7 @@ void Personality_2::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
      }
 }
 
+
 void Personality_2::Kill(BT *bt, int mode)
 {
   char  buf[NXT_PRGM_NAME_SIZE];
@@ -108,7 +114,7 @@ void Personality_2::Kill(BT *bt, int mode)
          beeper.kill();
      }
   } else { // deal with switching modes if no program running
-    swapMatchMode();
+    swapInMatchMode();
   }
 
   // always turn off forcemode when the Kill is done
@@ -119,8 +125,6 @@ void Personality_2::Kill(BT *bt, int mode)
   //autoStart = 0;
   //teleStart = 0;
 
-  Serial.print("matchMode");
-  Serial.println(matchMode);
 }
 
 void Personality_2::ChangeInput(BT *bt, int mode, int device, Gamepad *old, Gamepad *gnu)
@@ -155,16 +159,17 @@ void Personality_2::ChangeButton(BT *bt, int mode, bool button)
 	     Serial.print("autoStart");
 	     Serial.println(autoStart);
 	     */
-	     if (matchMode == '-')
+	     if (getMatchMode() == NONE){
 	       beginMatchCycle();
-	     else
+	       Serial.println("began match cycle");
+	     }
+	     else{
 	       playMatchCycle();
-	     Serial.println("Just theoretically started auto");
+	       Serial.println("Just theoretically started auto");
+	     }
 	   }else {
 	     pauseMatchCycle();
-	     /*autoStart = autoStart - millis();
-	       Serial.println("step 2");*/
-	     }
+	   }
 	 }else { // teleOp program is running
 	   if (buttonToggle){
 	     /*if (teleStart < 0){
@@ -177,10 +182,10 @@ void Personality_2::ChangeButton(BT *bt, int mode, bool button)
 	     Serial.print("teleStart");
 	     Serial.println(teleStart);
 	     */
-	     playMatchCycle();
+	     // playMatchCycle(); TODO
 	     Serial.println("Just theoretically started tele");
 	   }else {
-	     pauseMatchCyle();
+	     // pauseMatchCycle(); TODO
 	     /*teleStart = teleStart - millis();
 	       Serial.println("t- step 2");*/
 	     }
