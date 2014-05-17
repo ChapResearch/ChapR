@@ -95,15 +95,16 @@
 // noticing a button press before it reports the next one.
 #define DEBOUNCE 25
 
-// default settings
+// default settings for EEPROM values that are used during board bringup.
 
 #define DEF_NAME               "ChapRX"
 #define DEF_TIMEOUT            10 // ten minutes
 #define DEF_PERSON             3 // corresponds to LabView personality
 #define DEF_LAG                35
 #define DEF_MODE               0 //autonomous mode
-#define DEF_AUTOLEN            10 // ten seconds
-#define DEF_TELELEN            140 // 140 seconds
+#define DEF_AUTOLEN            30 // (secs) defaults set for FTC
+#define DEF_TELELEN            60 // (secs)
+#define DEF_ENDLEN             30 // (secs)
 #define DEF_DGTLIN             0
 #define DEF_ANALOG1            0
 #define DEF_ANALOG2            0
