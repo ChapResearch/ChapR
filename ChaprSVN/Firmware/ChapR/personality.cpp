@@ -26,26 +26,27 @@ Personality::Personality():
 
 // updateMode() - intended to be called from within a personality subclass
 //                in the Loop method. Returns a boolean to indicate whether
-//                the mode has changed, so that the caller can use it like so:
-/*                if (isInMatchMode()){
-		     if (updateMode()){
-                       switch (getMatchMode()){
-		       case AUTO:
-		          // personality-specific action when autonomous mode starts
-			  break;
-                       case TELE:
-		          // personality-specific action when teleOp starts
-			  break;
-		       case END:
-		          // personality-specific action when the endgame starts
-			  break;
-		       case NONE:
-		          // personality-specific action when nothing is running
-			  break;
-		       }
-                    }
-                  }
-*/
+//                a new mode has started, so that the caller can use it like so:
+//
+//                if (isInMatchMode()){
+//		     if (updateMode()){
+//                     switch (getMatchMode()){
+//		       case AUTO:
+//		          // personality-specific action when autonomous mode starts
+//			  break;
+//                     case TELE:
+//		          // personality-specific action when teleOp starts
+//			  break;
+//		       case END:
+//		          // personality-specific action when the endgame starts
+//			  break;
+//		       case NONE:
+//		          // personality-specific action when nothing is running
+//			  break;
+//		       }
+//                    }
+//                  }
+//
 bool Personality::updateMode(bool buttonToggle)
 {
   int oldMode = matchMode;
