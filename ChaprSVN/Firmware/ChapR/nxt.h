@@ -170,9 +170,9 @@ extern int nxtMsgCompose(byte *output, 		// the output buffer to scribble things
 			 byte *USBJoystick1,	// buffers for the two joysticks
 			 byte *USBJoystick2);
 
-extern bool nxtQueryDevice(VDIP *, int, char **, char **, long *);
-
 extern int  nxtBTMailboxMsgCompose(int,byte *,int);
+
+extern bool nxtQueryDevice(VDIP *, int, char **, char **, long *);
 extern bool  nxtBTKillCommand(BT *);
 extern bool nxtGetProgramName(BT *, char*);
 extern bool nxtGetChosenProgram(BT *, char*);
@@ -180,7 +180,3 @@ extern int nxtOpenFileToRead(BT *, char*);
 extern int nxtReadFile(BT *, char *, int, int);
 extern bool nxtCloseFile(BT *, int);
 extern bool nxtRunProgram(BT *, char *);
-
-// TESTING TESTING TESTING TESTING 
-extern void nxtBigTest(BT *);
-
