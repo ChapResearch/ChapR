@@ -60,6 +60,8 @@ bool Personality::updateMode(bool buttonToggle)
   Serial.print("autoTarget: ");
   Serial.println(autoTarget);
 
+  // rewrite to be in order and use a case statement appropriately
+
   if (endTarget != 0 && millis() > endTarget){
     matchMode = NONE;
     teleTarget = 0;

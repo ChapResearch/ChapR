@@ -96,6 +96,11 @@ void setup()
      Serial.print(CODEVERSION);
      Serial.println(" up!");
 
+     if (!myEEPROM.isInitialized()){
+     	myEEPROM.setDefaults();
+	myEEPROM.setFromConsole();
+     }		
+
      // checks to see if the ChapR has undergone a software reset, making sure it remembers that
      // the power button had already been pressed (this makes sure the kill switch works the first
      // time).
