@@ -18,67 +18,89 @@ extern sound beeper;
 extern settings myEEPROM;
 
 Personality::Personality():
-  pwrTarget(0), autoStart(0), teleStart(0), timePassed(0), 
+  pwrTarget(0), autoTarget(0), teleTarget(0), timePassed(0), 
   matchMode(NONE),
-  intMatchMode(false)
+  inMatchMode(false)
 {
 }
 
 // updateMode() - intended to be called from within a personality subclass
 //                in the Loop method. Returns a boolean to indicate whether
-//                the mode has changed, so that the 
+//                the mode has changed, so that the caller can use it like so:
+/*                if (isInMatchMode()){
+		     if (updateMode()){
+                       switch (getMatchMode()){
+		       case AUTO:
+		          // personality-specific action when autonomous mode starts
+			  break;
+                       case TELE:
+		          // personality-specific action when teleOp starts
+			  break;
+		       case END:
+		          // personality-specific action when the endgame starts
+			  break;
+		       case NONE:
+		          // personality-specific action when nothing is running
+			  break;
+		       }
+                    }
+                  }
+*/
 bool Personality::updateMode(bool buttonToggle)
 {
   int oldMode = matchMode;
   
-  Serial.print("endStart: ");
-  Serial.println(endStart);
+  Serial.print("endTarget: ");
+  Serial.println(endTarget);
 
-  Serial.print("teleStart: ");
-  Serial.println(teleStart);
+  Serial.print("teleTarget: ");
+  Serial.println(teleTarget);
 
-  Serial.print("autoStart: ");
-  Serial.println(autoStart);
+  Serial.print("autoTarget: ");
+  Serial.println(autoTarget);
 
-  if (endStart != 0 && millis() - endStart >= myEEPROM.getEndLen()*1000){
+  if (endTarget != 0 && millis() > endTarget){
     matchMode = NONE;
-    teleStart = 0;
-    endStart = 0;
+    teleTarget = 0;
+    endTarget = 0;
   }
-  else if (teleStart != 0 && millis() - teleStart >= myEEPROM.getTeleLen()*1000){
+  else if (teleTarget != 0 && millis() > teleTarget){
     if (matchMode != END){
-      endStart = millis();
+      endTarget = millis() + myEEPROM.getEndLen()*1000;
       matchMode = END;
     }
   }
-  else if (autoStart != 0 && millis() - autoStart >= myEEPROM.getAutoLen()*1000){
+  else if (autoTarget != 0 && millis() > autoTarget){
     // starts tele, but only if the WFS has been pressed and the 
     // caller program has already been notified
 
     if (matchMode == TELE && buttonToggle){
       Serial.println("in if");
-      teleStart = millis();
-      autoStart = 0;
+      teleTarget = millis() + myEEPROM.getTeleLen()*1000;
+      autoTarget = 0;
     }
-    Serial.println("in autoStart");
+    Serial.println("in autoTarget");
     matchMode = TELE;
   }
 
   return (oldMode != matchMode);
 }
 
+// beginMatchCycle() - intended to be called when autonomous mode
+//                     is enabled, which begins the cycling between
+//                     autonomous, then tele, then endgame.
 void Personality::beginMatchCycle()
 {
-  autoStart = millis();
+  autoTarget = millis() + myEEPROM.getAutoLen()*1000;
   matchMode = AUTO;
 }
 
 void Personality::pauseMatchCycle()
 {
   switch (matchMode){
-  case AUTO : timePassed = millis() - autoStart; autoStart = 0; break;
-  case TELE : timePassed = millis() - teleStart; teleStart = 0; break;
-  case END  : timePassed = millis() - endStart;  endStart = 0;  break;
+  case AUTO : timePassed = millis() - autoTarget; autoTarget = 0; break;
+  case TELE : timePassed = millis() - teleTarget; teleTarget = 0; break;
+  case END  : timePassed = millis() - endTarget;  endTarget = 0;  break;
   }
   //  bool isPaused = true;
 }
@@ -86,9 +108,9 @@ void Personality::pauseMatchCycle()
 void Personality::playMatchCycle(){
   // if (isPaused){
     switch (matchMode){
-    case AUTO : autoStart = millis() - timePassed; break;
-    case TELE : teleStart = millis() - timePassed; break;
-    case END  : endStart = millis() - timePassed; break;
+    case AUTO : autoTarget = millis() - timePassed; break;
+    case TELE : teleTarget = millis() - timePassed; break;
+    case END  : endTarget = millis() - timePassed; break;
     }
     //} else {
     //  }
@@ -112,4 +134,9 @@ void Personality::swapInMatchMode(){
 int Personality::getMatchMode()
 {
   return (matchMode);
+}
+
+bool Personality::isInMatchMode()
+{
+  return (inMatchMode);
 }

@@ -42,20 +42,12 @@ class Personality
   bool inMatchMode;          // determines whether the ChapR cycles through programs like FCS
   int  matchMode;            // which mode the ChapR is in (auto, tele, endgame or none)
   long pwrTarget;            // keeps track of when the power button was pressed
-  long autoStart;            // when the auto started (in millis)
-  long teleStart;            // when tele started (in millis)
-  long endStart;             // when the endgame started (in millis)
+  long autoTarget;            // when the auto should end (in millis)
+  long teleTarget;            // when tele should end (in millis)
+  long endTarget;             // when the endgame should end (in millis)
   long timePassed;           // used to keep track of time when a mode is paused
 
  public:
-  bool forceMode;	     // used to make the mode follow the program starting
-  bool inMatchMode;          // determines whether the ChapR cycles through programs like FCS
-  int  matchMode;            // which mode the ChapR is in (auto, tele, endgame or none)
-  long pwrTarget;            // keeps track of when the power button was pressed
-  long autoStart;            // when the auto started (in millis)
-  long teleStart;            // when tele started (in millis)
-  long endStart;             // when the endgame started (in millis)
-  long timePassed;           // used to keep track of time when a mode is paused
 
   Personality();
 
@@ -95,6 +87,7 @@ class Personality
   void pauseMatchCycle();
   void playMatchCycle();
   int  getMatchMode();
+  bool isInMatchMode();
 };
 
 #endif PERSONALITY_H

@@ -45,7 +45,7 @@ void Personality_2::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
      if (bt->connected()) {
 
        // deals with matchMode switching
-       if (inMatchMode){
+       if (isInMatchMode()){
 	 if (updateMode(buttonToggle)){ // determines if the mode has changed
 	   switch (getMatchMode()){
 	   case AUTO :                     // just started auto
@@ -122,7 +122,7 @@ void Personality_2::ChangeButton(BT *bt, int mode, bool button)
      char  buf2[NXT_PRGM_NAME_SIZE];
      
      if (button){ //only executes if the button is in the down position
-       if (nxtGetProgramName(bt, buf) && inMatchMode){ // TODO
+       if (nxtGetProgramName(bt, buf) && isInMatchMode()){ // TODO
          // program is running so the action button functions as a WFS button 
          // and is handled by the loop call of the personality
 	 buttonToggle = !buttonToggle;
