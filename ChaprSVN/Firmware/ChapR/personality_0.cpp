@@ -19,8 +19,6 @@
 extern sound beeper;
 extern settings myEEPROM;
 
-bool matchMode = true;
-
 Personality_0::Personality_0() : startedProgram(false)
 {
     
@@ -55,7 +53,7 @@ void Personality_0::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
      if (bt->connected()) {
        
        // deals with matchMode switching
-       if (matchMode){
+       /*       if (matchMode){
 	 if (updateMode()){ // determines if the mode has changed
 	   switch (matchMode){
 	   case AUTO :
@@ -75,7 +73,7 @@ void Personality_0::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
 	     break;
 	   }
 	 }
-       }
+	 }*/
 
        // first convert the gamepad data and button to the robotC structure
        size = robotcTranslate(msgbuff,button,g1,g2, mode);
