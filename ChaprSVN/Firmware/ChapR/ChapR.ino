@@ -96,10 +96,17 @@ void setup()
      Serial.print(CODEVERSION);
      Serial.println(" up!");
 
+     // EEPROM starts off unitialized - if this is the case, set the basic defaults
+     //	and cause the user to have to go through basic settings - normally this is
+     // only used when bringing up a board.  See settings.h for the order of the
+     // arguments in setDefaults().
+
      if (!myEEPROM.isInitialized()){
-     	myEEPROM.setDefaults();
-	myEEPROM.setFromConsole();
+	  myEEPROM.setDefaults("ChapR-X",3,35,0,30,60,30,0,0,0,0,0);
+	  myEEPROM.setFromConsole();
      }		
+
+     myEEPROM.loadCache();
 
      // checks to see if the ChapR has undergone a software reset, making sure it remembers that
      // the power button had already been pressed (this makes sure the kill switch works the first
@@ -118,8 +125,6 @@ void setup()
           inConfigMode = false;			// in normal mode
 	  powerLED.on();
      }
-
-     myEEPROM.loadCache();
 
      powerTimeout = 60000 * (long) myEEPROM.getTimeout(); //sets the timeout from EEPROM
      lag = myEEPROM.getSpeed(); //sets the lag from EEPROM
