@@ -38,14 +38,14 @@ class Personality
   
  private: 
 
-  /*  bool forceMode;	     // used to make the mode follow the program starting
+  bool forceMode;	     // used to make the mode follow the program starting
   bool inMatchMode;          // determines whether the ChapR cycles through programs like FCS
   int  matchMode;            // which mode the ChapR is in (auto, tele, endgame or none)
   long pwrTarget;            // keeps track of when the power button was pressed
   long autoStart;            // when the auto started (in millis)
   long teleStart;            // when tele started (in millis)
   long endStart;             // when the endgame started (in millis)
-  long timePassed;           // used to keep track of time when a mode is paused*/
+  long timePassed;           // used to keep track of time when a mode is paused
 
  public:
   bool forceMode;	     // used to make the mode follow the program starting

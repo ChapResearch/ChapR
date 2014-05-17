@@ -77,9 +77,9 @@
 //
 #define LOCAL_SERIAL_BAUD	38400
 
-#define PERSONALITYCOUNT        3 //how many personalities have been implemented
+#define PERSONALITYCOUNT        4 //how many personalities have been implemented
 #define BOARDBRINGUPVERSION     "1.2" //which version the testing program is
-#define CODEVERSION             "1.3A"
+#define CODEVERSION             "1.3"
 
 //these two constants define the time before entering power saving mode and are in milliseconds
 // (the second commented out versions are for debugging)
