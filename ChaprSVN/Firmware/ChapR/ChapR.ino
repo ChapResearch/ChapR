@@ -102,7 +102,7 @@ void setup()
      // arguments in setDefaults().  See config.h for the defaults.
 
      if (!myEEPROM.isInitialized()){
-	  myEEPROM.setDefaults(DEF_NAME, DEF_TIMEOUT, DEF_PERSON, DEF_LAG,
+	  myEEPROM.setDefaults(DEF_NAME, DEF_TIMEOUT, DEF_PERSON, DEF_LAG, DEF_MODE,
 			       DEF_AUTOLEN, DEF_TELELEN, DEF_ENDLEN,
 			       DEF_DGTLIN, DEF_ANALOG1, DEF_ANALOG2, DEF_ANALOG3, DEF_ANALOG4);
 	  myEEPROM.setFromConsole();
