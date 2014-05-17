@@ -1,57 +1,21 @@
-take out the battery when working on software
-take out the lowPowerOperation comments
+SOFTWARE
 
-RIGHT HERE - where i am in code
-SKETCHY - code that should be fixed
-TODO - code that needs to be fixed
+ADMIN
+Netherlands - 47
+Tuxedo Pandas - 48, 49, 50
 
-ask Vandegrift if we can use their quotes
+figure out last 3 or 4 Chaprs with the lag of 0
+variables are public
+board bring up into second program (and beautify)
+get payment on stuff
 
-potential problems
- - confusing the hold down the power button and have nothing happen (can't tell if the battery is dead)
- - latency when using LabView
- - all the way forward on the sticks stops motors in LabView (would stop for a brief moment)
- - battery life (good!)
- - having to reboot both the NXt and ChapR
- - not being able to tell the battery life (flashing power LED and making icky noise repeatedly)
- - switch idea (not happening)
- - adding a belt clip? (customizable with personality)
+don't pwr up the chapR when connected to the nxt via USB
+"dudes you need to get a programmer with a kit"
 
-LabView stops pairing while a program is running
+-have 2 people (ugur and skip) reload programs
 
-needs a board spin to change the silk screen and get rid of the extra holes (and potentially monitor battery)
+reload 53 and 54
 
-**LabView personality shouldn't send -128 on the up stick
+system of kudos for referring other teams?
 
-did check FCS - sends 127 (should add to website)
-
-randomly got a bluetooth store is full error and the chapr tried to connect, but disconnected instantly (and repeated this process)
-  - must delete a few contacts on the brick
-
-the openFileToRead() command appears to return the wrong handle (always 0?)
-
-USB pairing doesn't work if the ChapR boots with an NXT already plugged in
-
-Coach's Version - ChapR-14
-in pairing mode - icky noise every once in a while
-in normal mode (and not connected) - icky noise on press of the action button (and randomly otherwise), but swallows several button presses afterwards
-
-12/1/13
-WFS is sticky on NXT-G
-kill switch didn't work the first time?
-
-Old Version - ChapR-15
-*connected to the computer via programmer (with a battery in) and reset using the Serial monitor, but the confirm tone sounded without the BT light flashing (bricked the ChapR!)
-	same procedure and it worked fine
-*made the "boop" noise when going into pairing mode
-
-Times When ChapR Has Locked Up (Old version)
-stopped button tester, then let it sit for a while (both LEDs were on and it wouldn't turn off) - ChapR15
-tried to load new settings from a USB first in port 1, which got an icky noise, then in port 2, which just sat there (all lights solid) - ChapR15
-
-*none of the above are repeatable?!
-
-**ChapR-19 killed itself while trying to flash VDIP (inserted USB before pressing !); BT LED won't come on
-**ChapR-15 had the same symptoms but that happened when I tried to boot it
-
-kill switch won't work the first time if the ChapR is plugged into the computer (not a bug)
+range of 11 metres on ChapR BT

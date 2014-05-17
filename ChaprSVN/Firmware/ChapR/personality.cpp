@@ -17,13 +17,16 @@
 extern sound beeper;
 extern settings myEEPROM;
 
-Personality::Personality()
+Personality::Personality():
+  pwrTarget(0), autoStart(0), teleStart(0), timePassed(0), 
+  matchMode(NONE),
+  intMatchMode(false)
 {
-  pwrTarget, autoStart, teleStart, timePassed = 0;
-  matchMode = NONE;
-  inMatchMode = false;
 }
 
+// updateMode() - intended to be called from within a personality subclass
+//                in the Loop method. Returns a boolean to indicate whether
+//                the mode has changed, so that the 
 bool Personality::updateMode(bool buttonToggle)
 {
   int oldMode = matchMode;
