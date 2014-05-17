@@ -27,6 +27,7 @@
 #define EEPROM_AUTOLEN         36	// byte
 #define EEPROM_TELELEN         37	// byte
 #define EEPROM_ENDLEN          38       // byte
+#define EEPROM_MATCHMODE       39       // byte (determines whether matchMode is enabled)
 
 //constants
 #define EEPROM_NAMELENGTH      15 //without null terminator (15 - 0)
@@ -74,6 +75,8 @@ public:
      byte getEndLen();
      byte getTeleLen();
      byte getAutoLen();
+     void setMatchModeEnable(bool);
+     bool matchModeIsEnabled();
      void setDefaults(char *,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int);
      void loadCache();
      
@@ -90,6 +93,7 @@ public:
      short analog2;
      short analog3;
      short analog4;
+     bool matchModeEnable;
 
      void doSetting(int,const __FlashStringHelper *, const __FlashStringHelper *,unsigned int,unsigned int,int);
      void printCurrentValue(int,unsigned int, int);
@@ -100,7 +104,6 @@ public:
      void flushSerial();
      void setShort(int, short);
      short getShort(int);
-     void hitReturn();
      void hitReturnForDefault();
 };
 

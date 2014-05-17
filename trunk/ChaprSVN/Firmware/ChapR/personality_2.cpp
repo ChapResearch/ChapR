@@ -122,7 +122,7 @@ void Personality_2::ChangeButton(BT *bt, int mode, bool button)
      char  buf2[NXT_PRGM_NAME_SIZE];
      
      if (button){ //only executes if the button is in the down position
-       if (nxtGetProgramName(bt, buf) && isInMatchMode()){ // TODO
+       if (nxtGetProgramName(bt, buf) && isInMatchMode()){ // program running and in match mode
          // program is running so the action button functions as a WFS button 
          // and is handled by the loop call of the personality
 	 buttonToggle = !buttonToggle;
@@ -140,7 +140,7 @@ void Personality_2::ChangeButton(BT *bt, int mode, bool button)
 	     }
 	   }else {
 	     pauseMatchCycle();
-	     Serial.println("paused match cycle");
+	     Serial.println("paused match cycle"); // TODO eliminate pause
 	   }
 	 }else {                                            // teleOp program is running
 	   if (buttonToggle){

@@ -37,11 +37,6 @@ void settings::flushSerial()
   }
 }
 
-void settings::hitReturn()
-{
-  Serial.println(F("Hit RET to continue"));
-}
-
 //
 // getStringFromMonitor() - read a string from the serial monitor.  The data
 //			    is put into the given buffer.  The given size is
@@ -478,6 +473,17 @@ byte settings::getEndLen()
   return(endLen);
 }
 
+void settings::setMatchModeEnable(bool m)
+{
+  matchModeEnable = m;
+  EEPROM.write(EEPROM_MATCHMODE, m);
+}
+
+bool settings::matchModeIsEnabled()
+{
+  return(matchModeEnable);
+}
+
 void settings::loadCache()
 {
   timeout =  EEPROM.read(EEPROM_TIMEOUT);
@@ -492,4 +498,5 @@ void settings::loadCache()
   autoLen =  EEPROM.read(EEPROM_AUTOLEN);
   teleLen =  EEPROM.read(EEPROM_TELELEN);
   endLen =  EEPROM.read(EEPROM_ENDLEN);
+  matchModeEnable = EEPROM.read(EEPROM_MATCHMODE);
 }
