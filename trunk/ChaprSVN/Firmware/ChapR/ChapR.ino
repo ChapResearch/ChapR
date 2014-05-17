@@ -99,10 +99,12 @@ void setup()
      // EEPROM starts off unitialized - if this is the case, set the basic defaults
      //	and cause the user to have to go through basic settings - normally this is
      // only used when bringing up a board.  See settings.h for the order of the
-     // arguments in setDefaults().
+     // arguments in setDefaults().  See config.h for the defaults.
 
      if (!myEEPROM.isInitialized()){
-	  myEEPROM.setDefaults("ChapR-X",3,35,0,30,60,30,0,0,0,0,0);
+	  myEEPROM.setDefaults(DEF_NAME, DEF_TIMEOUT, DEF_PERSON, DEF_LAG,
+			       DEF_AUTOLEN, DEF_TELELEN, DEF_ENDLEN,
+			       DEF_DGTLIN, DEF_ANALOG1, DEF_ANALOG2, DEF_ANALOG3, DEF_ANALOG4);
 	  myEEPROM.setFromConsole();
      }		
 
