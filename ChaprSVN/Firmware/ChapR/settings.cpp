@@ -250,6 +250,7 @@ void settings::setDefaults(char *name,
 			      unsigned int   mode,
 			      unsigned int   autoLen,
 			      unsigned int   teleLen,
+			      unsigned int   endLen,
 			      unsigned int   dgtl, 
 			      unsigned int   analog1,
 			      unsigned int   analog2,
@@ -263,6 +264,7 @@ void settings::setDefaults(char *name,
      setMode((byte)mode);
      setAutoLen((byte)autoLen);
      setTeleLen((byte)teleLen);
+     setEndLen((byte)endLen);
      setDigitalInputs((byte)dgtl);
      setAnalogInput1(analog1);
      setAnalogInput2(analog2);
