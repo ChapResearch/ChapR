@@ -89,7 +89,7 @@ class Personality
 
   virtual void Kill(BT *bt, int mode) = 0;
      
-  bool updateMode();
+  bool updateMode(bool = true);
   void swapInMatchMode();
   void beginMatchCycle();
   void pauseMatchCycle();

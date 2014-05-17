@@ -46,51 +46,34 @@ void Personality_2::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
 
        // deals with matchMode switching
        if (inMatchMode){
-	 if (updateMode()){ // determines if the mode has changed
+	 if (updateMode(buttonToggle)){ // determines if the mode has changed
 	   switch (getMatchMode()){
-	   case AUTO :
-	     Serial.println("auto mode");
+	   case AUTO :                     // just started auto
+	     Serial.println("----------auto mode-----------");
 	     break;
 	   case TELE :                     // just became teleOp
 	     if (nxtBTKillCommand(bt)) 
 	       beeper.kill(); 
 	     if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf))
 	       beeper.start();
+	     myEEPROM.setMode(TELE); // changes the EEPROM setting, which happens to also be 1 for TELE
 	     buttonToggle = false;
-	     Serial.println("tele mode");
+	     Serial.println("-----------tele mode---------");
 	     break;
 	   case END :                     // just entered endgame
-	     //beeper.warning(); TODO
-	     Serial.println("end mode");
+	     beeper.confirm();
+	     Serial.println("-----------end mode-------------");
 	     break;
-	   case NONE :
+	   case NONE :                    // just ended everything...
 	     if (nxtBTKillCommand(bt)) 
 	       beeper.kill(); 
-	     Serial.println("none mode");
+	     buttonToggle = false;
+	     Serial.println("----------none mode--------");
 	     break;
 	   }
 	 }
        }
 	 
-	 /* if (teleStart > 0 && millis() - teleStart >= myEEPROM.getTeleLen()*1000){
-	   Serial.println("thereotically ended tele");
-	   if (nxtBTKillCommand(bt)){
-	     beeper.kill();
-	   }
-	   teleStart = 0;
-	   buttonToggle = false;
-	 }
-	 else if (autoStart > 0 && (millis() - autoStart) >= (myEEPROM.getAutoLen()*1000)){
-	   Serial.println("thereotically ended auto");
-	   nxtBTKillCommand(bt);
-	   if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf)){
-	     beeper.start();
-	   }
-	   autoStart = 0;
-	   buttonToggle = false; // TODO where is this declared?
-	 }
-	 }*/
- 
        // first convert the gamepad data and button to the robotC structure
        size = robotcTranslate(msgbuff,buttonToggle,g1,g2,mode);
        
@@ -122,8 +105,6 @@ void Personality_2::Kill(BT *bt, int mode)
 
   // reset everything
   buttonToggle = false;
-  //autoStart = 0;
-  //teleStart = 0;
 
 }
 
@@ -141,24 +122,14 @@ void Personality_2::ChangeButton(BT *bt, int mode, bool button)
      char  buf2[NXT_PRGM_NAME_SIZE];
      
      if (button){ //only executes if the button is in the down position
-       if (nxtGetProgramName(bt, buf)){
+       if (nxtGetProgramName(bt, buf) && inMatchMode){ // TODO
          // program is running so the action button functions as a WFS button 
          // and is handled by the loop call of the personality
 	 buttonToggle = !buttonToggle;
 	 (buttonToggle && bt->connected())?beeper.beep():beeper.boop();
 	 nxtGetChosenProgram(bt, buf2);
-	 if (strcmp(buf, buf2) != 0){ // if the program running is not the teleOp program
+	 if (strcmp(buf, buf2) != 0){                       // program running is not the teleOp program
 	   if (buttonToggle){
-	     /* if (autoStart < 0){
-	       autoStart = millis() - (-1*autoStart);
-	       Serial.println("step 3");
-	     } else {
-	       autoStart = millis();
-	       Serial.println("step 1");
-	     }
-	     Serial.print("autoStart");
-	     Serial.println(autoStart);
-	     */
 	     if (getMatchMode() == NONE){
 	       beginMatchCycle();
 	       Serial.println("began match cycle");
@@ -169,28 +140,19 @@ void Personality_2::ChangeButton(BT *bt, int mode, bool button)
 	     }
 	   }else {
 	     pauseMatchCycle();
+	     Serial.println("paused match cycle");
 	   }
-	 }else { // teleOp program is running
+	 }else {                                            // teleOp program is running
 	   if (buttonToggle){
-	     /*if (teleStart < 0){
-	       teleStart = millis() - (-1*teleStart);
-	       Serial.println("t- step 3");
-	     } else {
-	       teleStart = millis();
-	       Serial.println("t- step 1");
+	     if (getMatchMode() == NONE){
+	       playMatchCycle(); 
+	       Serial.println("Just theoretically started tele");
 	     }
-	     Serial.print("teleStart");
-	     Serial.println(teleStart);
-	     */
-	     // playMatchCycle(); TODO
-	     Serial.println("Just theoretically started tele");
 	   }else {
-	     // pauseMatchCycle(); TODO
-	     /*teleStart = teleStart - millis();
-	       Serial.println("t- step 2");*/
+	     pauseMatchCycle();
 	     }
 	 }
-       } else { // no program is running
+       } else {                                             // no program is running
 	 if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf)){
 	   beeper.start();
 	 } else {
