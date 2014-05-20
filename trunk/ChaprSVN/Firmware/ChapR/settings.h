@@ -18,7 +18,7 @@
 #define EEPROM_MAGIC           18	// magic string to identify version
 #define EEPROM_RSTATUS         24	// reset status used for self-rebooting
 #define EEPROM_SPEED           25	// byte (lag)
-#define EEPROM_MODE            26	// byte
+#define EEPROM_MODE            26	// byte (bool) - (NXT definition) true(1) is teleop, false(0) is auto
 #define EEPROM_DIGITALIN       27	// byte
 #define EEPROM_ANALOGIN1       28	// 2 bytes
 #define EEPROM_ANALOGIN2       30	// 2 bytes
