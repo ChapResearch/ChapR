@@ -136,7 +136,6 @@ void Personality_2::ChangeButton(BT *bt, bool button)
 	     beeper.icky();
 	   }
 	   buttonToggle = false;	// always starts as false after starting a program
-	   forceMode = true;		// the mode is forced to be teleop until a kill
 	 }
        }
        else { // pretty much a single player FCS
