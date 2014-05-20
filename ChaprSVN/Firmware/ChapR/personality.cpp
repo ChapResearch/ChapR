@@ -47,7 +47,7 @@ Personality::Personality():
 //                    }
 //                  }
 //
-bool Personality::updateMode(bool buttonToggle)
+bool Personality::updateMode()
 {
   int oldMode = matchMode;
   
@@ -106,7 +106,7 @@ void Personality::beginTele()
 
 void Personality::endCycle()
 {
-  autoTarget, teleTarget, endTarget = 0;
+  autoTarget = teleTarget = endTarget = 0;
   matchMode = NONE;
 }
 
