@@ -22,14 +22,13 @@ class Personality_3 : public Personality
 
 private:
      bool startedProgram; 	// if true, then the program was just started with the button
-     bool forceMode;		// used to make the mode follow the program starting
 
 public:
      Personality_3();
-     virtual void ChangeInput(BT *bt, int mode, int device, Gamepad *old, Gamepad *);
-     virtual void ChangeButton(BT *bt, int mode, bool button);
-     virtual void Loop(BT *bt, int mode, bool, Gamepad *, Gamepad *);
-     virtual void Kill(BT *bt, int mode);
+     virtual void ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *);
+     virtual void ChangeButton(BT *bt, bool button);
+     virtual void Loop(BT *bt, bool, Gamepad *, Gamepad *);
+     virtual void Kill(BT *bt);
 };
 
 
