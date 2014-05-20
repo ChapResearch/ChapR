@@ -31,16 +31,16 @@ Personality::Personality():
 //                if (isInMatchMode()){
 //		     if (updateMode()){
 //                     switch (getMatchMode()){
-//		       case AUTO:
+//		       case AUTO: // auto started
 //		          // personality-specific action when autonomous mode starts
 //			  break;
-//                     case TELE:
+//                     case TELE: // auto ended and tele started
 //		          // personality-specific action when teleOp starts
 //			  break;
-//		       case END:
+//		       case END: // tele ended and endgame started
 //		          // personality-specific action when the endgame starts
 //			  break;
-//		       case NONE:
+//		       case NONE: // not running a program
 //		          // personality-specific action when nothing is running
 //			  break;
 //		       }
@@ -60,63 +60,54 @@ bool Personality::updateMode(bool buttonToggle)
   Serial.print("autoTarget: ");
   Serial.println(autoTarget);
 
-  // rewrite to be in order and use a case statement appropriately
-
-  if (endTarget != 0 && millis() > endTarget){
-    matchMode = NONE;
-    teleTarget = 0;
-    endTarget = 0;
-  }
-  else if (teleTarget != 0 && millis() > teleTarget){
-    if (matchMode != END){
-      endTarget = millis() + myEEPROM.getEndLen()*1000;
+  switch(matchMode){
+  case AUTO:
+    if (millis() > autoTarget){
+      matchMode = TELE;
+    }
+    break;
+  case TELE:
+    if (teleTarget != 0 && millis() > teleTarget){ //checks to see if teleTarget has a value (and therefore WFS has
+     // been pressed
+      endTarget = millis() + myEEPROM.getEndLen()*1000;  
       matchMode = END;
     }
-  }
-  else if (autoTarget != 0 && millis() > autoTarget){
-    // starts tele, but only if the WFS has been pressed and the 
-    // caller program has already been notified
-
-    if (matchMode == TELE && buttonToggle){
-      Serial.println("in if");
-      teleTarget = millis() + myEEPROM.getTeleLen()*1000;
-      autoTarget = 0;
+    break;
+  case END:
+    if (millis() > endTarget){
+      matchMode = NONE;
     }
-    Serial.println("in autoTarget");
-    matchMode = TELE;
+    break;
+  case NONE:
+    autoTarget = 0;
+    teleTarget = 0;
+    endTarget = 0;
+    break;
   }
 
   return (oldMode != matchMode);
 }
 
-// beginMatchCycle() - intended to be called when autonomous mode
-//                     is enabled, which begins the cycling between
-//                     autonomous, then tele, then endgame.
-void Personality::beginMatchCycle()
+void Personality::beginAuto()
 {
-  autoTarget = millis() + myEEPROM.getAutoLen()*1000;
-  matchMode = AUTO;
-}
-
-void Personality::pauseMatchCycle()
-{
-  switch (matchMode){
-  case AUTO : timePassed = millis() - autoTarget; autoTarget = 0; break;
-  case TELE : timePassed = millis() - teleTarget; teleTarget = 0; break;
-  case END  : timePassed = millis() - endTarget;  endTarget = 0;  break;
+  if (autoTarget == 0){
+    autoTarget = millis() + myEEPROM.getAutoLen()*1000;
+    matchMode = AUTO;
   }
-  //  bool isPaused = true;
 }
 
-void Personality::playMatchCycle(){
-  // if (isPaused){
-    switch (matchMode){
-    case AUTO : autoTarget = millis() - timePassed; break;
-    case TELE : teleTarget = millis() - timePassed; break;
-    case END  : endTarget = millis() - timePassed; break;
-    }
-    //} else {
-    //  }
+void Personality::beginTele()
+{
+  if (teleTarget == 0){
+    teleTarget = millis() + myEEPROM.getTeleLen()*1000;
+    matchMode = TELE;
+  }
+}
+
+void Personality::endCycle()
+{
+  autoTarget, teleTarget, endTarget = 0;
+  matchMode = NONE;
 }
 
 void Personality::swapInMatchMode(){
