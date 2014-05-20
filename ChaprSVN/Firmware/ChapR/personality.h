@@ -38,7 +38,6 @@ class Personality
   
  private: 
 
-  bool forceMode;	     // used to make the mode follow the program starting
   bool inMatchMode;          // determines whether the ChapR cycles through programs like FCS
   int  matchMode;            // which mode the ChapR is in (auto, tele, endgame or none)
   long pwrTarget;            // keeps track of when the power button was pressed
@@ -58,7 +57,7 @@ class Personality
   //  loop.  NOTE that is up to the personality to decide what to do if the BT is connected
   //  or not.
 
-  virtual void Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2) = 0;
+  virtual void Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2) = 0;
 
   // the ChangeXXXX() interface of the Personality is called whenever there is a change to
   //   the state of the input devices to the ChapR.  While this can be used by all
@@ -69,8 +68,8 @@ class Personality
   //	  upon which input device had the change.   NOTE that is up to the personality to
   //   decide what to do if the BT is connected or not.
 
-  virtual void ChangeInput(BT *bt, int mode, int device, Gamepad *old, Gamepad *gnu) = 0;
-  virtual void ChangeButton(BT *bt, int mode, bool button) = 0;
+  virtual void ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *gnu) = 0;
+  virtual void ChangeButton(BT *bt, bool button) = 0;
 
   // the Kill() interface of the Personality is called whenever the ChapR issues a KILL
   //   to the remote device (like the NXT).  The "kill switch" is meant to cause the remote
@@ -79,7 +78,7 @@ class Personality
   //   the ChapR auto-off's.   NOTE that is up to the personality to decide what to do if the
   //	  BT is connected or not.
 
-  virtual void Kill(BT *bt, int mode) = 0;
+  virtual void Kill(BT *bt) = 0;
      
   bool updateMode(bool = true);
   void swapInMatchMode();
