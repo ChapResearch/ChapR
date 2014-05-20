@@ -47,10 +47,6 @@ void Personality_0::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
 
      // override the mode if we have run a program - stays there until a Kill() is called
 
-     if(forceMode) {
-       mode = USER_MODE_TELEOP;
-     }
-
      if (bt->connected()) {
        
        // deals with matchMode switching
