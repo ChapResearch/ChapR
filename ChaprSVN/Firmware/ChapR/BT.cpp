@@ -499,29 +499,40 @@ bool BT::checkVersion()
   baud9600mode(true);
   begin(BT_CONFIG_BAUD);      // set the SoftwareSerial baud rate appropriately
   reset();
+
   btSend("$$$");
   delay(200);
   recv(buf, 1000);
   delay(100);
+
+  // are we connected at all?
+
   if (strcmp(buf, "CMD") != 0){
-    Serial.println("Connection to RN-42 failed!");
+       return(false);
   }
+
+  // seems to be talking to us, ask for its version
+
   btSend("ver\r");
   delay(200);
+
+  // can get up to three lines back, so print them out
   recv(buf, 1000);
-  Serial.print("RN-42 Version: ");
   if (buf[0] != '\0'){
-  Serial.println(buf);
+       Serial.println(buf);
   }
+
   recv(buf, 1000);
   if (buf[0] != '\0'){
-  Serial.println(buf);
+       Serial.println(buf);
   }
+
   recv(buf, 1000);
   if (buf[0] != '\0'){
-  Serial.println(buf);
+       Serial.println(buf);
   }
   flushReturnData();
+
   return true;
 }
 
