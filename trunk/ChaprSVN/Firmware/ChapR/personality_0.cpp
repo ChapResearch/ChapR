@@ -30,11 +30,12 @@ Personality_0::Personality_0() : startedProgram(false)
 //		appropriately formatted BT message with the translation of
 //		the Gamepads and inclusion of the button.
 //
-void Personality_0::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2)
+void Personality_0::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
 {
      byte	msgbuff[64];	// max size of a BT message
      int	size;
      char       buf[NXT_PRGM_NAME_SIZE];
+     int	mode = myEEPROM.getMode();
 
      // if the program has just been started, then the button has go up first
      // before it generates the normal "wait for start" - the ChangeButton()
@@ -88,7 +89,7 @@ void Personality_0::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
      }
 }
 
-void Personality_0::Kill(BT *bt, int mode)
+void Personality_0::Kill(BT *bt)
 {
   char  buf[NXT_PRGM_NAME_SIZE];
 
@@ -111,17 +112,14 @@ void Personality_0::Kill(BT *bt, int mode)
 
     target = millis();*/
   }
-
-  // always turn off forcemode when the Kill is done
-  forceMode = false;
 }
 
-void Personality_0::ChangeInput(BT *bt, int mode, int device, Gamepad *old, Gamepad *gnu)
+void Personality_0::ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *gnu)
 {
      // nothing happens here for this personality
 }
 
-void Personality_0::ChangeButton(BT *bt, int mode, bool button)
+void Personality_0::ChangeButton(BT *bt, bool button)
 { 
      char  buf[NXT_PRGM_NAME_SIZE];
      char  buf2[NXT_PRGM_NAME_SIZE];
