@@ -234,6 +234,7 @@ void settings::setFromConsole()
      doSetting(EEPROM_AUTOLEN,		F("Autonomous Length"),  F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
      doSetting(EEPROM_TELELEN,		F("TeleOp Length"),      F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
      doSetting(EEPROM_ENDLEN,		F("Endgame Length"),     F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
+     doSetting(EEPROM_MATCHMODE,	F("matchMode Enabled?"), F("0 for false"),            0,   1,   PROMPT_BYTE  );
 
      markInitialized();
      loadCache();

@@ -73,7 +73,7 @@ void Personality_2::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
 	   }
 	 }
        }
-	 
+       
        // first convert the gamepad data and button to the robotC structure
        size = robotcTranslate(msgbuff,buttonToggle,g1,g2,mode);
        
@@ -96,8 +96,13 @@ void Personality_2::Kill(BT *bt, int mode)
      if (nxtBTKillCommand(bt)){
          beeper.kill();
      }
-  } else { // deal with switching modes if no program running
-    swapInMatchMode();
+     if (isInMatchMode()){
+       endCycle();
+     }
+  } else { // no program running
+    if (myEEPROM.matchModeIsEnabled()){
+      swapInMatchMode();
+    }
   }
 
   // always turn off forcemode when the Kill is done
@@ -121,47 +126,38 @@ void Personality_2::ChangeButton(BT *bt, int mode, bool button)
      char  buf[NXT_PRGM_NAME_SIZE];
      char  buf2[NXT_PRGM_NAME_SIZE];
      
-     if (button){ //only executes if the button is in the down position
-       if (nxtGetProgramName(bt, buf) && isInMatchMode()){ // program running and in match mode
-         // program is running so the action button functions as a WFS button 
-         // and is handled by the loop call of the personality
-	 buttonToggle = !buttonToggle;
-	 (buttonToggle && bt->connected())?beeper.beep():beeper.boop();
-	 nxtGetChosenProgram(bt, buf2);
-	 if (strcmp(buf, buf2) != 0){                       // program running is not the teleOp program
-	   if (buttonToggle){
-	     if (getMatchMode() == NONE){
-	       beginMatchCycle();
-	       Serial.println("began match cycle");
-	     }
-	     else{
-	       playMatchCycle();
-	       Serial.println("Just theoretically started auto");
-	     }
-	   }else {
-	     pauseMatchCycle();
-	     Serial.println("paused match cycle"); // TODO eliminate pause
-	   }
-	 }else {                                            // teleOp program is running
-	   if (buttonToggle){
-	     if (getMatchMode() == NONE){
-	       playMatchCycle(); 
-	       Serial.println("Just theoretically started tele");
-	     }
-	   }else {
-	     pauseMatchCycle();
-	     }
-	 }
-       } else {                                             // no program is running
-	 if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf)){
-	   beeper.start();
+     if (button){
+       // swaps buttonToggle
+       buttonToggle = !buttonToggle;
+
+       if (!isInMatchMode()){ // normal operation
+	 if (nxtGetProgramName(bt, buf)){ // no program is running
+	   (buttonToggle && bt->connected())?beeper.beep():beeper.boop();
 	 } else {
-	   beeper.icky();
+	   // starts the teleOp program remotely
+	   if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf)){
+	     beeper.start();
+	   } else {
+	     beeper.icky();
+	   }
+	   buttonToggle = false;	// always starts as false after starting a program
+	   forceMode = true;		// the mode is forced to be teleop until a kill
 	 }
-	 buttonToggle = false;	// always starts as false after starting a program
-	 forceMode = true;		// the mode is forced to be teleop until a kill
        }
-     } else {
-       // for this personality, nothing ever happens when the button comes up
+       else { // pretty much a single player FCS
+	 if (nxtGetProgramName(bt, buf)){ // program is running
+	   nxtGetChosenProgram(bt, buf2);
+	   if (strcmp(buf, buf2) != 0){ // auto is running
+	     buttonToggle = true;
+	     beginAuto(); // starts the match cycle at auto (if not already started)
+	   } else { // tele is running
+	     buttonToggle = true;
+	     beginTele(); // starts the match cycle at tele (if not already started)
+	     Serial.println("BEGIN TELE!");
+	   }
+	 } else { // no program running
+	   beginAuto(); // waits the auto len even though no program is running
+	 }
+       }
      }
 }

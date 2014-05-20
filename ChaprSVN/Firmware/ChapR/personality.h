@@ -83,7 +83,9 @@ class Personality
      
   bool updateMode(bool = true);
   void swapInMatchMode();
-  void beginMatchCycle();
+  void beginAuto();
+  void beginTele();
+  void endCycle();
   void pauseMatchCycle();
   void playMatchCycle();
   int  getMatchMode();
