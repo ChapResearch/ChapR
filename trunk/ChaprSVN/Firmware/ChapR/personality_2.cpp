@@ -19,7 +19,7 @@
 extern sound beeper;
 extern settings myEEPROM;
 
-Personality_2::Personality_2() : buttonToggle(false), forceMode(false)
+Personality_2::Personality_2() : buttonToggle(false)
 {
     
 }
@@ -30,25 +30,21 @@ Personality_2::Personality_2() : buttonToggle(false), forceMode(false)
 //		appropriately formatted BT message with the translation of
 //		the Gamepads and inclusion of the button.
 //
-void Personality_2::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2)
+void Personality_2::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
 {
      byte	msgbuff[64];	// max size of a BT message
      int	size;
      char       buf[NXT_PRGM_NAME_SIZE];
-
-     // override the mode if we have run a program - stays there until a Kill() is called
-
-     if (forceMode) {
-       mode = USER_MODE_TELEOP;
-     } 
+     int        mode;           // 0 is auto and 1 is tele (but the defines happen to overlap)
 
      if (bt->connected()) {
 
        // deals with matchMode switching
        if (isInMatchMode()){
-	 if (updateMode(buttonToggle)){ // determines if the mode has changed
+	 if (updateMode()){ // determines if the mode has changed
 	   switch (getMatchMode()){
 	   case AUTO :                     // just started auto
+	     mode = AUTO;
 	     Serial.println("----------auto mode-----------");
 	     break;
 	   case TELE :                     // just became teleOp
@@ -56,7 +52,7 @@ void Personality_2::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
 	       beeper.kill(); 
 	     if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf))
 	       beeper.start();
-	     myEEPROM.setMode(TELE); // changes the EEPROM setting, which happens to also be 1 for TELE
+	     mode = TELE;
 	     buttonToggle = false;
 	     Serial.println("-----------tele mode---------");
 	     break;
@@ -72,6 +68,8 @@ void Personality_2::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
 	     break;
 	   }
 	 }
+       } else {
+	 mode = myEEPROM.getMode();
        }
        
        // first convert the gamepad data and button to the robotC structure
@@ -88,7 +86,7 @@ void Personality_2::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
 }
 
 
-void Personality_2::Kill(BT *bt, int mode)
+void Personality_2::Kill(BT *bt)
 {
   char  buf[NXT_PRGM_NAME_SIZE];
 
@@ -105,15 +103,12 @@ void Personality_2::Kill(BT *bt, int mode)
     }
   }
 
-  // always turn off forcemode when the Kill is done
-  forceMode = false;
-
   // reset everything
   buttonToggle = false;
 
 }
 
-void Personality_2::ChangeInput(BT *bt, int mode, int device, Gamepad *old, Gamepad *gnu)
+void Personality_2::ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *gnu)
 {
      // nothing happens here for this personality
 }
@@ -121,7 +116,7 @@ void Personality_2::ChangeInput(BT *bt, int mode, int device, Gamepad *old, Game
 // NOTE - this is just like the Personality_0::ChangeButton() except that the
 //	  button toggles
 
-void Personality_2::ChangeButton(BT *bt, int mode, bool button)
+void Personality_2::ChangeButton(BT *bt, bool button)
 {
      char  buf[NXT_PRGM_NAME_SIZE];
      char  buf2[NXT_PRGM_NAME_SIZE];

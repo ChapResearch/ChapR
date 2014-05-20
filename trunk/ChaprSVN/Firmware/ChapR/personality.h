@@ -80,13 +80,11 @@ class Personality
 
   virtual void Kill(BT *bt) = 0;
      
-  bool updateMode(bool = true);
+  bool updateMode();
   void swapInMatchMode();
   void beginAuto();
   void beginTele();
   void endCycle();
-  void pauseMatchCycle();
-  void playMatchCycle();
   int  getMatchMode();
   bool isInMatchMode();
 };

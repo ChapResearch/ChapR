@@ -42,7 +42,7 @@ Personality_3::Personality_3() : startedProgram(false)
 //		appropriately formatted BT message with the translation of
 //		the Gamepads and inclusion of the button.
 //
-void Personality_3::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2)
+void Personality_3::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
 {
      byte	msgbuff[64];	// max size of a BT message
      int	size;
@@ -68,7 +68,7 @@ void Personality_3::Loop(BT *bt, int mode, bool button, Gamepad *g1, Gamepad *g2
      }
 }
 
-void Personality_3::Kill(BT *bt, int mode)
+void Personality_3::Kill(BT *bt)
 {
   if (matchMode2){
     beeper.select();
@@ -90,12 +90,12 @@ void Personality_3::Kill(BT *bt, int mode)
     }*/
 }
 
-void Personality_3::ChangeInput(BT *bt, int mode, int device, Gamepad *old, Gamepad *gnu)
+void Personality_3::ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *gnu)
 {
      // nothing happepns here for this personality
 }
 
-void Personality_3::ChangeButton(BT *bt, int mode, bool button)
+void Personality_3::ChangeButton(BT *bt, bool button)
 { 
   if (button){
     if (buttonToggle){
