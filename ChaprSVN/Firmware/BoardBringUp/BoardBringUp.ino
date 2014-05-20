@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <EEPROM.h>
 #include <SoftwareSerial.h>
 #include "settings.h"
 #include "button.h"
@@ -21,6 +22,16 @@ settings myEEPROM;
 
 extern void boardBringUp();	// actually defined below setup down there...
 
+
+void flushSerial()
+{
+  while (Serial.available() > 0){
+    if (Serial.read() == '\r'){
+      break;
+    }
+  }
+}
+
 void setup()
 {
      // bring up the Board!  This basically runs the user through a checking
@@ -35,7 +46,7 @@ void setup()
 
      Serial.println("Please intialize your ChapR.");
 
-     myEEPROM.setDefaults(DEF_NAME, DEF_TIMEOUT, DEF_PERSON, DEF_LAG,
+     myEEPROM.setDefaults(DEF_NAME, DEF_TIMEOUT, DEF_PERSON, DEF_LAG, DEF_MODE,
 			  DEF_AUTOLEN, DEF_TELELEN, DEF_ENDLEN,
 			  DEF_DGTLIN, DEF_ANALOG1, DEF_ANALOG2, DEF_ANALOG3, DEF_ANALOG4);
      myEEPROM.setFromConsole();
@@ -49,23 +60,61 @@ void loop()
 }
 
 
+//
+// getStringFromMonitor() - read a string from the serial monitor.  The data
+//			    is put into the given buffer.  The given size is
+//			    the size of the BUFFER not of the string.  The
+//			    string will have a '\0' termination so the maximum
+//			    string length will be size - 1.
+//
+//			    The neat thing about this routine is that you can
+//			    use a real small buffer and it will only read that
+//			    number of characters from the serial monitor and
+//			    just flush the rest...very efficient!
+//
+int getStringFromMonitor(char *buffer, int size)
+{
+  int index = 0;
+  char incoming;
+  
+  while (index < size){			// only loop through for "size" loops
+       incoming = '\0';
+       if (Serial.available() > 0){
+	    incoming = Serial.read();
+	    if (incoming == '\r'){	// we stop when the user hits return
+		 buffer[index] = '\0';
+		 return index;
+	    }
+	    buffer[index++] = incoming;
+       }
+  }
+  buffer[index - 1] = '\0';		// or we stop when we've run out of buffer
+  flushSerial();			// need to flush until we get the return in this case
+  return size;
+}
+
+
 void hitReturn()
 {
+     char buf[2];
      Serial.println(F("Hit RET to continue"));
+     getStringFromMonitor(buf,2);
 }
 
 
 void boardBringUp()
 {
-     char buf[25];
+     char buf[30];		// needs enough space for the return from VDIP version
 
      extern void software_Reset();
 
-     Serial.println("Beginning board bring-up");
+     Serial.begin(LOCAL_SERIAL_BAUD);	// the serial monitor operates at this BAUD
 
      flushSerial();
 
      buf[0] = ' ';
+
+     Serial.println(F("------ Begin Board Bring-up --------"));
      Serial.print(F("Test prog v"));
      Serial.println(BOARDBRINGUPVERSION);
 
@@ -73,20 +122,20 @@ void boardBringUp()
 
      indicateLED.off();
      powerLED.on();
-     Serial.println(F("Power LED is on..."));
+     Serial.print(F("Power LED is on..."));
      hitReturn();
 
      // testing the indicator (blue) LED
 
      indicateLED.on();
      powerLED.off();
-     Serial.println(F("BT LED is on..."));
+     Serial.print(F("BT LED is on..."));
      hitReturn();
 
      // testing the speaker
      
      indicateLED.off();
-     Serial.println(F("Ready to SQUEEP!"));
+     Serial.print(F("Ready to SQUEEP! "));
      hitReturn();
      beeper.squeep();
 
@@ -99,23 +148,22 @@ void boardBringUp()
      // Check communication to the VDIP and its version
 
      while(true) {
-	  Serial.println(F("VDIP version(3.69)...?"));
+	  Serial.print(F("VDIP version(3.69): "));
 	  for (int i = 0; i < sizeof(buf); i++){
 	       buf[i] ='\0';
 	  }
 	  vdip.cmd(VDIP_FWV, buf, DEFAULTTIMEOUT, 15); //expects 15 bytes back see pg 23 of Viniculum Firmware reference
-	  Serial.print(F("v"));
 	  Serial.println(buf);
-	  Serial.print(F("Enter \"!\" to flash now"));
-	  hitReturn();
+	  Serial.print(F("Enter \"!\" to flash now or RET to continue"));
+	  getStringFromMonitor(buf,2);
 
-	  getStringFromMonitor(buf, 25);
 	  if(buf[0] == '\0' || buf[0] != '!') {
 	       break;		// if return or something other than !, go on with life
 	  }
 
-	  Serial.println(F("Put flash in USB 2; press RETURN."));
-	  getStringFromMonitor(buf, 25);
+	  Serial.println("");
+	  Serial.println(F("Put flash in USB 2;"));
+	  hitReturn();
 
 	  Serial.println(F("15 sec delay (don't do stuff)..."));
 	  vdip.reset();
@@ -123,13 +171,15 @@ void boardBringUp()
 	  vdip.flush(10000);
 	  Serial.print(F("Remove flash; "));
 	  hitReturn();
-	  getStringFromMonitor(buf, 25);
      }
 
      // check communication to the RN-42 and its version
 
-     Serial.println(F("RN-42 version (should be 6.15)...?"));
-     bt.checkVersion();
+     Serial.println("");
+     Serial.print(F("RN-42 version (should be 6.15): "));
+     if(!bt.checkVersion()) {
+	  Serial.println("Connection to RN-42 failed.");
+     }
 
-     Serial.println(F("Done."));
+     Serial.println(F("--------------- Done ----------------"));
 }
