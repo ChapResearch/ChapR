@@ -157,25 +157,6 @@ void setup()
      beeper.confirm();
 }
 
-void enterZombieMode()
-{
-   powerLED.off();
-   indicateLED.off();
-   
-   bt.zombieMode();
-   vdip.zombieMode();
-
-   // turn off the Pro Mini green LED - it is directly connected to pin 13
-   // so turn it off at the very last minute so we don't interfere with whatever
-   // else happens to be connected to pin 13
-
-   digitalWrite(13,LOW);		// turns off the green LED
-
-   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-   sleep_enable();
-   sleep_cpu();
-}
-
 void software_Reset() // Restarts program from beginning but does not reset the peripherals and registers
 {
     myEEPROM.setResetStatus(myEEPROM.getResetStatus()+1); // tell the ChapR it has undergone a software reset
@@ -223,7 +204,6 @@ void loop()
            indicateLED.off();
            beeper.yawn();
            digitalWrite(POWER_ON_HOLD,LOW);
-           enterZombieMode();
        }
      }
 

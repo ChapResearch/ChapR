@@ -278,36 +278,6 @@ void BT::opMode()
      flushReturnData();
 }
 
-void BT::zombieMode()
-{
-     // fire-up auto connect mode and kill 9600 baud
-
-     autoConnectMode(false);
-     baud9600mode(false);
-     begin(BT_OP_BAUD);		// set the SoftwareSerial baud rate appropriately
-
-     // each mode configuration starts with a reset() to ensure that
-     // the latest modes are enabled and baud rates set
-
-     reset();
-
-     // we're in 38400 baud in this case, or should be
-
-     btSend("$$$");		// get into command mode
-
-     delay(30);
-
-     btSend("K,");		// disconnects any connection
-     btSend("\r");
-
-     delay(30);
-
-     btSend("Z");              //enters deep sleep mode
-     btSend("\r");
-
-    flushReturnData();
-}
-
 void BT::autoConnectMode(bool turnOn)
 {
 #ifdef V01
@@ -535,6 +505,43 @@ bool BT::checkVersion()
 
   return true;
 }
+
+//
+// We USED to have a zombie mode when we couldn't turn ourselves off.
+// It would cause use to enter low power mode.
+// The code here, though, may be useful in the future...so it wasn't deleted
+//
+#ifdef NOTDEF
+void BT::zombieMode()
+{
+     // fire-up auto connect mode and kill 9600 baud
+
+     autoConnectMode(false);
+     baud9600mode(false);
+     begin(BT_OP_BAUD);		// set the SoftwareSerial baud rate appropriately
+
+     // each mode configuration starts with a reset() to ensure that
+     // the latest modes are enabled and baud rates set
+
+     reset();
+
+     // we're in 38400 baud in this case, or should be
+
+     btSend("$$$");		// get into command mode
+
+     delay(30);
+
+     btSend("K,");		// disconnects any connection
+     btSend("\r");
+
+     delay(30);
+
+     btSend("Z");              //enters deep sleep mode
+     btSend("\r");
+
+    flushReturnData();
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////
 //  GPIO NOTES

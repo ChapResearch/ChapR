@@ -716,6 +716,13 @@ int VDIP::getJoystick(int num, char *databuf)
 }
 
 //
+// We USED to have a zombie mode when we couldn't turn ourselves off.
+// It would cause use to enter low power mode.
+// The code here, though, may be useful in the future...so it wasn't deleted
+//
+#ifdef NOTDEF
+
+//
 // zombieMode() - enters low-power zombie mode on the VDIP.  There is no
 //		  coming back from this - you have to reset the device.
 //
@@ -725,4 +732,4 @@ void VDIP::zombieMode()
      cmd(VDIP_SUM,NULL,100);
 }
 
-     
+#endif
