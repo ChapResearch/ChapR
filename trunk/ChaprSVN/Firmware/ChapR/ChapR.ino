@@ -73,7 +73,6 @@ Gamepad		g2_prev(2);	// the buffer for the gamepad data before current changes
 bool    inConfigMode; // whether or not the ChapR is in pairing mode
 long    powerTimeout; // how long until the ChapR turns itself off (configured by user)
 int     lag; // changes the delay between loops
-int     mode; // for FTC it means 0 is autonomous and 1 is teleOp
 
 // set to true when the power button is pressed for the first time, which makes sure kill codes
 // aren't sent on power up (and the ChapR isn't turned off by having the power button pressed for
@@ -130,7 +129,6 @@ void setup()
 
      powerTimeout = 60000 * (long) myEEPROM.getTimeout(); //sets the timeout from EEPROM
      lag = myEEPROM.getSpeed(); //sets the lag from EEPROM
-     mode = myEEPROM.getMode();
      
      while(!vdip.sync()) {		// while waiting, update the LED status
 	  powerLED.update();
@@ -203,7 +201,6 @@ void loop()
 	 current_personality = myEEPROM.getPersonality();	// in case the personality changed
 	 powerTimeout = 60000 * (long) myEEPROM.getTimeout();
 	 lag = myEEPROM.getSpeed();
-	 mode = myEEPROM.getMode();
     }
     
      // when we first boot, the power button is pressed in, so ensure that it changes before monitoring it for shutdown
@@ -214,7 +211,7 @@ void loop()
        } else {
 	    if (powerButton.isPressed()) {
 		 // only call kill on the downstroke of the button
-		 personalities[current_personality-1]->Kill(&bt, mode);
+		 personalities[current_personality-1]->Kill(&bt);
 		 pb = true; 
 	    }
        }
@@ -237,20 +234,20 @@ void loop()
      // check each joystick that is connected, and grab a packet of information from it if there is any
      if (g2.update(&vdip)) {
 	  js2 = true;
-	  personalities[current_personality-1]->ChangeInput(&bt, mode, 2,&g2_prev,&g2);
+	  personalities[current_personality-1]->ChangeInput(&bt, 2,&g2_prev,&g2);
 	  g2_prev = g2;
      }
 
      if (g1.update(&vdip)) {
 	  js1 = true;
-	  personalities[current_personality-1]->ChangeInput(&bt,mode,1,&g1_prev,&g1);
+	  personalities[current_personality-1]->ChangeInput(&bt,1,&g1_prev,&g1);
 	  g1_prev = g1;
 
      }
 
      if (theButton.hasChanged()){
 	  wfs = true;
-	  personalities[current_personality-1]->ChangeButton(&bt,mode,theButton.isPressed());
+	  personalities[current_personality-1]->ChangeButton(&bt,theButton.isPressed());
      }
 
      if((loopCount % DEVICE_UPDATE_LOOP_COUNT) == 0) {
@@ -284,7 +281,7 @@ void loop()
 	  indicateLED.slow();
      }
 
-     personalities[current_personality-1]->Loop(&bt,mode,theButton.isPressed(),&g1,&g2);
+     personalities[current_personality-1]->Loop(&bt,theButton.isPressed(),&g1,&g2);
      
      //checks to see if we should enter a power saving mode (if 5 min has passed)
      if (js1 || js2 || wfs || pb){ //if something has happened, make note of the time since boot
@@ -300,10 +297,8 @@ void loop()
      powerLED.update();
      indicateLED.update();
      
-     // allow only a certain number of updates - saves battery
+     // the "5" allow only a certain number of updates - saves battery
      delay(5 + lag);
-
-     //delay(500);
 
      loopCount++;
 }
