@@ -1,5 +1,6 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="13008000">
+	<Property Name="varPersistentID:{EEE746AB-41EF-4381-886F-124A96E8F826}" Type="Ref">/RT CompactRIO Target/Untitled Library 1.lvlib/connection ID</Property>
 	<Item Name="My Computer" Type="My Computer">
 		<Property Name="NI.SortType" Type="Int">3</Property>
 		<Property Name="server.app.propertiesEnabled" Type="Bool">true</Property>
@@ -144,7 +145,7 @@ DirectoryIndex index.htm
 		<Item Name="ChapR cRIO Transmitter.vi" Type="VI" URL="../ChapR cRIO Transmitter.vi"/>
 		<Item Name="ChapR cRIO Translater.vi" Type="VI" URL="../ChapR cRIO Translater.vi"/>
 		<Item Name="Driver Station Packet.ctl" Type="VI" URL="../Driver Station Packet.ctl"/>
-		<Item Name="Untitled Library 1.lvlib" Type="Library" URL="../../TeleOp/Untitled Library 1.lvlib"/>
+		<Item Name="Untitled Library 1.lvlib" Type="Library" URL="../../../../../../../Documents/LabVIEW Data/TeleOp/Untitled Library 1.lvlib"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="Image Type" Type="VI" URL="/&lt;vilib&gt;/vision/Image Controls.llb/Image Type"/>
