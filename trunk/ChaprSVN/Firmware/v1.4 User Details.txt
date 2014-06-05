@@ -1,0 +1,96 @@
+FRC cRIO Compatibility
+
+match behavior - EEPROM saying whether or not you can get into match mode
+match mode - when you hit the pwr button and can then cycle through programs
+
+NOW FUNCTIONS AS A SINGLE PLAYER FCS
+
+case 1:
+     USER: start auto, then hit action button
+     US: enables auto mode, starts the clock and puts you into match mode auto
+     	 when auto times out, tele is started
+     USER: hit action button
+     US: enable tele mode, start the clock, then go through end game and kill program
+case 2:
+     USER: hit action button (w/o a program running)
+     US: lets nothing happen for 30 seconds (some audio feedback), then starts the tele program
+     USER: hit action button
+     US: finish with tele stuff, then end the program
+case 3:
+     
+     
+Switching modes
+     - use red button as a way of switching between modes:
+     - teleOp
+       - takes input from two joysticks
+       - unlimited time in teleOp
+     - matchMode (called practice on Driver Station)
+       - starts with 10 seconds of autnomous, beeping to indicate
+         each second
+       - squeeps and starts teleOp, ending it after 2 min 20 sec
+     - matchConfig.txt
+       - allows user to determine number of seconds in autonomous and teleOp
+       - zero for either mode just skips the mode
+     **clicking red set disabled mode (so matchMode would have to be restarted)	
+     **clicking black toggles disabled mode (matchMode is paused)
+     **if nothing is running when you hit the black button, something starts up
+     **if nothing is running when you hit the red button, it reports your current mode
+     	  **if pressed again in under 2 seconds, the mode will change and be reported
+Send digital inputs
+     - readFromFile("digitalIn.txt")
+       - see options below (all in ASCII)
+       - figure out failure modes
+     - entered into EEPROM as a setting
+     - personality 3 reads EEPROM and sends digital IO
+Send analog inputs -- UPDATE FROM SERIAL MONITOR
+     - readFromFile("analogIn.txt")
+       - see options below (all in ASCII)
+       - figure out failure modes
+     - entered into EEPROM as a setting
+     - personality 3 reads EEPROM and sends analog IO
+       - each of four analog inputs is a U16 (0 to 65535)
+       - interpreted as I16, and multiply by 0.0048875855
+       - empirical study and web research needed
+       - scale on driver station is 0 to 5 (although any values, positive
+         or negative can be entered)
+Toggling wait for start
+In-situ upgrade of EEPROM data
+   - recognizing current(past) EEPROM version, recovering GOOD data translating to new format
+
+User Details
+
+-------------------- dgtlIn.txt ---------------------
+The first line is bit 1 (mirroring the driver's station). Each bit should be separated by a line return. Anything other than zero is considered to be true, so you could theoretically use 'X' instead of '1'. The default values are all zeros.
+
+Example:
+       1
+       1
+       0
+       1
+       1
+       0
+       1
+       0
+
+-------------------- analog.txt ----------------------------
+The first line is the first analog input (mirroring the driver's station). Also like the driver's station, the values range from 0 to 5 (inclusive). However, more precision (TODO) is granted (though it is likely not needed). Any combination of decimal places and insignificant zeros is permitted. The default values are all zeros.
+
+Example:
+       1
+       2.000112
+       3.5
+       4.
+
+-------------------- mConfig.txt -----------------------
+The first line is the length of the autonomous section (in seconds). The second is the length of the teleOp portion (not including the end game), also in seconds. The last line is the length of the end game (also in seconds). Setting a value to 0 will skip that section. The current default values are TODO
+
+Example:
+       0
+       90
+       20
+
+-------------------- canMMode.txt -----------------------
+Determines whether the ChapR enables match cycling. Having it allows the user to change into "match mode" on the ChapR. Anything other than 0 is considered to be true. The default value is 0.
+
+Example:
+       0

@@ -204,6 +204,7 @@ void loop()
            indicateLED.off();
            beeper.yawn();
            digitalWrite(POWER_ON_HOLD,LOW);
+	   exit(0);
        }
      }
 

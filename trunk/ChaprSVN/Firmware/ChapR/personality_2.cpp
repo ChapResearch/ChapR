@@ -35,7 +35,7 @@ void Personality_2::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
      byte	msgbuff[64];	// max size of a BT message
      int	size;
      char       buf[NXT_PRGM_NAME_SIZE];
-     int        mode;           // 0 is auto and 1 is tele (but the defines happen to overlap)
+     int        mode;    // 0 is auto and 1 is tele (but the defines happen to overlap)
 
      if (bt->connected()) {
 
@@ -126,7 +126,7 @@ void Personality_2::ChangeButton(BT *bt, bool button)
        buttonToggle = !buttonToggle;
 
        if (!isInMatchMode()){ // normal operation
-	 if (nxtGetProgramName(bt, buf)){ // no program is running
+	 if (nxtGetProgramName(bt, buf)){ // program is running
 	   (buttonToggle && bt->connected())?beeper.beep():beeper.boop();
 	 } else {
 	   // starts the teleOp program remotely

@@ -37,7 +37,7 @@ int cRIO::createPacket(byte *msgbuff, int cmd, Gamepad *g1, Gamepad *g2)
   msgbuff[size++] = (byte) g1->y1;			           // joystick 1 (left) Y axis 
   msgbuff[size++] = 0;
   msgbuff[size++] = (byte) g1->x2;
-  msgbuff[size++] = (byte) g2->y2;
+  msgbuff[size++] = (byte) g1->y2;
   msgbuff[size++] = (byte) (g2->buttons&0x3f);                     // joystick 2 B0 to B5
   msgbuff[size++] = (byte) g2->x1;			           // joystick 2 (left) X axis
   msgbuff[size++] = (byte) g2->y1;			           // joystick 2 (left) Y axis 
@@ -46,7 +46,7 @@ int cRIO::createPacket(byte *msgbuff, int cmd, Gamepad *g1, Gamepad *g2)
   msgbuff[size++] = (byte) g2->y2;
   msgbuff[size++] = (byte) g2->tophat;
 
-  byte cs = checksum(msgbuff, size);
+  byte cs = checksum(msgbuff + 4, size - 4);
   msgbuff[size++] = cs;
 
   return(size);			// total size of the message going over BT

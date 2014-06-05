@@ -45,21 +45,21 @@ void Personality_0::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
        button = false;
      }
 
-     // override the mode if we have run a program - stays there until a Kill() is called
-
      if (bt->connected()) {
        
        // deals with matchMode switching
-       /*       if (matchMode){
+       if (isInMatchMode()){
 	 if (updateMode()){ // determines if the mode has changed
-	   switch (matchMode){
+	   switch (getMatchMode()){
 	   case AUTO :
+	     mode = AUTO;
 	     break;
 	   case TELE :                     // just became teleOp
 	     if (nxtBTKillCommand(bt)) 
 	       beeper.kill(); 
 	     if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf))
 	       beeper.start();
+	     mode = TELE;
 	     break;
 	   case END :                     // just entered endgame
 	     //beeper.warning(); TODO
@@ -70,7 +70,9 @@ void Personality_0::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
 	     break;
 	   }
 	 }
-	 }*/
+       } else {
+	 mode = myEEPROM.getMode();
+       }
 
        // first convert the gamepad data and button to the robotC structure
        size = robotcTranslate(msgbuff,button,g1,g2, mode);
@@ -95,18 +97,6 @@ void Personality_0::Kill(BT *bt)
      }
   } else { // deal with switching modes if no program running
     swapInMatchMode();
-    /*if (target > 0 && millis() - target <= 3000) // checks to see if the button was pressed twice within 2 seconds
-      matchMode = !matchMode;
-
-    if (matchMode){
-      beeper.select();
-      delay(150);
-      beeper.select();
-    } else {
-      beeper.select();
-    }
-
-    target = millis();*/
   }
 }
 
@@ -120,87 +110,31 @@ void Personality_0::ChangeButton(BT *bt, bool button)
      char  buf[NXT_PRGM_NAME_SIZE];
      char  buf2[NXT_PRGM_NAME_SIZE];
 
-     /*     if (button){ // only executes if the button is in the down position
-	  if (nxtGetProgramName(bt, buf)){
-	            // program is running so the action button functions as a WFS button 
-         // and is handled by the loop call of the personality
-	 buttonToggle = !buttonToggle;
-	 (buttonToggle && bt->connected())?beeper.beep():beeper.boop();
-	 nxtGetChosenProgram(bt, buf2);
-	 if (strcmp(buf, buf2) != 0){ // if the program running is not the teleOp program
-	   if (buttonToggle){
-	     if (autoStart < 0){
-	       autoStart = millis() - (-1*autoStart);
-	       Serial.println("step 3");
-	     } else {
-	       autoStart = millis();
-	       Serial.println("step 1");
-	     }
-	     Serial.print("autoStart");
-	     Serial.println(autoStart);
+     if (button){
 
-	     Serial.println("Just theoretically started auto");
-	   }else {
-	     autoStart = autoStart - millis();
-	     Serial.println("step 2");
-	     }
-	 }else { // teleOp program is running
-	   if (buttonToggle){
-	     if (teleStart < 0){
-	       teleStart = millis() - (-1*teleStart);
-	       Serial.println("t- step 3");
-	     } else {
-	       teleStart = millis();
-	       Serial.println("t- step 1");
-	     }
-	     Serial.print("teleStart");
-	     Serial.println(teleStart);
-
-	     Serial.println("Just theoretically started tele");
-	   }else {
-	     teleStart = teleStart - millis();
-	     Serial.println("t- step 2");
-	     }
+       if (!isInMatchMode()){ // normal operation
+	 if (!nxtGetProgramName(bt, buf)){ // no program is running
+	   // starts the teleOp program remotely
+	   if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf)){
+	     beeper.start();
+	   } else {
+	     beeper.icky();
+	   }
 	 }
-       } else { // no program is running
-	 if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf)){
-	   beeper.start();
-	 } else {
-	   beeper.icky();
+       }
+       else { // pretty much a single player FCS
+	 if (nxtGetProgramName(bt, buf)){ // program is running
+	   nxtGetChosenProgram(bt, buf2);
+	   if (strcmp(buf, buf2) != 0){ // auto is running
+	     beginAuto(); // starts the match cycle at auto (if not already started)
+	   } else { // tele is running
+	     beginTele(); // starts the match cycle at tele (if not already started)
+	     Serial.println("BEGIN TELE!");
+	   }
+	 } else { // no program running
+	   beginAuto(); // waits the auto len even though no program is running
 	 }
-	 buttonToggle = false;	// always starts as false after starting a program
-	 forceMode = true;		// the mode is forced to be teleop until a kill
        }
-     } else {
-       // for this personality, nothing ever happens when the button comes up
-       }*/
-
-
-     /*
-
-
-	    // program is running so the action button functions as a WFS button 
-	    // and is handled by the loop call of the personality
-	    beeper.beep();
-	  } else {
-	    if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf)){
-	      beeper.start();
-	    } else {
-	      beeper.icky();
-	    }
-	    startedProgram = true;
-	    forceMode = true;
-	  }
-     } else {
-       // if the last action triggered by having the button down 
-       // was starting the program, don't make the "down" sound
-       if (startedProgram){
-         startedProgram = false;
-       } else {
-         if (bt->connected()){
-           beeper.boop();
-         }
-       }
-       }*/
+     }
 }
 

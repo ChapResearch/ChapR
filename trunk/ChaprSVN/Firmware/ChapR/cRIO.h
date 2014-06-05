@@ -32,7 +32,7 @@
 // bit 6 : Emergency Stop (0 to stop)                 - 1 (kill switch)
 // bit 7 : Reset                                      - 0
 
-// CRIO_PACKET format
+// CRIO_DATA format
 // dgtl_in : (each bit is an input)                   : 0 FF
 // zero    : (0)                                      : 1
 // analog1 : (double)                                 : 2 FF

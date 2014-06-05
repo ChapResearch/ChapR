@@ -24,12 +24,6 @@ extern sound beeper;
 int    cmd = TELE_OFF;          // specifies which command is being sent to the cRIO (teleop on/off
                                 // or auto on/off)
 bool   buttonToggle = true;
-bool   matchMode2 = false;       // matchMode switches from autonomous to teleOp for the user, as opposed to
-                                // just teleOp, which is unlimited drive practice
-
-long  target2 = -2500;           // used in determining the mode of the ChapR (and dealing with time)
-long  autoStart2;        // TODO
-long  teleStart2;
 
 Personality_3::Personality_3() : startedProgram(false)
 {
@@ -46,17 +40,32 @@ void Personality_3::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
 {
      byte	msgbuff[64];	// max size of a BT message
      int	size;
-     
+
      if (bt->connected()) {
 
        // deals with matchMode switching
-       if (matchMode2){
-	 if (millis() - autoStart2 == myEEPROM.getAutoLen()){
-	   cmd = TELE_ON;
-	   teleStart2 = millis();
-	 }
-	 if (millis() - teleStart2 == myEEPROM.getTeleLen()){
-	   cmd = TELE_OFF;
+       if (isInMatchMode()){
+	 if (updateMode()){ // determines if the mode has changed
+	   switch (getMatchMode()){
+	   case AUTO :                     // just started auto
+	     cmd = AUTO_OFF;    // will be enabled when action button is pressed
+	     Serial.println("----------auto mode-----------");
+	     break;
+	   case TELE :                     // just became teleOp 
+	     if (nxtBTKillCommand(bt)) 
+	       beeper.kill(); 
+	     cmd = TELE_OFF;               // will be enabled when action button is pressed
+	     Serial.println("-----------tele mode---------");
+	     break;
+	   case END :                     // just entered endgame
+	     beeper.confirm();
+	     Serial.println("-----------end mode-------------");
+	     break;
+	   case NONE :                    // just ended everything...
+	     cmd = TELE_OFF;
+	     Serial.println("----------none mode--------");
+	     break;
+	   }
 	 }
        }
 
@@ -69,25 +78,17 @@ void Personality_3::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
 }
 
 void Personality_3::Kill(BT *bt)
-{
-  if (matchMode2){
-    beeper.select();
-    delay(150);
-    beeper.select();
-  } else {
-    beeper.select();
+{  
+  if (cmd == TELE_ON || cmd == AUTO_ON){
+    cmd = TELE_OFF;
+     if (isInMatchMode()){
+       endCycle();
+     }
+  } else { // no program running
+    if (myEEPROM.matchModeIsEnabled()){
+      swapInMatchMode();
+    }
   }
-
-  if (millis() - target2 <= 2000) //checks to see if the button was pressed twice within 2 seconds
-      matchMode2 = !matchMode2;
-
-    target2 = millis();
-
-  /*  if (cmd == TELE_ON || cmd == AUTO_ON){ // if a program is running
-    cmd = E_STOP;
-    beeper.kill();
-    // forceMode = false; <- was in the personality_0 file, but what does it do?
-    }*/
 }
 
 void Personality_3::ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *gnu)
@@ -97,7 +98,7 @@ void Personality_3::ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *gnu)
 
 void Personality_3::ChangeButton(BT *bt, bool button)
 { 
-  if (button){
+  /*  if (button){
     if (buttonToggle){
       if (matchMode2){
 	cmd = AUTO_ON;
@@ -111,5 +112,25 @@ void Personality_3::ChangeButton(BT *bt, bool button)
       beeper.boop();
     }
       buttonToggle = !buttonToggle;
-  }
+      }*/
+     if (button){
+       // swaps buttonToggle
+       buttonToggle = !buttonToggle;
+
+       if (!isInMatchMode()){ // normal operation
+	 cmd = TELE_ON;
+	 (buttonToggle && bt->connected())?beeper.beep():beeper.boop();
+	 buttonToggle = false;	// always starts as false after starting a program
+       }
+       else { // pretty much a single player FCS
+	 if (cmd == AUTO_OFF){ // auto is "running", but not enabled
+	   cmd = AUTO_ON;
+	   beginAuto(); // starts the match cycle at auto (if not already started)
+	 } else if (cmd == TELE_OFF){ // tele is running
+	   cmd = TELE_ON;
+	   beginTele(); // starts the match cycle at tele (if not already started)
+	   Serial.println("BEGIN TELE!");
+	 }
+       }
+     }
 }
