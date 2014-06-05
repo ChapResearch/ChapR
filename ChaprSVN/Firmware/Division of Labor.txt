@@ -4,10 +4,11 @@ Rachel
 	Endgame setting
 	Fix autonomous toggling bug (if possible)
 	Rewrite FRC packet structure (3 "FF"s)
+	Documentation
 
 Coach
 	Blinky indication of match mode (out of sync lights)
 	Driver database completion (fill in more controller options)
 	XBox 360 controller compatibility
-
-*might need to slim down code
+	Testing with other BT/Serial dongles
+	Slim down code

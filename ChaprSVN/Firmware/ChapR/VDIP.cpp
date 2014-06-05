@@ -550,6 +550,13 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
          myEEPROM.setMode(newNum);
          }
        }
+
+       // enable or disable match mode cycling
+
+       if(readFile("canMMode.txt", buf, BIGENOUGH)){
+         bool newVal = (buf[0] == 0)?false:true;
+         myEEPROM.setMatchModeEnable(newVal);
+       }
        
        // allows user to determine number of seconds in autonomous, teleOp and endgame (ChapR3 of EEPROM)
        // zero for either mode skips the mode
@@ -574,14 +581,13 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 	 }
        }
      
-
        // contains the settings for the digital I/O pins (for FRC, aka ChapR3 of EEPROM)
      
        if (readFile("dgtlIn.txt", buf, BIGENOUGH)){
 	 byte newNum = 0;
 	 
 	 for (int i = 0, ptr = 0; i < 8; i++){
-	   byte bit = (buf[ptr] == '1')?1:0;
+	   byte bit = (buf[ptr] == '0')?0:1;
 	   newNum |= bit<<i;
 	   while (buf[ptr] != '\r' && buf[ptr] != '\0' && buf[ptr] != '\n'){
 	     ptr++;

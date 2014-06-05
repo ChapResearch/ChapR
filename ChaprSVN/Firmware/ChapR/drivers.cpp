@@ -66,6 +66,7 @@ struct {
      initFn	init;	// function to init gamepad the first time
 } usbIDTable[] = {
      { 0x0E6F, 0x0401, driverXbox360, initXbox360 },	// the Gamestop Xbox 360 controller
+     { 0x0E6F, 0x0213, driverXbox360, initXbox360 },	// the Afterglow Xbox 360 controller
      { 0x046D, 0xC216, driverF310, (initFn) NULL },	// "dual action" Logitech 310 (3 face buttons) (colored & #'d buttons)
      { 0x046D, 0xC218, driverF310, (initFn) NULL },	// "rumblepad" Logitech 310 (4 face buttons)
      { 0x046D, 0xC214, driverAttack3, (initFn) NULL },	// "attack 3" Logitech

@@ -1,0 +1,34 @@
+ChapR Code v1.4 Release Notes
+
+The next version of C/C++ code for the ChapR device used in controlling robots using Bluetooth. The code now includes compatibility with FIRST Robotics Challenge robots and the ability to cycle through modes for both FTC and FRC robots the way the Field Control/Management Systems (FCS/FMS) do.
+
+FRC Compatible (LabView only)
+ - personality 4 was added to work with FRC robots
+    - this personality interacts with a Bluetooth to Serial converter and our ChapR.vi
+
+Automatically Cycles Between Modes
+ - the use of canMMode.txt (see below) allows the ChapR to simulate the FCS and automatically switch between autonomous and teleOp (and endgame)
+
+Supports More Controllers
+ - now supports XBox 360 controllers and ...
+ - improved framework for later implementation of more drivers
+
+New Settings
+ - dgtlIn.txt   : digital inputs normally inputted in FRC driver station can be set on the ChapR
+ - analogIn.txt : all four analog inputs normally entered in FRC driver station
+ - mConfig.txt  : allows user to set autonomous, teleOp and endgame length
+ - canMMode.txt : enables or disables the use of match mode cycling
+ - targetId.txt : a Bluetooth ID can now be directly given to the ChapR
+
+6.15 USB Cable Fix
+ - version 6.15 of the RN-42 now works properly with first time USB pairing
+
+Refactoring
+ - ChapREEPROM.cpp and ChapREEPROM.h became settings.cpp and settings.h
+ - "mode" as the ChapR setting is now treated as a default that is overriden in the match mode cycling
+   it is set to teleOp by default and is no longer passed around in the personality objects
+ - settings now caches the EEPROM settings to reduce EEPROM wear-and-tear
+
+Known WFS Bug (very minor)
+ - if using ... 
+
