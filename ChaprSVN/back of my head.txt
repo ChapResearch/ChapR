@@ -1,20 +1,11 @@
 SOFTWARE
 
-ADMIN
-Netherlands - 47
-Tuxedo Pandas - 48, 49, 50
-
-figure out last 3 or 4 Chaprs with the lag of 0
-variables are public
-board bring up into second program (and beautify)
-get payment on stuff
+set default mode to teleOp?
+have autoLen etc. change automatically with swapping of personalities?
 
 don't pwr up the chapR when connected to the nxt via USB
-"dudes you need to get a programmer with a kit"
 
 -have 2 people (ugur and skip) reload programs
-
-reload 53 and 54
 
 system of kudos for referring other teams?
 
