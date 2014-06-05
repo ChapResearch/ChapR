@@ -1,6 +1,6 @@
 ChapR Code v1.4 Release Notes
 
-The next version of C/C++ code for the ChapR device used in controlling robots using Bluetooth. The code now includes compatibility with FIRST Robotics Challenge robots and the ability to cycle through modes for both FTC and FRC robots the way the Field Control/Management Systems (FCS/FMS) do.
+The next version of C/C++ code for the ChapR device used in controlling robots using Bluetooth. The code now includes compatibility with FIRST Robotics Challenge (FRC) robots and the ability to cycle through modes for both FIRST Technical Challenge (FTC) and FRC robots the way the Field Control/Management Systems (FCS/FMS) do.
 
 FRC Compatible (LabView only)
  - personality 4 was added to work with FRC robots
@@ -10,7 +10,7 @@ Automatically Cycles Between Modes
  - the use of canMMode.txt (see below) allows the ChapR to simulate the FCS and automatically switch between autonomous and teleOp (and endgame)
 
 Supports More Controllers
- - now supports XBox 360 controllers and ...
+ - now supports XBox 360 controllers and TODO
  - improved framework for later implementation of more drivers
 
 New Settings
@@ -21,7 +21,7 @@ New Settings
  - targetId.txt : a Bluetooth ID can now be directly given to the ChapR
 
 6.15 USB Cable Fix
- - version 6.15 of the RN-42 now works properly with first time USB pairing
+ - version 6.15 of the RN-42 Bluetooth Module now works properly with first time USB pairing
 
 Refactoring
  - ChapREEPROM.cpp and ChapREEPROM.h became settings.cpp and settings.h
@@ -30,5 +30,5 @@ Refactoring
  - settings now caches the EEPROM settings to reduce EEPROM wear-and-tear
 
 Known WFS Bug (very minor)
- - if using ... 
+ - if using TODO
 
