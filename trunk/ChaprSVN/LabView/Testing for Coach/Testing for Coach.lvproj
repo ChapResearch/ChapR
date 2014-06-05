@@ -1,6 +1,5 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="13008000">
-	<Property Name="varPersistentID:{EEE746AB-41EF-4381-886F-124A96E8F826}" Type="Ref">/RT CompactRIO Target/Untitled Library 1.lvlib/connection ID</Property>
 	<Item Name="My Computer" Type="My Computer">
 		<Property Name="NI.SortType" Type="Int">3</Property>
 		<Property Name="server.app.propertiesEnabled" Type="Bool">true</Property>
@@ -30,16 +29,7 @@
 		<Item Name="ChapR Button Translate.vi" Type="VI" URL="../ChapR Button Translate.vi"/>
 		<Item Name="CRC32.vi" Type="VI" URL="../CRC32.vi"/>
 		<Item Name="The ChapR.vi" Type="VI" URL="../The ChapR.vi"/>
-		<Item Name="Dependencies" Type="Dependencies">
-			<Item Name="vi.lib" Type="Folder">
-				<Item Name="VISA Configure Serial Port (Serial Instr).vi" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port (Serial Instr).vi"/>
-				<Item Name="VISA Configure Serial Port (Instr).vi" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port (Instr).vi"/>
-				<Item Name="VISA Configure Serial Port" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port"/>
-			</Item>
-			<Item Name="ChapR Packet.ctl" Type="VI" URL="../ChapR Packet.ctl"/>
-			<Item Name="Driver Station Packet.ctl" Type="VI" URL="../Driver Station Packet.ctl"/>
-			<Item Name="ChapR cRIO Translater.vi" Type="VI" URL="../ChapR cRIO Translater.vi"/>
-		</Item>
+		<Item Name="Dependencies" Type="Dependencies"/>
 		<Item Name="Build Specifications" Type="Build"/>
 	</Item>
 	<Item Name="RT CompactRIO Target" Type="RT CompactRIO">
@@ -141,10 +131,10 @@ DirectoryIndex index.htm
 			<Item Name="Elapsed Times.vi" Type="VI" URL="../Elapsed Times.vi"/>
 		</Item>
 		<Item Name="Robot Main.vi" Type="VI" URL="../Robot Main.vi"/>
-		<Item Name="ChapR Packet.ctl" Type="VI" URL="../ChapR Packet.ctl"/>
+		<Item Name="ChapR Packet.ctl" Type="VI" URL="../../ChapR Code/ChapR Packet.ctl"/>
 		<Item Name="ChapR cRIO Transmitter.vi" Type="VI" URL="../ChapR cRIO Transmitter.vi"/>
-		<Item Name="ChapR cRIO Translater.vi" Type="VI" URL="../ChapR cRIO Translater.vi"/>
-		<Item Name="Driver Station Packet.ctl" Type="VI" URL="../Driver Station Packet.ctl"/>
+		<Item Name="ChapR cRIO Translater.vi" Type="VI" URL="../../ChapR Code/ChapR cRIO Translater.vi"/>
+		<Item Name="Driver Station Packet.ctl" Type="VI" URL="../../ChapR Code/Driver Station Packet.ctl"/>
 		<Item Name="Untitled Library 1.lvlib" Type="Library" URL="../../../../../../../Documents/LabVIEW Data/TeleOp/Untitled Library 1.lvlib"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
@@ -520,9 +510,9 @@ DirectoryIndex index.htm
 				<Item Name="SD Read Name Cache.vi" Type="VI" URL="/&lt;vilib&gt;/Rock Robotics/Network Tables/SD Read Name Cache.vi"/>
 				<Item Name="NT Write String Array.vi" Type="VI" URL="/&lt;vilib&gt;/Rock Robotics/Network Tables/NT Write String Array.vi"/>
 				<Item Name="WPI_DriverStationCreate Lib Version File.vi" Type="VI" URL="/&lt;vilib&gt;/Rock Robotics/WPI/DriverStation/WPI_DriverStationCreate Lib Version File.vi"/>
-				<Item Name="VISA Configure Serial Port" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port"/>
 				<Item Name="VISA Configure Serial Port (Instr).vi" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port (Instr).vi"/>
 				<Item Name="VISA Configure Serial Port (Serial Instr).vi" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port (Serial Instr).vi"/>
+				<Item Name="VISA Configure Serial Port" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port"/>
 			</Item>
 			<Item Name="nivissvc.dll" Type="Document" URL="nivissvc.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
@@ -530,10 +520,10 @@ DirectoryIndex index.htm
 			<Item Name="NiFpgaLv.dll" Type="Document" URL="NiFpgaLv.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
-			<Item Name="ChapR TH Translate.vi" Type="VI" URL="../ChapR TH Translate.vi"/>
-			<Item Name="ChapR Button Translate.vi" Type="VI" URL="../ChapR Button Translate.vi"/>
-			<Item Name="CRC32.vi" Type="VI" URL="../CRC32.vi"/>
-			<Item Name="The ChapR.vi" Type="VI" URL="../The ChapR.vi"/>
+			<Item Name="The ChapR.vi" Type="VI" URL="../../ChapR Code/The ChapR.vi"/>
+			<Item Name="CRC32.vi" Type="VI" URL="../../ChapR Code/CRC32.vi"/>
+			<Item Name="ChapR Button Translate.vi" Type="VI" URL="../../ChapR Code/ChapR Button Translate.vi"/>
+			<Item Name="ChapR TH Translate.vi" Type="VI" URL="../../ChapR Code/ChapR TH Translate.vi"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="FRC Robot Boot-up Deployment" Type="{69A947D5-514E-4E75-818E-69657C0547D8}">
