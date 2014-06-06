@@ -20,7 +20,8 @@ extern settings myEEPROM;
 Personality::Personality():
   pwrTarget(0), autoTarget(0), teleTarget(0), timePassed(0), 
   matchMode(NONE),
-  inMatchMode(false)
+  inMatchMode(false),
+  enabled(false)
 {
 }
 

@@ -262,7 +262,7 @@ void loop()
 	  indicateLED.slow();
      }
 
-     personalities[current_personality-1]->Loop(&bt,theButton.isPressed(),&g1,&g2);
+     personalities[current_personality-1]->Loop(&bt,&g1,&g2);
      
      //checks to see if we should enter a power saving mode (if 5 min has passed)
      if (js1 || js2 || wfs || pb){ //if something has happened, make note of the time since boot

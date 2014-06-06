@@ -46,6 +46,8 @@ class Personality
   long endTarget;             // when the endgame should end (in millis)
   long timePassed;           // used to keep track of time when a mode is paused
 
+  bool enabled;		     // used by all personalities to track when the robot is enabled
+
  public:
 
   Personality();
@@ -57,7 +59,7 @@ class Personality
   //  loop.  NOTE that is up to the personality to decide what to do if the BT is connected
   //  or not.
 
-  virtual void Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2) = 0;
+  virtual void Loop(BT *bt, Gamepad *g1, Gamepad *g2) = 0;
 
   // the ChangeXXXX() interface of the Personality is called whenever there is a change to
   //   the state of the input devices to the ChapR.  While this can be used by all
