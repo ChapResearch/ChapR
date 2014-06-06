@@ -46,8 +46,6 @@ class Personality
   long endTarget;             // when the endgame should end (in millis)
   long timePassed;           // used to keep track of time when a mode is paused
 
-  bool enabled;		     // used by all personalities to track when the robot is enabled
-
  public:
 
   Personality();
@@ -81,7 +79,9 @@ class Personality
   //	  BT is connected or not.
 
   virtual void Kill(BT *bt) = 0;
-     
+
+  bool enabled;		     // used by all personalities to track when the robot is enabled
+
   bool updateMode();
   void swapInMatchMode();
   void beginAuto();
