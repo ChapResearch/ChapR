@@ -8,11 +8,19 @@
 #include "cRIO.h"
 #include "settings.h"
 
-// createPacket() - also translates 
-int cRIO::createPacket(byte *msgbuff, int cmd, Gamepad *g1, Gamepad *g2)
+//
+// createPacket() - create the packet to be sent to the cRIO.
+//		enable = TRUE will enable the program running on the CRIO
+//		mode = TRUE is teleop mode, FALSE is autonomous mode
+//
+int cRIO::createPacket(byte *msgbuff, bool enable, Gamepad *g1, Gamepad *g2, bool mode)
 {
   extern settings myEEPROM;
- 
+
+  // mode is defined as true = teleop and false = autonomous
+
+  int cmd = CRIO_ESTOP(false) | CRIO_ENABLE(enable) | CRIO_TELEOP(mode);
+
   int size = 0;
 
   msgbuff[size++] = 0xff;

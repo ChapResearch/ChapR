@@ -16,11 +16,30 @@
 // data       - the information actually being sent
 // checksum   - verifies that the data sent is accurate (cannot be FF)
 
-#define TELE_OFF                                       64
-#define TELE_ON                                        96
-#define AUTO_OFF                                       80 // potentially obsolete because the cRIO can start teleOp after this mode just fine
-#define AUTO_ON                                       112
-#define E_STOP                                          0
+//#define TELE_OFF                                       64
+//#define TELE_ON                                        96
+//#define AUTO_OFF                                       80 // potentially obsolete because the cRIO can start teleOp after this mode just fine
+//#define AUTO_ON                                       112
+
+// the following values are empirical data gathered from the Driver's Station software
+// representing what it sends when the modes are set.
+
+#define TELE_OFF                                       0x40	//  0100 0000
+#define TELE_ON                                        0x60	//  0110 0000
+#define AUTO_OFF                                       0x50	//  0101 0000
+#define AUTO_ON                                        0x70	//  0111 0000
+#define E_STOP                                         0x00
+
+// These defines are used by createPacket() to compose a command based upon the
+// logical settings of enable and mode (teleop or auto).
+
+#define CRIO_AUTO_BIT	0x10
+#define CRIO_ESTOP_BIT	0x40
+#define CRIO_ENABLE_BIT	0x20
+
+#define CRIO_ESTOP(x)	((x)?0x00:CRIO_ESTOP_BIT)
+#define CRIO_ENABLE(x)	((x)?CRIO_ENABLE_BIT:0x00)
+#define CRIO_TELEOP(x)	((x)?0x00:CRIO_AUTO_BIT)
 
 // CRIO_CMD byte format -- CAN NEVER BE 0xFF!!!!!!!!!!!!
 // bit 0 : FPGA Checksum (unknown use)                - 0
@@ -64,9 +83,9 @@
 class cRIO
 {
  public:
-  int createPacket(byte *msgbuff, int cmd, Gamepad *g1, Gamepad *g2);
+     int createPacket(byte *msgbuff, bool enable, Gamepad *g1, Gamepad *g2, bool mode);
  private:
-  byte checksum(byte *msgbuff, int size);
+     byte checksum(byte *msgbuff, int size);
 
 };
 
