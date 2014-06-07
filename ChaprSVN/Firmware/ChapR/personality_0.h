@@ -21,13 +21,12 @@ class Personality_0 : public Personality
 {
 
 private:
-     bool startedProgram; 	// if true, then the program was just started with the button
 
 public:
      Personality_0();
      virtual void ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *);
      virtual void ChangeButton(BT *bt, bool button);
-     virtual void Loop(BT *bt, bool, Gamepad *, Gamepad *);
+     virtual void Loop(BT *bt, Gamepad *, Gamepad *);
      virtual void Kill(BT *bt);
 };
 
