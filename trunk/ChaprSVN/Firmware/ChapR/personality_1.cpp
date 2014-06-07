@@ -115,7 +115,7 @@ void Personality_1::Kill(BT *bt)
      }
 }
 
-void Personality_1::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
+void Personality_1::Loop(BT *bt, Gamepad *g1, Gamepad *g2)
 {
      // nothing happens here for this personality
 }
