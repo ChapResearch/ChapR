@@ -30,7 +30,7 @@ Personality_0::Personality_0() : startedProgram(false)
 //		appropriately formatted BT message with the translation of
 //		the Gamepads and inclusion of the button.
 //
-void Personality_0::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
+void Personality_0::Loop(BT *bt, Gamepad *g1, Gamepad *g2)
 {
      byte	msgbuff[64];	// max size of a BT message
      int	size;
@@ -40,10 +40,6 @@ void Personality_0::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
      // if the program has just been started, then the button has go up first
      // before it generates the normal "wait for start" - the ChangeButton()
      // deals with reseting the startedProgram
-
-     if(startedProgram) {
-       button = false;
-     }
 
      if (bt->connected()) {
        
@@ -75,7 +71,7 @@ void Personality_0::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
        }
 
        // first convert the gamepad data and button to the robotC structure
-       size = robotcTranslate(msgbuff,button,g1,g2, mode);
+       size = robotcTranslate(msgbuff,enabled,g1,g2, mode);
 
        // then compose a NXT mailbox message (for BT transport) with that data
        // this routine operates within the given buffer.  Note that the
@@ -105,36 +101,48 @@ void Personality_0::ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *gnu)
      // nothing happens here for this personality
 }
 
-void Personality_0::ChangeButton(BT *bt, bool button)
+void Personality_0::ChangeButton(BT *bt, bool buttonIsDown)
 { 
      char  buf[NXT_PRGM_NAME_SIZE];
      char  buf2[NXT_PRGM_NAME_SIZE];
 
-     if (button){
+     if (isInMatchMode()) {
 
-       if (!isInMatchMode()){ // normal operation
-	 if (!nxtGetProgramName(bt, buf)){ // no program is running
-	   // starts the teleOp program remotely
-	   if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf)){
-	     beeper.start();
-	   } else {
-	     beeper.icky();
-	   }
-	 }
-       }
-       else { // pretty much a single player FCS
-	 if (nxtGetProgramName(bt, buf)){ // program is running
-	   nxtGetChosenProgram(bt, buf2);
-	   if (strcmp(buf, buf2) != 0){ // auto is running
-	     beginAuto(); // starts the match cycle at auto (if not already started)
-	   } else { // tele is running
-	     beginTele(); // starts the match cycle at tele (if not already started)
-	     Serial.println("BEGIN TELE!");
-	   }
+	 if (buttonIsDown && nxtGetProgramName(bt, buf)){ // program is running
+	      nxtGetChosenProgram(bt, buf2);
+	      if (strcmp(buf, buf2) != 0){ // auto is running
+		   beginAuto(); // starts the match cycle at auto (if not already started)
+	      } else { // tele is running
+		   beginTele(); // starts the match cycle at tele (if not already started)
+		   Serial.println("BEGIN TELE!");
+	      }
 	 } else { // no program running
-	   beginAuto(); // waits the auto len even though no program is running
+	      beginAuto(); // waits the auto len even though no program is running
 	 }
-       }
+
+     } else { // normal operation here - no match mode
+
+	  // in normal operation, pressing the action button starts a program
+	  // if a program is already running, turn on/off enabled
+
+	  if (buttonIsDown) {
+
+	       // try to get the name of the program running, if there isn't one it returns false
+
+	       if(nxtGetProgramName(bt, buf)){
+		    // program is running so just turn on enabled (in FTC-speak this releases wait-for-start)
+		    enabled = true;
+	       } else {
+		    // no program is running, so try to start it
+		    if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf)){
+			 beeper.start();
+			 enabled = false;		// always start off disabled UNTIL the button goes up & down again
+		    } else {
+			 beeper.icky();
+		    }
+	       }
+	  } else { 		// when the button moves to up it always disables in this personality
+	       enabled = false;
+	  }
      }
 }
-
