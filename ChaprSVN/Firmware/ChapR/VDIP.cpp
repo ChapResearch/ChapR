@@ -609,9 +609,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 	 char *ptr = buf;
 	 for (int i = 0; i < 4; i++){
 	   double value = atof(ptr);
-	   if (value > 0 && value <= 5) {
-	     value = (value*1023)/5;
-		// TODO - translate to labview preferences here
+	   if (value >= 0 && value <= 5) {
 		switch(i) {
 		case 0:		myEEPROM.setAnalogInput1(value); break;
 		case 1:		myEEPROM.setAnalogInput2(value); break;
@@ -619,6 +617,8 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 		case 3:		myEEPROM.setAnalogInput4(value); break;
 		}
 	   }
+	   
+	   // bumping pointer forward to ingore whitespace
 	   while (*ptr != '\r' && *ptr != '\0' && *ptr != '\n'){
 	     ptr++;
 	   }

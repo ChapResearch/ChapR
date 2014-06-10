@@ -3,6 +3,9 @@
 #include "settings.h"
 #include "config.h"
 
+#define FRC_ANALOG_TO_SHORT(a)       ((short) ((a*1023)/5 + 0.5)) // 0.5 makes rounding occur
+#define FRC_SHORT_TO_ANALOG(a)       (((double) a * 5)/1023)
+
 settings::settings()
 {
 }
@@ -83,9 +86,10 @@ int settings::getStringFromMonitor(char *buffer, int size)
 #define PROMPT_BYTE	1
 #define PROMPT_BITS	2
 #define PROMPT_SHORT	3
-
+#define PROMPT_ANALOG   4
 void settings::printCurrentValue(int eAddress, unsigned int max, int type)
 {
+  short num;
      switch(type) {
 
        case PROMPT_STRING:
@@ -99,6 +103,12 @@ void settings::printCurrentValue(int eAddress, unsigned int max, int type)
        case PROMPT_SHORT:
 	  Serial.print(getShort(eAddress));
 	  break;
+
+       case PROMPT_ANALOG:
+          num = getShort(eAddress);
+	  Serial.print(FRC_SHORT_TO_ANALOG(num));
+          break;
+
 
        case PROMPT_BITS:
 	  for (int i=0, d=EEPROM.read(eAddress); i < max; i++) {
@@ -130,6 +140,7 @@ void settings::doSetting(int			 eAddress, 	// EEPROM address of this setting
 #define MAXLINE		50
      char	lineBuffer[MAXLINE];		// just statically set - will cover all read types
      long	num;
+     double     dnum;
      bool	invalid;
      int	i;
 
@@ -162,6 +173,12 @@ void settings::doSetting(int			 eAddress, 	// EEPROM address of this setting
 		 invalid = (num < min || num > max);
 		 break;
 
+	    case PROMPT_ANALOG:
+	         dnum = atof(lineBuffer);
+                 num = FRC_ANALOG_TO_SHORT(dnum);
+		 invalid = (num < min || num > max);
+	         break;
+
 	    case PROMPT_BITS:
 	    case PROMPT_STRING:
 		 invalid = (strlen(lineBuffer) < min || strlen(lineBuffer) > max);
@@ -186,6 +203,7 @@ void settings::doSetting(int			 eAddress, 	// EEPROM address of this setting
 		 break;
 
 	    case PROMPT_SHORT:
+	    case PROMPT_ANALOG:
 		 setShort(eAddress,(short)num);
 		 break;
 
@@ -227,14 +245,18 @@ void settings::setFromConsole()
      doSetting(EEPROM_SPEED,		F("Lag"),                F("0 is none"),              0, 255,   PROMPT_BYTE  );
      doSetting(EEPROM_MODE,		F("Mode"),               F("0 or 1"),                 0, 1,     PROMPT_BYTE  );
      doSetting(EEPROM_DIGITALIN,	F("Digital Inputs"),     F("8 bits from LSB to MSB"), 8, 8,     PROMPT_BITS  );
-     doSetting(EEPROM_ANALOGIN1,	F("Analog Input 1"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
-     doSetting(EEPROM_ANALOGIN2,	F("Analog Input 2"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
-     doSetting(EEPROM_ANALOGIN3,	F("Analog Input 3"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
-     doSetting(EEPROM_ANALOGIN4,	F("Analog Input 4"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+     //doSetting(EEPROM_ANALOGIN1,	F("Analog Input 1"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+     //doSetting(EEPROM_ANALOGIN2,	F("Analog Input 2"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+     //doSetting(EEPROM_ANALOGIN3,	F("Analog Input 3"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+    //doSetting(EEPROM_ANALOGIN4,	F("Analog Input 4"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+     doSetting(EEPROM_ANALOGIN1,	F("Analog Input 1"),     F("from 0.0 to 5.0"),        0, 1023,  PROMPT_ANALOG );
+     doSetting(EEPROM_ANALOGIN2,	F("Analog Input 2"),     F("from 0.0 to 5.0"),        0, 1023,  PROMPT_ANALOG );
+     doSetting(EEPROM_ANALOGIN3,	F("Analog Input 3"),     F("from 0.0 to 5.0"),        0, 1023,  PROMPT_ANALOG );
+     doSetting(EEPROM_ANALOGIN4,	F("Analog Input 4"),     F("from 0.0 to 5.0"),        0, 1023,  PROMPT_ANALOG );
      doSetting(EEPROM_AUTOLEN,		F("Autonomous Length"),  F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
      doSetting(EEPROM_TELELEN,		F("TeleOp Length"),      F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
      doSetting(EEPROM_ENDLEN,		F("Endgame Length"),     F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
-     doSetting(EEPROM_MATCHMODE,	F("matchMode Enabled?"), F("0 for false"),            0,   1,   PROMPT_BYTE  );
+     doSetting(EEPROM_MATCHMODE,	F("MatchMode Enabled"),  F("0 for false"),            0,   1,   PROMPT_BYTE  );
 
      markInitialized();
      loadCache();
@@ -253,10 +275,10 @@ void settings::setDefaults(char *name,
 			      unsigned int   teleLen,
 			      unsigned int   endLen,
 			      unsigned int   dgtl, 
-			      unsigned int   analog1,
-			      unsigned int   analog2,
-			      unsigned int   analog3,
-			      unsigned int   analog4)
+			      double   analog1,
+			      double   analog2,
+			      double   analog3,
+			      double   analog4)
 {
      setName(name);
      setTimeout((byte)timeout);
@@ -402,25 +424,25 @@ byte settings::getDigitalInputs()
   return (dgtlIn);
 }
 
-void settings::setAnalogInput1(short a)
+void settings::setAnalogInput1(double a)
 {
-  analog1 = a;
-  setShort(EEPROM_ANALOGIN1, a);
+  analog1 = FRC_ANALOG_TO_SHORT(a);
+  setShort(EEPROM_ANALOGIN1, analog1);
 }
-void settings::setAnalogInput2(short a)
+void settings::setAnalogInput2(double a)
 {
-  analog2 = a;
-  setShort(EEPROM_ANALOGIN2, a);
+  analog2 = FRC_ANALOG_TO_SHORT(a);
+  setShort(EEPROM_ANALOGIN2, analog2);
 }
-void settings::setAnalogInput3(short a)
+void settings::setAnalogInput3(double a)
 {
-  analog3 = a;
-  setShort(EEPROM_ANALOGIN3, a);
+  analog3 = FRC_ANALOG_TO_SHORT(a);
+  setShort(EEPROM_ANALOGIN3, analog3);
 }
-void settings::setAnalogInput4(short a)
+void settings::setAnalogInput4(double a)
 {
-  analog4 = a;
-  setShort(EEPROM_ANALOGIN4, a);
+  analog4 = FRC_ANALOG_TO_SHORT(a);
+  setShort(EEPROM_ANALOGIN4, analog4);
 }
 
 short settings::getAnalogInput1()

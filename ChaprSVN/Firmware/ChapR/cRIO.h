@@ -20,6 +20,11 @@
 //#define TELE_ON                                        96
 //#define AUTO_OFF                                       80 // potentially obsolete because the cRIO can start teleOp after this mode just fine
 //#define AUTO_ON                                       112
+#define TELE_OFF                                       64 0x40
+#define TELE_ON                                        96 0x60
+#define AUTO_OFF                                       80 0x50// the cRIO can start teleOp after this mode just fine
+#define AUTO_ON                                       112 0x70
+#define E_STOP                                          0
 
 // the following values are empirical data gathered from the Driver's Station software
 // representing what it sends when the modes are set.

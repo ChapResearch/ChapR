@@ -61,11 +61,11 @@ public:
      byte getResetStatus();
      void setDigitalInputs(byte);
      byte getDigitalInputs();
-     void setAnalogInput1(short);
-     void setAnalogInput2(short);
-     void setAnalogInput3(short);
-     void setAnalogInput4(short);
-     short getAnalogInput1();
+     void setAnalogInput1(double);
+     void setAnalogInput2(double);
+     void setAnalogInput3(double);
+     void setAnalogInput4(double);
+     short getAnalogInput1(); // TODO - convert to return doubles
      short getAnalogInput2();
      short getAnalogInput3();
      short getAnalogInput4();
@@ -77,7 +77,7 @@ public:
      byte getAutoLen();
      void setMatchModeEnable(bool);
      bool matchModeIsEnabled();
-     void setDefaults(char *,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int);
+     void setDefaults(char *,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,double,double,double,double);
      void loadCache();
      
  private:

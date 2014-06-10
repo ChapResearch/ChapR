@@ -26,7 +26,7 @@ public:
      Personality_2();
      virtual void ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *);
      virtual void ChangeButton(BT *bt, bool button);
-     virtual void Loop(BT *bt, bool, Gamepad *, Gamepad *);
+     virtual void Loop(BT *bt, Gamepad *, Gamepad *);
      virtual void Kill(BT *bt);
      
 };
