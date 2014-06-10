@@ -28,6 +28,8 @@ public:
      virtual void ChangeButton(BT *bt, bool button);
      virtual void Loop(BT *bt, Gamepad *, Gamepad *);
      virtual void Kill(BT *bt);
+
+     bool buttonToggle;
 };
 
 

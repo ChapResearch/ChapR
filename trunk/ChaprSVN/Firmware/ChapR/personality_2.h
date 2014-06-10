@@ -16,19 +16,13 @@
 #ifndef PERSONALITY_2_H
 #define PERSONALITY_2_H
 
-class Personality_2 : public Personality
+class Personality_2 : public Personality_0
 {
 
 private:
-     bool buttonToggle;		// make the "wait-for-start" into a toggle
 
 public:
      Personality_2();
-     virtual void ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *);
-     virtual void ChangeButton(BT *bt, bool button);
-     virtual void Loop(BT *bt, Gamepad *, Gamepad *);
-     virtual void Kill(BT *bt);
-     
 };
 
 #endif PERSONALITY_2_H
