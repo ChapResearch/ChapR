@@ -102,7 +102,7 @@ void setup()
 
      if (!myEEPROM.isInitialized()){
 	  myEEPROM.setDefaults(DEF_NAME, DEF_TIMEOUT, DEF_PERSON, DEF_LAG, DEF_MODE,
-			       DEF_AUTOLEN, DEF_TELELEN, DEF_ENDLEN,
+			       DEF_FTCAUTOLEN, DEF_FTCTELELEN, DEF_FTCENDLEN,
 			       DEF_DGTLIN, DEF_ANALOG1, DEF_ANALOG2, DEF_ANALOG3, DEF_ANALOG4);
 	  myEEPROM.setFromConsole();
      }		

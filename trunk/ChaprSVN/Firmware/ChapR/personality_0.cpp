@@ -18,8 +18,8 @@
 
 extern sound beeper;
 extern settings myEEPROM;
-
-Personality_0::Personality_0() : startedProgram(false)
+ 
+Personality_0::Personality_0()
 {
     
 }

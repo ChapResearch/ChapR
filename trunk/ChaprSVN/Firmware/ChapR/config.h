@@ -101,12 +101,12 @@
 #define DEF_TIMEOUT            10 // ten minutes
 #define DEF_PERSON             3 // corresponds to LabView personality
 #define DEF_LAG                35
-#define DEF_MODE               0 //autonomous mode
-#define DEF_AUTOLEN            30 // (secs) defaults set for FTC
-#define DEF_TELELEN            60 // (secs)
-#define DEF_ENDLEN             30 // (secs)
+#define DEF_MODE               1 // teleOp mode
+#define DEF_FTCAUTOLEN         30 // (secs) defaults set for FTC
+#define DEF_FTCTELELEN         60 // (secs)
+#define DEF_FTCENDLEN          30 // (secs)
 #define DEF_DGTLIN             0
-#define DEF_ANALOG1            0
-#define DEF_ANALOG2            0
-#define DEF_ANALOG3            0
-#define DEF_ANALOG4            0
+#define DEF_ANALOG1            0.0
+#define DEF_ANALOG2            0.0
+#define DEF_ANALOG3            0.0
+#define DEF_ANALOG4            0.0

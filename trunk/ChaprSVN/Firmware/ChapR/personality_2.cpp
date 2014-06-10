@@ -19,6 +19,8 @@
 extern sound beeper;
 extern settings myEEPROM;
 
+int mode = 0;
+
 Personality_2::Personality_2() : buttonToggle(false)
 {
     
@@ -30,12 +32,12 @@ Personality_2::Personality_2() : buttonToggle(false)
 //		appropriately formatted BT message with the translation of
 //		the Gamepads and inclusion of the button.
 //
-void Personality_2::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
+void Personality_2::Loop(BT *bt, Gamepad *g1, Gamepad *g2)
 {
      byte	msgbuff[64];	// max size of a BT message
      int	size;
      char       buf[NXT_PRGM_NAME_SIZE];
-     int        mode;    // 0 is auto and 1 is tele (but the defines happen to overlap)
+     int        tele;    // 0 is auto and 1 is tele (but the defines happen to overlap)
 
      if (bt->connected()) {
 
@@ -45,7 +47,7 @@ void Personality_2::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
 	   switch (getMatchMode()){
 	   case AUTO :                     // just started auto
 	     mode = AUTO;
-	     Serial.println("----------auto mode-----------");
+	     //	     Serial.println("----------auto mode-----------");
 	     break;
 	   case TELE :                     // just became teleOp
 	     if (nxtBTKillCommand(bt)) 
@@ -54,17 +56,17 @@ void Personality_2::Loop(BT *bt, bool button, Gamepad *g1, Gamepad *g2)
 	       beeper.start();
 	     mode = TELE;
 	     buttonToggle = false;
-	     Serial.println("-----------tele mode---------");
+	     //	     Serial.println("-----------tele mode---------");
 	     break;
 	   case END :                     // just entered endgame
 	     beeper.confirm();
-	     Serial.println("-----------end mode-------------");
+	     //	     Serial.println("-----------end mode-------------");
 	     break;
 	   case NONE :                    // just ended everything...
 	     if (nxtBTKillCommand(bt)) 
 	       beeper.kill(); 
 	     buttonToggle = false;
-	     Serial.println("----------none mode--------");
+	     //	     Serial.println("----------none mode--------");
 	     break;
 	   }
 	 }
@@ -135,7 +137,7 @@ void Personality_2::ChangeButton(BT *bt, bool button)
 	   } else {
 	     beeper.icky();
 	   }
-	   buttonToggle = false;	// always starts as false after starting a program
+	   buttonToggle = false;  // always resets to false if button is pressed and no program running
 	 }
        }
        else { // pretty much a single player FCS
@@ -147,7 +149,7 @@ void Personality_2::ChangeButton(BT *bt, bool button)
 	   } else { // tele is running
 	     buttonToggle = true;
 	     beginTele(); // starts the match cycle at tele (if not already started)
-	     Serial.println("BEGIN TELE!");
+	     //	     Serial.println("BEGIN TELE!");
 	   }
 	 } else { // no program running
 	   beginAuto(); // waits the auto len even though no program is running
