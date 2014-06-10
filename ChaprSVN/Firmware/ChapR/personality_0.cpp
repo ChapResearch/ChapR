@@ -19,9 +19,8 @@
 extern sound beeper;
 extern settings myEEPROM;
  
-Personality_0::Personality_0()
+Personality_0::Personality_0() : buttonToggle(false)
 {
-    
 }
 
 //
@@ -131,7 +130,12 @@ void Personality_0::ChangeButton(BT *bt, bool buttonIsDown)
 
 	       if(nxtGetProgramName(bt, buf)){
 		    // program is running so just turn on enabled (in FTC-speak this releases wait-for-start)
-		    enabled = true;
+		    // (or toggle it in when buttonToggle is set - like in Labview personality)
+		    if(buttonToggle) {
+			 enabled = !enabled;
+		    } else {
+			 enabled = true;
+		    }
 	       } else {
 		    // no program is running, so try to start it
 		    if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf)){
@@ -141,8 +145,10 @@ void Personality_0::ChangeButton(BT *bt, bool buttonIsDown)
 			 beeper.icky();
 		    }
 	       }
-	  } else { 		// when the button moves to up it always disables in this personality
-	       enabled = false;
+	  } else { 		// when the button moves to up, either disable or do nothing when in toggling mode
+	       if(!buttonToggle) {
+		    enabled = false;
+	       }
 	  }
      }
 }
