@@ -1,7 +1,6 @@
 SOFTWARE
 
-set default mode to teleOp?
-have autoLen etc. change automatically with swapping of personalities?
+FTC customers (using personality 3) should press the kill switch after ending their autonomous program (eliminates WFS bug)
 
 don't pwr up the chapR when connected to the nxt via USB
 
