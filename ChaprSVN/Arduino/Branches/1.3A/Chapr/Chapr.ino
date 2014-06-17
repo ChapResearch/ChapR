@@ -101,7 +101,7 @@ void setup()
        Serial.println("Beginning board bring-up");
        myEEPROM.boardBringUp();
        Serial.println("Please intialize your ChapR.");
-       myEEPROM.setFromConsole("ChapRX", (byte) 10, (byte) 3, (byte) 35, (byte) USER_MODE_AUTONOMOUS);
+       myEEPROM.setFromConsole("ChapRX", (byte) 10, (byte) 3, (byte) 35, (byte) USER_MODE_TELEOP);
      }
      
      // checks to see if the ChapR has undergone a software reset, making sure it remembers that
