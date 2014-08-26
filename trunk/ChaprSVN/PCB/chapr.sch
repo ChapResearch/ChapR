@@ -110,7 +110,8 @@
 <pad name="+" x="-2.032" y="0" drill="0.9" shape="square"/>
 <pad name="-" x="2.032" y="0" drill="0.9" shape="square"/>
 </package>
-<package name="PROMINI">
+<package name="PROMININOHEADER">
+<description>The pro-mini Arduino package with no PCB mounting for the programming header.</description>
 <wire x1="-10.16" y1="-0.635" x2="-10.16" y2="0.635" width="0.2032" layer="21"/>
 <wire x1="-10.16" y1="0.635" x2="-9.525" y2="1.27" width="0.2032" layer="21"/>
 <wire x1="-8.255" y1="1.27" x2="-7.62" y2="0.635" width="0.2032" layer="21"/>
@@ -383,19 +384,7 @@
 <wire x1="-8.89" y1="14.605" x2="-8.255" y2="13.97" width="0.2032" layer="21"/>
 <wire x1="-6.985" y1="13.97" x2="-8.255" y2="13.97" width="0.2032" layer="21"/>
 <wire x1="6.35" y1="15.875" x2="6.35" y2="14.605" width="0.2032" layer="21"/>
-<pad name="BLK" x="-7.62" y="15.24" drill="1.016" diameter="1.8796" rot="R90"/>
-<pad name="GND3" x="-5.08" y="15.24" drill="1.016" diameter="1.8796" rot="R90"/>
-<pad name="VCC2" x="-2.54" y="15.24" drill="1.016" diameter="1.8796" rot="R90"/>
-<pad name="RXI2" x="0" y="15.24" drill="1.016" diameter="1.8796" rot="R90"/>
-<pad name="TXO2" x="2.54" y="15.24" drill="1.016" diameter="1.8796" rot="R90"/>
-<pad name="GRN" x="5.08" y="15.24" drill="1.016" diameter="1.8796" rot="R90"/>
 <text x="-8.9662" y="17.0688" size="1.27" layer="25" ratio="10">&gt;NAME</text>
-<rectangle x1="4.826" y1="14.986" x2="5.334" y2="15.494" layer="51"/>
-<rectangle x1="2.286" y1="14.986" x2="2.794" y2="15.494" layer="51"/>
-<rectangle x1="-0.254" y1="14.986" x2="0.254" y2="15.494" layer="51"/>
-<rectangle x1="-2.794" y1="14.986" x2="-2.286" y2="15.494" layer="51"/>
-<rectangle x1="-5.334" y1="14.986" x2="-4.826" y2="15.494" layer="51"/>
-<rectangle x1="-7.874" y1="14.986" x2="-7.366" y2="15.494" layer="51"/>
 <wire x1="-10.414" y1="17.018" x2="8.001" y2="17.018" width="0.127" layer="21"/>
 <wire x1="8.001" y1="17.018" x2="8.001" y2="14.986" width="0.127" layer="21"/>
 <wire x1="8.001" y1="14.986" x2="8.001" y2="-16.891" width="0.127" layer="21"/>
@@ -450,7 +439,7 @@
 <pin name="+" x="-10.16" y="0" length="middle"/>
 <pin name="-" x="10.16" y="0" length="middle" rot="R180"/>
 </symbol>
-<symbol name="PROMINI">
+<symbol name="PROMININOHEADER">
 <wire x1="8.89" y1="-17.78" x2="2.54" y2="-17.78" width="0.4064" layer="94"/>
 <wire x1="6.35" y1="-10.16" x2="7.62" y2="-10.16" width="0.6096" layer="94"/>
 <wire x1="6.35" y1="-12.7" x2="7.62" y2="-12.7" width="0.6096" layer="94"/>
@@ -509,22 +498,6 @@
 <pin name="RST" x="-15.24" y="7.62" visible="pad" length="middle" direction="pas" swaplevel="1"/>
 <pin name="RXI" x="-15.24" y="10.16" visible="pad" length="middle" direction="pas" swaplevel="1"/>
 <pin name="TXO" x="-15.24" y="12.7" visible="pad" length="middle" direction="pas" swaplevel="1"/>
-<wire x1="7.62" y1="24.13" x2="7.62" y2="17.78" width="0.4064" layer="94"/>
-<wire x1="0" y1="21.59" x2="0" y2="22.86" width="0.6096" layer="94"/>
-<wire x1="2.54" y1="21.59" x2="2.54" y2="22.86" width="0.6096" layer="94"/>
-<wire x1="5.08" y1="21.59" x2="5.08" y2="22.86" width="0.6096" layer="94"/>
-<wire x1="-10.16" y1="17.78" x2="7.62" y2="17.78" width="0.4064" layer="94"/>
-<wire x1="7.62" y1="24.13" x2="-10.16" y2="24.13" width="0.4064" layer="94"/>
-<wire x1="-10.16" y1="17.78" x2="-10.16" y2="24.13" width="0.4064" layer="94"/>
-<wire x1="-5.08" y1="21.59" x2="-5.08" y2="22.86" width="0.6096" layer="94"/>
-<wire x1="-2.54" y1="21.59" x2="-2.54" y2="22.86" width="0.6096" layer="94"/>
-<wire x1="-7.62" y1="21.59" x2="-7.62" y2="22.86" width="0.6096" layer="94"/>
-<pin name="GRN" x="5.08" y="27.94" visible="pad" length="middle" direction="pas" swaplevel="1" rot="R270"/>
-<pin name="TXO2" x="2.54" y="27.94" visible="pad" length="middle" direction="pas" swaplevel="1" rot="R270"/>
-<pin name="RXI2" x="0" y="27.94" visible="pad" length="middle" direction="pas" swaplevel="1" rot="R270"/>
-<pin name="VCC2" x="-2.54" y="27.94" visible="pad" length="middle" direction="pas" swaplevel="1" rot="R270"/>
-<pin name="GND3" x="-5.08" y="27.94" visible="pad" length="middle" direction="pas" swaplevel="1" rot="R270"/>
-<pin name="BLK" x="-7.62" y="27.94" visible="pad" length="middle" direction="pas" swaplevel="1" rot="R270"/>
 <wire x1="-12.7" y1="-26.67" x2="-12.7" y2="-20.32" width="0.4064" layer="94"/>
 <wire x1="-7.62" y1="-24.13" x2="-7.62" y2="-25.4" width="0.6096" layer="94"/>
 <wire x1="-10.16" y1="-24.13" x2="-10.16" y2="-25.4" width="0.6096" layer="94"/>
@@ -607,12 +580,12 @@
 </device>
 </devices>
 </deviceset>
-<deviceset name="PROMINI">
+<deviceset name="PROMININOHEADER">
 <gates>
-<gate name="G$1" symbol="PROMINI" x="0" y="0"/>
+<gate name="G$1" symbol="PROMININOHEADER" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="PROMINI">
+<device name="" package="PROMININOHEADER">
 <connects>
 <connect gate="G$1" pin="A0" pad="A0"/>
 <connect gate="G$1" pin="A1" pad="A1"/>
@@ -622,7 +595,6 @@
 <connect gate="G$1" pin="A5" pad="A5"/>
 <connect gate="G$1" pin="A6" pad="A6"/>
 <connect gate="G$1" pin="A7" pad="A7"/>
-<connect gate="G$1" pin="BLK" pad="BLK"/>
 <connect gate="G$1" pin="D10" pad="D10"/>
 <connect gate="G$1" pin="D11" pad="D11"/>
 <connect gate="G$1" pin="D12" pad="D12"/>
@@ -637,17 +609,12 @@
 <connect gate="G$1" pin="D9" pad="D9"/>
 <connect gate="G$1" pin="GND" pad="GND"/>
 <connect gate="G$1" pin="GND2" pad="GND2"/>
-<connect gate="G$1" pin="GND3" pad="GND3"/>
-<connect gate="G$1" pin="GRN" pad="GRN"/>
 <connect gate="G$1" pin="RAWV" pad="RAWV"/>
 <connect gate="G$1" pin="RST" pad="RST"/>
 <connect gate="G$1" pin="RST2" pad="RST2"/>
 <connect gate="G$1" pin="RXI" pad="RXI"/>
-<connect gate="G$1" pin="RXI2" pad="RXI2"/>
 <connect gate="G$1" pin="TXO" pad="TXO"/>
-<connect gate="G$1" pin="TXO2" pad="TXO2"/>
 <connect gate="G$1" pin="VCC" pad="VCC"/>
-<connect gate="G$1" pin="VCC2" pad="VCC2"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -7757,7 +7724,7 @@ http://www.ee.siue.edu/~alozows/library/datasheets/BFR96.pdf</description>
 <part name="PWR-LED" library="led" deviceset="LED" device="3MM"/>
 <part name="R7" library="resistor" deviceset="R-US_" device="0207/10" value="470"/>
 <part name="R8" library="resistor" deviceset="R-US_" device="0207/10" value="470"/>
-<part name="ARDUINO" library="ChapR-Custom" deviceset="PROMINI" device=""/>
+<part name="ARDUINO" library="ChapR-Custom" deviceset="PROMININOHEADER" device=""/>
 <part name="SUPPLY2" library="supply2" deviceset="+9V" device=""/>
 <part name="GND4" library="supply1" deviceset="GND" device=""/>
 <part name="R9" library="resistor" deviceset="R-US_" device="0207/10" value="100"/>
