@@ -407,18 +407,18 @@
 <wire x1="0" y1="2.36" x2="-7.56" y2="2.36" width="0.127" layer="21"/>
 <wire x1="-7.56" y1="2.36" x2="-7.56" y2="15.47" width="0.127" layer="21"/>
 <wire x1="-7.56" y1="15.47" x2="0" y2="15.47" width="0.127" layer="21"/>
-<pad name="P$1" x="40.97" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
-<pad name="P$2" x="38.43" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
-<pad name="P$3" x="35.89" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
-<pad name="P$4" x="33.35" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
-<pad name="P$5" x="30.81" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
-<pad name="P$6" x="28.27" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
-<pad name="P$7" x="25.73" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
-<pad name="P$8" x="23.19" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
-<pad name="P$9" x="20.65" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
-<pad name="P$10" x="18.11" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
-<pad name="P$11" x="15.57" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
-<pad name="P$12" x="13.03" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
+<pad name="P$12" x="40.97" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
+<pad name="P$11" x="38.43" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
+<pad name="P$10" x="35.89" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
+<pad name="P$9" x="33.35" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
+<pad name="P$8" x="30.81" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
+<pad name="P$7" x="28.27" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
+<pad name="P$6" x="25.73" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
+<pad name="P$5" x="23.19" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
+<pad name="P$4" x="20.65" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
+<pad name="P$3" x="18.11" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
+<pad name="P$2" x="15.57" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
+<pad name="P$1" x="13.03" y="1.27" drill="1.1" diameter="1.778" shape="square"/>
 <pad name="P$13" x="40.97" y="16.51" drill="1.1" diameter="1.778" shape="square"/>
 <pad name="P$14" x="38.43" y="16.51" drill="1.1" diameter="1.778" shape="square"/>
 <pad name="P$15" x="35.89" y="16.51" drill="1.1" diameter="1.778" shape="square"/>
@@ -7747,7 +7747,7 @@ http://www.ee.siue.edu/~alozows/library/datasheets/BFR96.pdf</description>
 <part name="T2" library="transistor-neu-to92" deviceset="*-NPN-" device="TO92-EBC" value="3904"/>
 <part name="R17" library="resistor" deviceset="R-US_" device="0207/10" value="24K"/>
 <part name="R16" library="resistor" deviceset="R-US_" device="0207/10" value="24K"/>
-<part name="V2DIP2" library="ChapR-Custom" deviceset="V2DIP2" device=""/>
+<part name="U$1" library="ChapR-Custom" deviceset="V2DIP2" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -7876,9 +7876,7 @@ http://www.ee.siue.edu/~alozows/library/datasheets/BFR96.pdf</description>
 <attribute name="NAME" x="31.9786" y="-26.67" size="1.778" layer="95" rot="R270"/>
 <attribute name="VALUE" x="37.338" y="-26.67" size="1.778" layer="96" rot="R270"/>
 </instance>
-<instance part="V2DIP2" gate="G$1" x="-60.96" y="71.12" smashed="yes">
-<attribute name="NAME" x="-71.12" y="101.6" size="1.778" layer="95"/>
-</instance>
+<instance part="U$1" gate="G$1" x="-60.96" y="71.12"/>
 </instances>
 <busses>
 </busses>
@@ -7971,22 +7969,22 @@ http://www.ee.siue.edu/~alozows/library/datasheets/BFR96.pdf</description>
 <wire x1="35.56" y1="-38.1" x2="35.56" y2="-33.02" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="V2DIP2" gate="G$1" pin="GND1"/>
 <wire x1="-45.72" y1="63.5" x2="-35.56" y2="63.5" width="0.1524" layer="91"/>
 <wire x1="-35.56" y1="63.5" x2="-35.56" y2="58.42" width="0.1524" layer="91"/>
 <pinref part="GND1" gate="1" pin="GND"/>
-<pinref part="V2DIP2" gate="G$1" pin="GND2"/>
 <wire x1="-35.56" y1="58.42" x2="-35.56" y2="53.34" width="0.1524" layer="91"/>
 <wire x1="-35.56" y1="53.34" x2="-35.56" y2="48.26" width="0.1524" layer="91"/>
 <wire x1="-35.56" y1="48.26" x2="-35.56" y2="12.7" width="0.1524" layer="91"/>
 <wire x1="-45.72" y1="58.42" x2="-35.56" y2="58.42" width="0.1524" layer="91"/>
-<pinref part="V2DIP2" gate="G$1" pin="GND3"/>
 <wire x1="-45.72" y1="53.34" x2="-35.56" y2="53.34" width="0.1524" layer="91"/>
 <junction x="-35.56" y="53.34"/>
 <junction x="-35.56" y="58.42"/>
-<pinref part="V2DIP2" gate="G$1" pin="GND4"/>
 <wire x1="-45.72" y1="48.26" x2="-35.56" y2="48.26" width="0.1524" layer="91"/>
 <junction x="-35.56" y="48.26"/>
+<pinref part="U$1" gate="G$1" pin="GND4"/>
+<pinref part="U$1" gate="G$1" pin="GND3"/>
+<pinref part="U$1" gate="G$1" pin="GND2"/>
+<pinref part="U$1" gate="G$1" pin="GND1"/>
 </segment>
 </net>
 <net name="N$6" class="0">
@@ -8177,8 +8175,8 @@ http://www.ee.siue.edu/~alozows/library/datasheets/BFR96.pdf</description>
 <segment>
 <wire x1="-91.44" y1="129.54" x2="-91.44" y2="20.32" width="0.1524" layer="91"/>
 <wire x1="-91.44" y1="20.32" x2="-45.72" y2="20.32" width="0.1524" layer="91"/>
-<pinref part="V2DIP2" gate="G$1" pin="3V3"/>
 <wire x1="-45.72" y1="20.32" x2="-45.72" y2="43.18" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="3V3"/>
 </segment>
 </net>
 <net name="+5V" class="2">
@@ -8195,8 +8193,8 @@ http://www.ee.siue.edu/~alozows/library/datasheets/BFR96.pdf</description>
 <junction x="27.94" y="60.96"/>
 <pinref part="P+1" gate="1" pin="+5V"/>
 <wire x1="-83.82" y1="109.22" x2="-83.82" y2="99.06" width="0.1524" layer="91"/>
-<pinref part="V2DIP2" gate="G$1" pin="5V0"/>
 <wire x1="-83.82" y1="99.06" x2="-76.2" y2="99.06" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="5V0"/>
 </segment>
 </net>
 <net name="N$1" class="0">
@@ -8292,44 +8290,44 @@ http://www.ee.siue.edu/~alozows/library/datasheets/BFR96.pdf</description>
 <wire x1="15.24" y1="40.64" x2="15.24" y2="15.24" width="0.1524" layer="91"/>
 <wire x1="15.24" y1="15.24" x2="-88.9" y2="15.24" width="0.1524" layer="91"/>
 <wire x1="-88.9" y1="15.24" x2="-88.9" y2="68.58" width="0.1524" layer="91"/>
-<pinref part="V2DIP2" gate="G$1" pin="RST"/>
 <wire x1="-88.9" y1="68.58" x2="-76.2" y2="68.58" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="RST"/>
 </segment>
 </net>
 <net name="N$10" class="0">
 <segment>
-<pinref part="V2DIP2" gate="G$1" pin="IOBUS11"/>
 <wire x1="-45.72" y1="68.58" x2="-22.86" y2="68.58" width="0.1524" layer="91"/>
 <wire x1="-22.86" y1="68.58" x2="-22.86" y2="48.26" width="0.1524" layer="91"/>
 <pinref part="ARDUINO" gate="G$1" pin="D6"/>
 <wire x1="-22.86" y1="48.26" x2="-12.7" y2="48.26" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="IOBUS11"/>
 </segment>
 </net>
 <net name="N$11" class="0">
 <segment>
-<pinref part="V2DIP2" gate="G$1" pin="IOBUS10"/>
 <wire x1="-45.72" y1="73.66" x2="-20.32" y2="73.66" width="0.1524" layer="91"/>
 <wire x1="-20.32" y1="73.66" x2="-20.32" y2="45.72" width="0.1524" layer="91"/>
 <pinref part="ARDUINO" gate="G$1" pin="D7"/>
 <wire x1="-20.32" y1="45.72" x2="-12.7" y2="45.72" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="IOBUS10"/>
 </segment>
 </net>
 <net name="N$12" class="0">
 <segment>
-<pinref part="V2DIP2" gate="G$1" pin="IOBUS9"/>
 <wire x1="-45.72" y1="78.74" x2="-17.78" y2="78.74" width="0.1524" layer="91"/>
 <wire x1="-17.78" y1="78.74" x2="-17.78" y2="43.18" width="0.1524" layer="91"/>
 <pinref part="ARDUINO" gate="G$1" pin="D8"/>
 <wire x1="-17.78" y1="43.18" x2="-12.7" y2="43.18" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="IOBUS9"/>
 </segment>
 </net>
 <net name="N$13" class="0">
 <segment>
-<pinref part="V2DIP2" gate="G$1" pin="IOBUS8"/>
 <wire x1="-45.72" y1="83.82" x2="-15.24" y2="83.82" width="0.1524" layer="91"/>
 <wire x1="-15.24" y1="83.82" x2="-15.24" y2="40.64" width="0.1524" layer="91"/>
 <pinref part="ARDUINO" gate="G$1" pin="D9"/>
 <wire x1="-15.24" y1="40.64" x2="-12.7" y2="40.64" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="IOBUS8"/>
 </segment>
 </net>
 </nets>
