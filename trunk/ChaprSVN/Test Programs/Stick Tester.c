@@ -38,7 +38,7 @@ task main()
 
   while (true)
   {
-  	nxtDisplayTextLine(1, "Checking buttons...");
+  	nxtDisplayTextLine(1, "Checking sticks...");
 	  getJoystickSettings(joystick);
 	  checkSticks1(joystick);
 	  checkSticks2(joystick);
