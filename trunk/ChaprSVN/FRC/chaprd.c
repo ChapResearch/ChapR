@@ -9,20 +9,106 @@
 #include <string.h>
 #include <termios.h>
 
-#define CHAPR_PCKT_SIZE 32
+#define CHAPR_PCKT_SIZE 33
 #define DEBUG
 
 typedef struct chapRPacket{
-	int digitalIn;
-	int x1;
-	int y1;
-// TODO - add the rest
+  int cmd;
+  int digitalIn;
+  int zero;
+  int analog1; // two bytes
+  int joy1_TH;
+  int analog2; // two bytes
+  int joy1_B1;
+  int analog3; // two bytes
+  int joy1_B2;
+  int analog4; // two bytes
+  int zero;
+  int joy1_x1;
+  int joy1_y1;
+  int zero;
+  int joy1_x2;
+  int joy1_y2;
+  int joy2_B1;
+  int joy1_x3;
+  int joy1_y3;
+  int zero;
+  int joy2_x1;
+  int joy2_y1;
+  int joy2_B2;
+  int joy2_x2;
+  int joy2_y2;
+  int joy2_TH;
+  int joy2_x3;
+  int joy2_y3;
 } chapRPacket;
 
 typedef struct dsPacket{
-	int x1;
-	int y1;
-// TODO - add the rest
+  int index;
+  int zconst1;
+  int control;
+  int zconst2;
+  int posally;
+  int nconst3;
+  int zconst4;
+  int joy1_x1;
+  int joy1_y1;
+  int joy1_x2;
+  int joy1_y2;
+  int joy1_x3;
+  int joy1_y3;
+  int joy1_B2;
+  int joy1_B1;
+  int nconst6;
+  int zconst7;
+  int joy2_x1;
+  int joy2_y1;
+  int joy2_x2;
+  int joy2_y2;
+  int joy2_x3;
+  int joy2_y3;
+  int joy2_B2;
+  int joy2_B1;
+  int nconst8;
+  int zconst9;
+  int joy3_x1;
+  int joy3_y1;
+  int joy3_x2;
+  int joy3_y2;
+  int joy3_x3;
+  int joy3_y3;
+  int joy3_B2;
+  int joy3_B1;
+  int nconst10;
+  int zconst11;
+  int joy4_x1;
+  int joy4_y1;
+  int joy4_x2;
+  int joy4_y2;
+  int joy4_x3;
+  int joy4_y3;
+  int joy4_B2;
+  int joy4_B1;
+  int nconst12;
+  int zconst13;
+  int joy5_x1;
+  int joy5_y1;
+  int joy5_x2;
+  int joy5_y2;
+  int joy5_x3;
+  int joy5_y3;
+  int joy5_B2;
+  int joy5_B1;
+  int nconst14;
+  int zconst15;
+  int joy6_x1;
+  int joy6_y1;
+  int joy6_x2;
+  int joy6_y2;
+  int joy6_x3;
+  int joy6_y3;
+  int joy6_B2;
+  int joy6_B1;
 } dsPacket;
 
 // TODO - kill signal, logging
@@ -90,8 +176,34 @@ chapRPacket *readChapRPacket(int fd)
 		case 4:
 			checkSum = checkSum & 0x7f;
 			if (checkSum == rawData){
-				cp.digitalIn = (int) buf[0];
-				// TODO - finish these
+			  cp.cmd = (int) buf[0];
+			  cp.digitalIn = (int) buf[1];
+			  // zero
+			  cp.analog1 = (buf[3]<<8)|buf[4]; // TODO
+			  cp.joy1_TH = (int) buf[5];
+			  cp.analog2 = buf[6] & buf[7]; // TODO
+			  cp.joy1_B1 = (int) buf[8];
+			  cp.analog3 = buf[9] & buf[10];
+			  cp.joy1_B2 = (int) buf[11];
+			  cp.analog4 = buf[12] & buf[13];
+			  // zero
+			  cp.joy1_x1 = (int) buf[15];
+			  cp.joy1_y1 = (int) buf[16];
+			  // zero
+			  cp.joy1_x2 = (int) buf[18];
+			  cp.joy1_y2 = (int) buf[19];
+			  cp.joy2_B1 = (int) buf[20];
+			  cp.joy1_x3 = (int) buf[21];
+			  cp.joy1_y3 = (int) buf[22];
+			  // zero
+			  cp.joy2_x1 = (int) buf[24];
+			  cp.joy2_y1 = (int) buf[25];
+			  cp.joy2_B2 = (int) buf[26];
+			  cp.joy2_x2 = (int) buf[27];
+			  cp.joy2_y2 = (int) buf[28];
+			  cp.joy2_TH = (int) buf[29];
+			  cp.joy2_x3 = (int) buf[30];
+			  cp.joy2_y3 = (int) buf[31];
 				return &cp;
 			} else {
 				state = 0;
@@ -107,7 +219,72 @@ chapRPacket *readChapRPacket(int fd)
 dsPacket *translateChapRPacket(chapRPacket *cp)
 {
 	static dsPacket dsp;
-	dsp.x1 = cp->x1;
+	static index = 0;
+	dsp.index = index++;
+	dsp.zconst1 = (int) 0;
+	dsp.control = cp->cmd; 
+	dsp.zconst2 = (int) 0;
+	dsp.posally = (int) 0; //red 1
+	dsp.nconst3 = (int) 9;
+	dsp.zconst4 = (int) 0;
+	dsp.joy1_x1 = cp->joy1_x1;
+	dsp.joy1_y1 = cp->joy1_y1;
+	dsp.joy1_x2 = cp->joy1_x2;
+	dsp.joy1_y2 = cp->joy1_y2;
+	dsp.joy1_x3 = cp->joy1_x3;
+	dsp.joy1_y3 = cp->joy1_y3;
+	dsp.joy1_B2 = cp->joy1_B2;
+	dsp.joy1_B1 = cp->joy1_B1;
+	dsp.nconst6 = (int) 0;
+	dsp.zconst7 = (int) 9;
+	dsp.joy2_x1 = cp->joy2_x1;
+	dsp.joy2_y1 = cp->joy2_y1;
+	dsp.joy2_x2 = cp->joy2_x2;
+	dsp.joy2_y2 = cp->joy2_y2;
+	dsp.joy2_x3 = cp->joy2_x3;
+	dsp.joy2_y3 = cp->joy2_y3;
+	dsp.joy2_B2 = cp->joy2_B2;
+	dsp.joy2_B1 = cp->joy2_B1;
+	dsp.nconst8 = (int) 0;
+	dsp.zconst9 = (int) 9;
+	dsp.joy3_x1 = cp->joy3_x1;
+	dsp.joy3_y1 = cp->joy3_y1;
+	dsp.joy3_x2 = cp->joy3_x2;
+	dsp.joy3_y2 = cp->joy3_y2;
+	dsp.joy3_x3 = cp->joy3_x3;
+	dsp.joy3_y3 = cp->joy3_y3;
+	dsp.joy3_B2 = cp->joy3_B2;
+	dsp.joy3_B1 = cp->joy3_B1;
+	dsp.nconst10 = (int) 9;
+	dsp.zconst11 = (int) 0;
+	dsp.joy4_x1 = cp->joy4_x1;
+	dsp.joy4_y1 = cp->joy4_y1;
+	dsp.joy4_x2 = cp->joy4_x2;
+	dsp.joy4_y2 = cp->joy4_y2;
+	dsp.joy4_x3 = cp->joy4_x3;
+	dsp.joy4_y3 = cp->joy4_y3;
+	dsp.joy4_B2 = cp->joy4_B2;
+	dsp.joy4_B1 = cp->joy4_B1;
+	dsp.nconst12 = (int) 9;
+	dsp.zconst13 = (int) 0;
+	dsp.joy5_x1 = cp->joy5_x1;
+	dsp.joy5_y1 = cp->joy5_y1;
+	dsp.joy5_x2 = cp->joy5_x2;
+	dsp.joy5_y2 = cp->joy5_y2;
+	dsp.joy5_x3 = cp->joy5_x3;
+	dsp.joy5_y3 = cp->joy5_y3;
+	dsp.joy5_B2 = cp->joy5_B2;
+	dsp.joy5_B1 = cp->joy5_B1;
+	dsp.nconst14 = (int) 9;
+	dsp.zconst15 = (int) 0;
+	dsp.joy6_x1 = cp->joy6_x1;
+	dsp.joy6_y1 = cp->joy6_y1;
+	dsp.joy6_x2 = cp->joy6_x2;
+	dsp.joy6_y2 = cp->joy6_y2;
+	dsp.joy6_x3 = cp->joy6_x3;
+	dsp.joy6_y3 = cp->joy6_y3;
+	dsp.joy6_B2 = cp->joy6_B2;
+	dsp.joy6_B1 = cp->joy6_B1;
 	return &dsp;
 }
 
