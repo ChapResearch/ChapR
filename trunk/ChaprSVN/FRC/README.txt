@@ -8,7 +8,7 @@ program for the roborio.
 
 To transfer to the roborio:
 
-   scp chaprd admin@(ip address):/tmp
+   sshpass -p "" scp chaprd admin@169.254.105.70:/tmp
 
 This uses ssh to transfer the chaprd program to the /tmp directory
 of the roborio identified by the (ip address).  The "admin@" part
