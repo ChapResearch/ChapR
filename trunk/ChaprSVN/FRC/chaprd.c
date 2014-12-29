@@ -48,7 +48,8 @@ typedef struct chapRPacket{
 } chapRPacket;
 
 typedef struct dsPacket{
-  int index;
+  int indexm;
+  int indexl;
   int zconst1;
   int control;
   int zconst2;
@@ -160,22 +161,25 @@ chapRPacket *readChapRPacket(int fd)
 	int count = 0;
 
 	while (1){
-		int error = read(fd, (void *) &rawData, 1);
+	  int error = read(fd, (void *) &rawData, 1);
 		if (error < 0){
 			debug_int("read error:", error);
 			exit (1);
 			return (chapRPacket *) NULL;
 		}
 		if (error == 0){
+		  debug_string("yikes","");
 			continue;
 		}
-//		debug_int("data:", rawData);
+		debug_int("", (int) rawData);
 		switch (state){
 		case 0:
  		case 1:
 		case 2:
 			if (rawData == 0xff){
 				state++;
+				checkSum = 0;
+				count = 0;
 			} else {
 				state = 0;
 			}
@@ -213,6 +217,7 @@ chapRPacket *readChapRPacket(int fd)
 			  cp.joy1_y3 = (int) buf[22];
 			  // zero
 			  cp.joy2_x1 = (int) buf[24];
+			  debug_int("x1", buf[24]);
 			  cp.joy2_y1 = (int) buf[25];
 			  cp.joy2_B2 = (int) buf[26];
 			  cp.joy2_x2 = (int) buf[27];
@@ -223,6 +228,7 @@ chapRPacket *readChapRPacket(int fd)
 			  return &cp;
 
 			} else {
+			  debug_string("g", "");
 				state = 0;
 			}
 			break;
@@ -237,9 +243,11 @@ chapRPacket *readChapRPacket(int fd)
 dsPacket *translateChapRPacket(chapRPacket *cp)
 {
 	static dsPacket dsp;
-	static index = 0;
+	static int index = 0;
+	index++;
 
-	dsp.index = index++;
+	dsp.indexm = (int) ((index & 0xff00)>>8);
+	dsp.indexl = (int) (index & 0xff);
 	dsp.zconst1 = (int) 0;
 	dsp.control = cp->cmd; 
 	dsp.zconst2 = (int) 0;
@@ -319,7 +327,8 @@ int flattenDSPacket(unsigned char *buffer,dsPacket *dsp)
 {
 	int i = 0;
 
-	buffer[i++] = (unsigned char) dsp->index;
+	buffer[i++] = (unsigned char) dsp->indexm;
+	buffer[i++] = (unsigned char) dsp->indexl;
 	buffer[i++] = (unsigned char) dsp->zconst1;
 	buffer[i++] = (unsigned char) dsp->control;
 	buffer[i++] = (unsigned char) dsp->zconst2;
@@ -456,7 +465,7 @@ int openUSBPort(){
 	struct termios t;
 	
 	t.c_iflag = IGNBRK | IGNPAR;
-	t.c_cflag = CS8 | CREAD | CLOCAL | B115200;
+	t.c_cflag = CS8 | CREAD | CLOCAL | B57600;
 
 	while (1){
 		for (i = 0; i < 2; i++){
