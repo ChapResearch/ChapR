@@ -161,17 +161,20 @@ chapRPacket *readChapRPacket(int fd)
 	int count = 0;
 
 	while (1){
-	  int error = read(fd, (void *) &rawData, 1);
-		if (error < 0){
-			debug_int("read error:", error);
-			exit (1);
-			return (chapRPacket *) NULL;
+	  int rval = read(fd, (void *) &rawData, 1);
+		if (rval <= 0){
+		  if (rval == 0){
+		    debug_int("zero rval:", errno);
+		    if (errno == ENOENT){ // file descriptor is no longer valid
+		      debug_int("bad f:", errno);
+		      return (chapRPacket *) NULL;
+		    } else {
+		      continue;
+		    }
+		  }
+		  debug_int("goodbye cruel world...:", errno);
+		  exit(1);
 		}
-		if (error == 0){
-		  debug_string("yikes","");
-			continue;
-		}
-		debug_int("", (int) rawData);
 		switch (state){
 		case 0:
  		case 1:
@@ -217,7 +220,6 @@ chapRPacket *readChapRPacket(int fd)
 			  cp.joy1_y3 = (int) buf[22];
 			  // zero
 			  cp.joy2_x1 = (int) buf[24];
-			  debug_int("x1", buf[24]);
 			  cp.joy2_y1 = (int) buf[25];
 			  cp.joy2_B2 = (int) buf[26];
 			  cp.joy2_x2 = (int) buf[27];
@@ -262,8 +264,8 @@ dsPacket *translateChapRPacket(chapRPacket *cp)
 	dsp.joy1_y3 = cp->joy1_y3;
 	dsp.joy1_B2 = cp->joy1_B2;
 	dsp.joy1_B1 = cp->joy1_B1;
-	dsp.nconst6 = (int) 0;
-	dsp.zconst7 = (int) 9;
+	dsp.nconst6 = (int) 9;
+	dsp.zconst7 = (int) 0;
 	dsp.joy2_x1 = cp->joy2_x1;
 	dsp.joy2_y1 = cp->joy2_y1;
 	dsp.joy2_x2 = cp->joy2_x2;
@@ -459,13 +461,13 @@ int openSocket(char *address, int port)
 //
 int openUSBPort(){
 	struct stat buf;
-	char *ports[2] = {"/dev/ttyUSB0","/dev/ttyUSB1"};
+	char *ports[2] = {"/dev/ttyUSB0","/dev/ttyUSB1"}; // TODO - add S1???
 	int i;
 	int fd;
 	struct termios t;
 	
 	t.c_iflag = IGNBRK | IGNPAR;
-	t.c_cflag = CS8 | CREAD | CLOCAL | B57600;
+	t.c_cflag = CS8 | CREAD | CLOCAL | B38400;
 
 	while (1){
 		for (i = 0; i < 2; i++){
@@ -562,14 +564,16 @@ int main(void) {
 			// translate ChapR packet
 			cp = readChapRPacket(fd);
 			if (cp == NULL){
-				break; // the USB port was closed somehow
+			  break; // the USB port was closed somehow
 			}		
 			dsp = translateChapRPacket(cp);
 			if (dsp != NULL){
 				sendPacket(sd,hp,dsp);
 			}
-			// serial loopback?
 		}	
+		close(fd);
+		debug_int("just closed: ", fd);
+		sleep(10);
 	}
 
 	exit(EXIT_SUCCESS);
