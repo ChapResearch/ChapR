@@ -14,7 +14,6 @@
 #include <arpa/inet.h> 
 
 #define CHAPR_PCKT_SIZE 33
-#define DEBUG
 
 typedef struct chapRPacket{
   int cmd;

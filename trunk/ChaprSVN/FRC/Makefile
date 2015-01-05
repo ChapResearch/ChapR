@@ -1,0 +1,46 @@
+#
+# Makefile for chaprd deamon
+#
+#  These targets are supported:
+#	clean - cleans up temporary files
+#	cdebug - creates a debugging version of chaprd, which is named "cdebug"
+#	chaprd - creates the REAL version of the chaprd
+#	install - creates the installation file
+#
+
+#
+# Standard C settings and flags that we are using
+#
+CC=arm-frc-linux-gnueabi-gcc
+STRIP=arm-frc-linux-gnueabi-strip
+
+all: install_chaprd
+
+chaprd: chaprd.c
+	$(CC) -o chaprd chaprd.c
+
+chaprd.stripped: chaprd
+	cp -f chaprd chaprd.stripped
+	$(STRIP) chaprd.stripped
+
+cdebug: chaprd.c
+	$(CC) -DDEBUG -o cdebug chaprd.c
+
+install_chaprd:	inst_template.sh chaprd.sh.uu chaprd.uu
+	sed -e '1,/^---- cut here ----/d' \
+	    -e '/\[CHAPRBINARY\]/ r chaprd.uu' \
+	    -e '/\[CHAPRINIT\]/ r chaprd.sh.uu' \
+	    -e '/\[CHAPRBINARY\]/d' \
+	    -e '/\[CHAPRINIT\]/d' < inst_template.sh > install_chaprd
+
+chaprd.uu: chaprd.stripped
+	uuencode chaprd < chaprd.stripped > chaprd.uu
+
+chaprd.sh.uu: chaprd.sh
+	uuencode chaprd.sh < chaprd.sh > chaprd.sh.uu
+
+clean:
+	rm -f chaprd cdebug install_chaprd chaprd.uu chaprd.sh.uu chaprd.stripped install_chaprd
+
+realclean: clean
+	rm -f *~
