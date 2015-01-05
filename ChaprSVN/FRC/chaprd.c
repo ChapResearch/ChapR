@@ -154,6 +154,7 @@ chapRPacket *readChapRPacket(int fd)
 {
 	static chapRPacket cp;
 	unsigned char buf[50]; // overkill, but no one cares
+	struct stat sbuf;
 	unsigned char rawData;
 	int state = 0;
 	int checkSum = 0;
@@ -161,19 +162,18 @@ chapRPacket *readChapRPacket(int fd)
 
 	while (1){
 	  int rval = read(fd, (void *) &rawData, 1);
-		if (rval <= 0){
-		  if (rval == 0){
-		    debug_int("zero rval:", errno);
-		    if (errno == ENOENT){ // file descriptor is no longer valid
-		      debug_int("bad f:", errno);
-		      return (chapRPacket *) NULL;
-		    } else {
-		      continue;
-		    }
-		  }
-		  debug_int("goodbye cruel world...:", errno);
-		  exit(1);
-		}
+	  if (rval < 0){
+	    debug_int("goodbye cruel world...:", errno);
+	    exit(1);
+	  }
+	  else if (rval == 0){
+	      return (chapRPacket *) NULL;
+	  }
+	  else {
+	    debug_int("pos rval:", errno);
+	    debug_int("rval:", rawData);
+	  }
+	  sleep(1);
 		switch (state){
 		case 0:
  		case 1:
@@ -475,6 +475,7 @@ int openUSBPort(){
 			if (stat(ports[i], &buf) == 0){
 				debug_string("opened port:", ports[i]);
 				fd = open(ports[i], O_RDONLY);				
+				debug_int("stat: ", buf.st_dev);
 				tcsetattr(fd, TCSANOW, &t);
 				return fd;
 			}			
@@ -565,6 +566,7 @@ int main(void) {
 			if (cp == NULL){
 			  break; // the USB port was closed somehow
 			}		
+			debug_string("sending", "");
 			dsp = translateChapRPacket(cp);
 			if (dsp != NULL){
 				sendPacket(sd,hp,dsp);
