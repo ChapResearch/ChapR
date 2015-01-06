@@ -29,7 +29,8 @@ void setup(){
 //ALL FRUIT MUST BE PUT ON THE PINS WITH NUMBERS THE SAME AS THEIR SOUND FILE NUMMBERS//
 ////////////////////////////////////////////////////////////////////////////////////////
 #define NUMFRUITS 2
-int gameType = 0; //1-classic,2-Simon,3-team
+int gameType = -1; //1-classic,2-Simon,3-team
+boolean pressStart = true;
 
 
 //team
@@ -42,9 +43,11 @@ void loop(){
         Serial.print("Press and hold any fruit to continue"); //play pressmesound
         playPressAndHold();
         delay(10000);
-        if(readTouchInputs() != -1){ // if anything is touched by this time
-            gameType = readTouchInputs + 1;
+        gameType = readTouchInputs() + 1;
+        if(gameType != 0){
+          // if anything is touched by this time
             pressStart = false;
+            Serial.print(gameType);
         }
     }else{
         if(gameType == 1){
@@ -76,7 +79,6 @@ int hardness = 10000; //ten seconds to touch
 int score = 0;
 int strikes = 0;
 boolean win = false; 
-boolean pressStart = true;
 int pinTouched;
 int highscore = 1;
 //
@@ -225,25 +227,25 @@ void checkClassic(){
 
 void checkSimon(){
   if(strikes1 == 6){
-    if(level > highscore1){  
+    if(level > highScore1){  
       playNoise('g', 5);//game over
       Serial.println("You got too many wrong! Game Over. But you got a highscore?");
       Serial.print("Score: ");
       Serial.print(level);
-      highscore1 = level;
-      pressToStart = true;
+      highScore1 = level;
+      pressStart = true;
       delay(6000);
     }else{
       Serial.println("You got too many wrong! Game Over.");
       Serial.print("Score: ");
       Serial.print(level);
-      pressToStart = true;
+      pressStart = true;
       playNoise('g', 5);//game over
       delay(6000);
     }
   }
   if(level == 20){
-    if(level > highscore1){  
+    if(level > highScore1){  
       playNoise('g',1); //you win
       Serial.println("YAY you win. AND you got a highscore");
       Serial.print("Score: ");
@@ -251,8 +253,8 @@ void checkSimon(){
       Serial.print(level);
       playNoise('g',3); //your new high score is
       delay(2000);
-      highscore1 = level;
-      pressToStart = true;
+      highScore1 = level;
+      pressStart = true;
     }else{
       Serial.println("YAY you win!");
       Serial.print("Score: ");
@@ -261,7 +263,7 @@ void checkSimon(){
       //playScore(score);
       Serial.println(level);
       delay(500);
-      pressToStart = true;
+      pressStart = true;
     }
   }
   if(levelUp){
@@ -271,7 +273,7 @@ void checkSimon(){
   }
 }
 
-void checktTeam(){
+void checkTeam(){
   
 }
 
