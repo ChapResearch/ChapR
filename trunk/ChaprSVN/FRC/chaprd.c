@@ -169,11 +169,6 @@ chapRPacket *readChapRPacket(int fd)
 	  else if (rval == 0){
 	      return (chapRPacket *) NULL;
 	  }
-	  else {
-	    debug_int("pos rval:", errno);
-	    debug_int("rval:", rawData);
-	  }
-	  sleep(1);
 		switch (state){
 		case 0:
  		case 1:

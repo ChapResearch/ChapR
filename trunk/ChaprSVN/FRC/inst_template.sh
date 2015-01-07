@@ -18,12 +18,12 @@ the trigger for the end of deleting. Same with the previous line. :-)
 cd /tmp
 
 echo "Creating chaprd binary program..."
-uudecode <<EOF
+uudecode <<""EOF
 [CHAPRBINARY]
 EOF
 
 echo "Creating chaprd init script..."
-uudecode <<EOF
+uudecode <<""EOF
 [CHAPRINIT]
 EOF
 
@@ -32,8 +32,8 @@ mv chaprd /usr/sbin
 mv chaprd.sh /etc/init.d
 
 echo "Ensuring correct permissions..."
-chown admin.admin /usr/sbin/chaprd /etc/init.d
-chmod 750 /usr/sbin/chaprd /etc/init.d
+chown admin.administrators /usr/sbin/chaprd /etc/init.d/chaprd.sh
+chmod 750 /usr/sbin/chaprd /etc/init.d/chaprd.sh
 
 echo "Creating init links..."
 ln -s /etc/init.d/chaprd.sh /etc/rc5.d/S37chaprd
