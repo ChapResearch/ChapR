@@ -19,7 +19,7 @@ extern sound beeper;
 //#define HAVE_JOY2	(_p2 && _p2_dev != -1 && !(_p2_devtype & CLASS_BOMS) )
 
 // turn this on for some useful debugging code
-//#define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
 void DEBUG_PORT_CONFIG(portConfig *config)
