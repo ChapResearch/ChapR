@@ -100,6 +100,8 @@ public:
      int		y1;		// left stick Y reading (-128 to 127, -128 is to the top)
      int		x2;		// right stick X reading (-128 to 127, -128 is to the left)
      int		y2;		// right stick Y reading (-128 to 127, -128 is to the top)
+     int		x3;		// misc axis reading (-128 to 127, -128 is to the left)
+     int		y3;		// misc axis reading (-128 to 127, -128 is to the top)
      unsigned int	tophat;		// 0 if nothing pressed, 1 thru 8 for N, NE, E, etc... (clockwise)
      unsigned int	buttons;	// buttons & 0x01 is button 1, 0x02 is 2, 0x04 is 3, 0x08 is 4, etc.
 

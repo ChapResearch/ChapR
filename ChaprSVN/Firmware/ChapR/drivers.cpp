@@ -67,6 +67,7 @@ struct {
 } usbIDTable[] = {
      { 0x0E6F, 0x0401, driverXbox360, initXbox360 },	// the Gamestop Xbox 360 controller
      { 0x0E6F, 0x0213, driverXbox360, initXbox360 },	// the Afterglow Xbox 360 controller
+     { 0x045E, 0x028E, driverXbox360, initXbox360 },	// the Microsoft Xbox 360 controller
      { 0x046D, 0xC216, driverF310, (initFn) NULL },	// "dual action" Logitech 310 (3 face buttons) (colored & #'d buttons)
      { 0x046D, 0xC218, driverF310, (initFn) NULL },	// "rumblepad" Logitech 310 (4 face buttons)
      { 0x046D, 0xC214, driverAttack3, (initFn) NULL },	// "attack 3" Logitech
@@ -103,7 +104,7 @@ bool driverAttack3(byte *data, int count, Gamepad &target)
 
      target.x1 = ((int)(data[0]))-128;	// joystick 1 (left) X axis 
      target.y1 = ((int)(data[1]))-128;	// joystick 1 (left) Y axis 
-     target.y2 = ((int)(data[2]))-128;	// analog adjustment on bottom
+     target.x2 = ((int)(data[2]))-128;	// analog adjustment on bottom
 
      target.buttons = data[3];			// start by just copying first 8 buttons
      target.buttons |= ((int)data[4]) << 8;	// then put in others
@@ -247,33 +248,45 @@ bool driverXbox360(byte *data, int count, Gamepad &target)
 
      target.x1 = data[7];		// data[6] has more resolution for x1 - ignored
      target.y1 = data[9] ^ 0xff;	// data[8] has more resolution for y1 - ignored
-     target.x2 = data[11];		// data[10] has more resolution for x2 - ignored
-     target.y2 = data[13] ^ 0xff;	// data[12] has more resolution for y2 - ignored
+     target.x3 = data[11];		// data[10] has more resolution for x2 - ignored
+     target.y3 = data[13] ^ 0xff;	// data[12] has more resolution for y2 - ignored
 
      // now to translate the buttons appropriately
 
-     target.buttons = 0;
+     target.buttons = data[3]>>4;
+    
+     /*target.buttons = 0;
      target.buttons |= (data[3] & 0x10)>>3;	// xbox S --> B2
      target.buttons |= (data[3] & 0x20)>>3;	// xbox E --> B3
      target.buttons |= (data[3] & 0x40)>>6;	// xbox W --> B1
      target.buttons |= (data[3] & 0x80)>>4;	// xbox N --> B4
-
+*/
      target.buttons |= (data[3] & 0x03)<<4;	// grab the two near shoulder buttons
 
      // the two far shoulder buttons on the xbox 360 are analog, so interpret them
 
-     if(data[4] > 0x7f) {
+     target.x2 = data[4];
+     Serial.print("x2: ");
+     Serial.println(target.x2);
+     target.y2 = data[5]; //^ 0xff
+     Serial.print("y2: ");
+     Serial.println(target.y2);
+
+     // old way of translating triggers to buttons    
+
+     /*if(data[4] > 0x7f) {
 	  target.buttons |= 0x40;
      }
      if(data[5] > 0x7f) {
 	  target.buttons |= 0x80;
-     }
+     }*/
 
-     target.buttons |= ((int)(data[2] & 0x30)) << 4;	// get two face buttons
+     target.buttons |= ((int)(data[2] & 0x20)) << 1;	// get back button
+     target.buttons |= ((int)(data[2] & 0x10)) << 3;	// get start button
+    
+     target.buttons |= ((int)(data[2] & 0xc0)) << 2;	// get two joystick buttons
 
-     target.buttons |= ((int)(data[2] & 0xc0)) << 4;	// get two joystick buttons
-
-     target.buttons |= ((int)(data[3] &0x04)) << 10;	// get the big X
+     //target.buttons |= ((int)(data[3] &0x04)) << 10;	// get the big X
 
      // tophat is really different.  the four major compass points are the major
      // LSB bits, and when combined they just AND together for the minor points.
@@ -285,6 +298,9 @@ bool driverXbox360(byte *data, int count, Gamepad &target)
      //			 |
      //			 v
      //               0x02 (S)
+     
+     Serial.print("final: ");
+     Serial.println(target.buttons);
 
      switch(data[2]) {
      case 0x01:	target.tophat = 1; break;
