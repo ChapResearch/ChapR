@@ -68,14 +68,17 @@ typedef enum vcmd {
      VDIP_SUM,			// suspend monitor (low power mode)
      VDIP_OPR,                  // open a file for reading
      VDIP_RDF,                  // read from file (specifies how many bytes)
-     VDIP_CLF,                  //closes the currently open file
-     VDIP_FWV                   //returns the firmware version
+     VDIP_CLF,                  // closes the currently open file
+     VDIP_FWV,                  // returns the firmware version
+     VDIP_FBD,                  // changes the BAUD rate to 115200 for FTDI
+     VDIP_SF                    // set incoming logical dev to FTDI
 } vdipcmd;
 
 typedef enum _deviceType {
      DEVICE_UNKNOWN,
      DEVICE_CONTROLLER,
      DEVICE_DISK,
+     DEVICE_FIREPLUG,
      DEVICE_NXT
 } deviceType;
 
@@ -107,6 +110,7 @@ public:
      int portCmd(int port, vdipcmd, char *rbuf, int timeout, int arg = 0);
      void reset();
      bool portConnection(int,int*,unsigned short *,unsigned short *);
+     bool firePlugBtId(VDIP *vdip, int usbDev, char **btAddress);
 
 private:
      uint8_t _resetPin;
@@ -121,6 +125,8 @@ private:
      bool readFile(char *name, char *buf, byte numToRead, bool lineOnly = false);
      void processDisk(portConfig *portConfigBuffer);
      void ejectDisk();
+     void processFirePlug(portConfig *portConfigBuffer);
+     void ejectFirePlug();
      void processNXT(portConfig *);
      void ejectNXT();
      void init();
