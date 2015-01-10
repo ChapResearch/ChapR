@@ -8,6 +8,9 @@
 #ifndef RIO_H
 #define RIO_H
 
+#include "VDIP.h"
+#include "gamepad.h"
+
 // General Structure - 30 bytes total
 // sync bytes - three 0xFFs (the following data is organized so that 
 //              it is "impossible" to ever get three FFs in a row (if
@@ -101,6 +104,8 @@ class RIO
 {
  public:
   int createPacket(byte *msgbuff, bool enable, Gamepad *g1, Gamepad *g2, bool mode, bool isRoboRIO);
+  bool firePlugBT_ID(VDIP *vdip, int usbDev, char **btAddress);
+
  private:
   byte checksum(byte *msgbuff, int size);
 

@@ -1,5 +1,5 @@
 #include <Arduino.h>
-
+#include "RIO.h"
 #include "VDIPSPI.h"
 #include "VDIP.h"
 #include "BT.h"
@@ -73,8 +73,14 @@ bool VDIP::deviceUpdate()
 	  cmd(VDIP_QD,incoming,100,i);
 
 	  // given a configuration buffer, get this port's data
-
+	  
 	  mapDevice(i,incoming,&portConfigBuffer);
+
+	  Serial.print("i: ");
+	  Serial.println(i);
+
+	  Serial.print("portConfigBuffer port: ");
+	  Serial.println(portConfigBuffer.port);
 
 	  if(portConfigBuffer.port >= 0 && portConfigBuffer.port < 2) {	// we have a good assignment
 
@@ -112,6 +118,10 @@ bool VDIP::deviceUpdate()
 
 		    if(portConfigBuffer.type == DEVICE_NXT) {
 			 processNXT(&portConfigBuffer);
+		    }
+
+		    if(portConfigBuffer.type == DEVICE_FIREPLUG) {
+			 processFirePlug(&portConfigBuffer);
 		    }
 	       }
 	  }
@@ -226,6 +236,9 @@ void VDIP::mapDevice(int dev, char *deviceReport, portConfig *returnPortConfig)
 
      if(returnPortConfig->vid == (unsigned short)0x0694) {
 	  returnPortConfig->type = DEVICE_NXT;
+     } else if(returnPortConfig->vid == (unsigned short)0x403) {
+       Serial.println("fire");
+       returnPortConfig->type = DEVICE_FIREPLUG;
      } else if(deviceReport[DEV_TYPE] == '\x08') {
 	  returnPortConfig->type = DEVICE_CONTROLLER;
      } else if(deviceReport[DEV_TYPE] == '\x20') {
@@ -395,6 +408,27 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
               cbuf[i++] = '\x13';
             }
           break;
+
+     case VDIP_FBD:
+         rbytes = 0;
+	 {
+	   cbuf[i++] = '\x18';
+	   cbuf[i++] = '\x20';
+	   cbuf[i++] = '\x1A';
+	   cbuf[i++] = '\x00';
+	   cbuf[i++] = '\x00';
+	 }
+          break;
+
+     case VDIP_SF:
+         rbytes = 0;
+	 {
+	   cbuf[i++] = '\x87';
+	   cbuf[i++] = '\x20';
+	   cbuf[i++] = arg;
+	 }
+          break;
+
      }
           	       
      cbuf[i++] = '\r';
@@ -580,9 +614,11 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 	   }
 	 }
        }
-     
+       
+       // TODO - deal with later
+
        // contains the settings for the digital I/O pins (for FRC, aka ChapR3 of EEPROM)
-     
+       /*
        if (readFile("dgtlIn.txt", buf, BIGENOUGH)){
 	 byte newNum = 0;
 	 
@@ -617,8 +653,8 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 		case 3:		myEEPROM.setAnalogInput4(value); break;
 		}
 	   }
-	   
-	   // bumping pointer forward to ingore whitespace
+
+	     // bumping pointer forward to ingore whitespace
 	   while (*ptr != '\r' && *ptr != '\0' && *ptr != '\n'){
 	     ptr++;
 	   }
@@ -630,7 +666,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 	   }
 	 }
        }
-
+       */
        // get a target bluetooth connection name/ID AND connect if it is there
        // this MAY need to be changed to do the connection AFTER getting
        // done with the flash drive.  Note that this data IS NOT stored in
@@ -703,6 +739,164 @@ void VDIP::processNXT(portConfig *portConfigBuffer)
 void VDIP::ejectNXT()
 {  
      myEEPROM.setResetStatus(0);
+}
+
+  /*
+bool firePlugBtId(VDIP *vdip, int usbDev, char **btAddress)
+{
+     // assumes we are connected, otherwise this routine shouldn't be called
+
+     char		cbuf[50];		// arbritarily large buffer for command and response
+     static char	btAddressbuf[13];	// 6 bytes of BT address (ignores the last one)
+
+     *btAddress = btAddressbuf;
+     
+     vdip->cmd(VDIP_SC,NULL,100,usbDev);	// set the current VDIP port to the FirePlug
+
+     int i = 0;
+     cbuf[i++] = '$';
+     cbuf[i++] = '$';
+     cbuf[i++] = '$';
+     cbuf[i++] = '\r';
+
+     vdip->cmd(VDIP_DSD,cbuf,100,i);		// send the command
+
+     delay(1000);			       	// second delay for return of command
+
+     cbuf[i++] = 'G';
+     cbuf[i++] = 'B';
+     cbuf[i++] = '\r';
+
+     int r = vdip->cmd(VDIP_DRD,cbuf,100);
+
+     return true;
+
+          if(r != 33) {
+	  return(0);
+     } else {
+          for (int i = 0; i < 15; i++){
+            namebuf[i] = cbuf[3 + i];
+          }
+          
+          int j = 0;
+          for (int i = 18; i < 24; i++){
+            //the last byte is always zero (sorta like a null terminator)
+            btAddressbuf[j++] = hexConverter[(cbuf[i]>>4)&0x0F];  
+            btAddressbuf[j++] = hexConverter[cbuf[i]&0x0F];
+          }
+          btAddressbuf[j] = '\0';
+          
+          long m = 1;
+          for (int i = 29; i < 33; i++, m *= 256){
+            *freeMemory += cbuf[i]*m;
+          }
+          
+	  return(1);
+	  }
+}*/
+
+void VDIP::processFirePlug(portConfig *portConfigBuffer)
+{
+  char *btAddress;
+  RIO RIO2;
+  // TODO - maybe shouldn't be an object
+
+  Serial.println("processing fireplug");
+
+     char		cbuf[50];		// arbritarily large buffer for command and response
+     static char	btAddressbuf[13];	// 6 bytes of BT address (ignores the last one)
+
+    cmd(VDIP_SC,NULL,100,portConfigBuffer->usbDev);	// set the current VDIP port to the FirePlug
+
+    Serial.print("usbDev: ");
+    Serial.println(portConfigBuffer->usbDev);
+
+    delay(1000);
+
+    cmd(VDIP_SF,cbuf,100, portConfigBuffer->usbDev);		// send the command
+
+    delay(1000);
+
+    cmd(VDIP_FBD,cbuf,100);		// send the command
+
+    delay(1000);
+
+    return;
+
+    int l = cmd(VDIP_DRD,cbuf,100);
+
+    delay(1000);			       	// second delay for return of command
+
+    Serial.println(l);
+
+    int i = 0;
+    cbuf[i++] = '$';
+    cbuf[i++] = '$';
+    cbuf[i++] = '$';
+    //    cbuf[i++] = '\r';
+
+    cmd(VDIP_DSD,cbuf,100,i);		// send the command
+
+    delay(1000);
+
+    l = cmd(VDIP_DRD,cbuf,100);
+
+    delay(1000);			       	// second delay for return of command
+
+    Serial.println(l);
+
+     i = 0;
+     cbuf[i++] = 'G';
+     cbuf[i++] = 'B';
+     cbuf[i++] = '\r';
+
+     cmd(VDIP_DSD,cbuf,100,i);		// send the command
+
+     delay(1000);
+
+     int r = cmd(VDIP_DRD,cbuf,100);
+
+     Serial.println(r);
+
+     delay(1000);
+
+//     return true;
+
+//  if (firePlugBtId(this, portConfigBuffer->usbDev,&btAddress)){
+	      Serial.print("btAddress: \"");
+	      Serial.print(cbuf);
+	      Serial.print("\"");
+
+	      //              bt.setRemoteAddress(btAddress);
+
+
+	      //  }
+  /*
+	  char *name;
+	  char *btAddress;
+	  long	freeMemory;
+          extern BT bt;
+          if (myEEPROM.getResetStatus() == (byte) 0){
+	    if(nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory)){
+//	      Serial.print("btAddress: \"");
+//	      Serial.print(btAddress);
+//	      Serial.print("\"");
+              bt.setRemoteAddress(btAddress);
+              delay(100);
+//	      Serial.print(myEEPROM.getResetStatus());
+              myEEPROM.setResetStatus(1); // increments the "status" so that the ChapR knows it has been reset
+//	      Serial.print(myEEPROM.getResetStatus());
+
+              delay(1000);
+              software_Reset();
+            }
+	    }    */
+}
+
+void VDIP::ejectFirePlug()
+{  
+  Serial.println("ejected FirePlug");
+  //     myEEPROM.setResetStatus(0);
 }
 
 //

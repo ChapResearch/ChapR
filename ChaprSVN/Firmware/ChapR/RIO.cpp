@@ -40,8 +40,6 @@ int RIO::createPacket(byte *msgbuff, bool enable, Gamepad *g1, Gamepad *g2, bool
   msgbuff[size++] = 0xff;
   msgbuff[size++] = 0xff;
   msgbuff[size++] = (byte) cmd;
-  Serial.print("cmd: ");
-  Serial.println(cmd);
   msgbuff[size++] = myEEPROM.getDigitalInputs();
   msgbuff[size++] = 0;
   msgbuff[size++] = (byte) ((myEEPROM.getAnalogInput1()>>8)&0x00FF); // MSB
@@ -76,14 +74,8 @@ int RIO::createPacket(byte *msgbuff, bool enable, Gamepad *g1, Gamepad *g2, bool
   msgbuff[size++] = 0;
 
   byte cs = checksum(msgbuff + 3, size - 3);
-  Serial.print("cd: ");
-  Serial.println(cs);
   msgbuff[size++] = cs;
   
-  for (int i = 0; i < size; i++){
-    Serial.println(msgbuff[i]);
-  }
-
   return(size);			// total size of the message going over BT
 }
 
@@ -100,3 +92,59 @@ byte RIO::checksum(byte *msgbuff, int size)
 
   return(cs);
 }
+
+/*
+bool firePlugBT_ID(VDIP *vdip, int usbDev, char **btAddress)
+{
+     // assumes we are connected, otherwise this routine shouldn't be called
+
+     char		cbuf[50];		// arbritarily large buffer for command and response
+     static char	btAddressbuf[13];	// 6 bytes of BT address (ignores the last one)
+
+     *btAddress = btAddressbuf;
+     
+     vdip->cmd(VDIP_SC,NULL,100,usbDev);	// set the current VDIP port to the FirePlug
+
+     int i = 0;
+     cbuf[i++] = '$';
+     cbuf[i++] = '$';
+     cbuf[i++] = '$';
+     cbuf[i++] = '\r';
+
+     vdip->cmd(VDIP_DSD,cbuf,100,i);		// send the command
+
+     delay(1000);			       	// second delay for return of command
+
+     cbuf[i++] = 'G';
+     cbuf[i++] = 'B';
+     cbuf[i++] = '\r';
+
+     int r = vdip->cmd(VDIP_DRD,cbuf,100);
+
+     return true;
+
+          if(r != 33) {
+	  return(0);
+     } else {
+          for (int i = 0; i < 15; i++){
+            namebuf[i] = cbuf[3 + i];
+          }
+          
+          int j = 0;
+          for (int i = 18; i < 24; i++){
+            //the last byte is always zero (sorta like a null terminator)
+            btAddressbuf[j++] = hexConverter[(cbuf[i]>>4)&0x0F];  
+            btAddressbuf[j++] = hexConverter[cbuf[i]&0x0F];
+          }
+          btAddressbuf[j] = '\0';
+          
+          long m = 1;
+          for (int i = 29; i < 33; i++, m *= 256){
+            *freeMemory += cbuf[i]*m;
+          }
+          
+	  return(1);
+	  }
+}*/
+
+
