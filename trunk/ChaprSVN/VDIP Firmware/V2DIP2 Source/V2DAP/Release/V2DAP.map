@@ -1,0 +1,210 @@
+Future Technology Devices International Limited (c) 2007-2010, All Rights Reserved
+
+
+CPU_CORE =   VC2, CPU_RAM_SIZE= 16 KB, CPU_ROM_SIZE=256 KB
+
+Linker Version  = V1.0.1 Loader Version =  V1.0.1
+Wed Oct 01 21:05:04 2014
+
+
+=================================================================================================================
+
+SEGMENT_MAP    
+=================================================================================================================
+
+Start Address                  Segment Name                   Segment Size
+=================================================================================================================
+
+0003c0 .text                          000001a503
+01a8c3 .dataFlash                     0000000260
+000000 .dataRAM                       0000000260
+000260 .bss                           00000002db
+00053b .HeapRAM                       00000036c4
+
+=================================================================================================================
+
+SYMBOL_TABLE   
+=================================================================================================================
+
+SYM ADDRESS PUBLIC SYM NAME                SYM TYPE   MEM TYPE FILE NAME            SYM SIZE  
+NOTE:L=LABEL F=FUNCTION 0=FLASH and 1=RAM
+=================================================================================================================
+
+0043e main                           F              0 v2dap.obj            00416
+00854 firmware                       F              0 v2dap.obj            0068a
+00ede checkDataMode                  F              0 v2dap.obj            00094
+00f72 ackDataMode                    F              0 v2dap.obj            00069
+00fdb ackCmdMode                     F              0 v2dap.obj            00067
+01042 monDataMode                    F              0 v2dap.obj            00337
+01379 monDataModeIn                  F              0 v2dap.obj            00134
+014ad cdcSetup                       F              0 v2dap.obj            002e2
+0178f cdcGetSerialState              F              0 v2dap.obj            000c5
+01854 msgOnline                      F              0 v2dap.obj            00023
+00260 fatContext                     L              1 v2dap.obj            00002
+00262 tcbMonitor                     L              1 v2dap.obj            00002
+00264 monInterface                   L              1 v2dap.obj            00001
+00265 hUsb1                          L              1 v2dap.obj            00002
+00267 hUsb2                          L              1 v2dap.obj            00002
+00269 hBoms                          L              1 v2dap.obj            00002
+0026b hMonitor                       L              1 v2dap.obj            00002
+16419 maskCodePage                   L              0 monitor.obj          00008
+16421 commands                       L              0 monitor.obj          0032a
+165b6 monInit                        F              0 monitor.obj          0003d
+165f3 monWriteString                 F              0 monitor.obj          0004d
+16640 monVersion                     F              0 monitor.obj          00053
+16693 monPrompt                      F              0 monitor.obj          0003b
+166ce monNoDisk                      F              0 monitor.obj          0003b
+16709 monNoUpgrade                   F              0 monitor.obj          0003b
+16744 monDeviceDetected              F              0 monitor.obj          00078
+167bc monDeviceRemoved               F              0 monitor.obj          00078
+16834 monSlaveEnabled                F              0 monitor.obj          0003b
+1686f monSlaveDisabled               F              0 monitor.obj          0003b
+168aa monBadCommand                  F              0 monitor.obj          0003b
+168e5 monCommandFailed               F              0 monitor.obj          0003b
+16920 monDiskFull                    F              0 monitor.obj          0003b
+1695b monInvalid                     F              0 monitor.obj          0003b
+16996 monReadOnly                    F              0 monitor.obj          0003b
+169d1 monFileOpen                    F              0 monitor.obj          0003b
+16a0c monDirNotEmpty                 F              0 monitor.obj          0003b
+16a47 monFilenameInvalid             F              0 monitor.obj          0003b
+16a82 monReadCmd                     F              0 monitor.obj          000be
+16b40 monReadFileName                F              0 monitor.obj          000cb
+16c0b monReadNumber                  F              0 monitor.obj          00259
+16e64 monReadCr                      F              0 monitor.obj          00021
+16e85 monWrite                       F              0 monitor.obj          00049
+16ece monWriteFileName               F              0 monitor.obj          000c7
+16f95 monRead                        F              0 monitor.obj          0007b
+17010 monAddNumberToConsole          F              0 monitor.obj          00113
+17123 monAddMultibyteNumberToConsole F              0 monitor.obj          000e5
+17208 monValidateFileName            F              0 monitor.obj          000ba
+172c2 monValidateNumber              F              0 monitor.obj          00057
+17319 monValidateDateTime            F              0 monitor.obj          0001d
+17336 monASCIItoDec                  F              0 monitor.obj          00106
+1743c monCmdProcess                  F              0 monitor.obj          0009a
+174d6 monChkCmd                      F              0 monitor.obj          00221
+176f7 monCheck                       F              0 monitor.obj          00083
+1777a monPowerLedOn                  F              0 monitor.obj          00018
+17792 monPowerLedOff                 F              0 monitor.obj          00018
+177aa monActivityLedOn               F              0 monitor.obj          00018
+177c2 monActivityLedOff              F              0 monitor.obj          00018
+177da monLedsGreen                   F              0 monitor.obj          00029
+17803 monLedsRed                     F              0 monitor.obj          00029
+1782c monLedsOff                     F              0 monitor.obj          00005
+17831 monLedsOffNow                  F              0 monitor.obj          00036
+17867 monLedsGreenFlash              F              0 monitor.obj          00003
+1786a monFlashLedThread              F              0 monitor.obj          0009b
+0007c monFlashLED                    L              1 monitor.obj          00001
+0007d monLEDstate                    L              1 monitor.obj          00001
+0045f cmdDataIndex                   L              1 monitor.obj          00001
+00460 cmdTerminator                  L              1 monitor.obj          00001
+00461 param1                         L              1 monitor.obj          00004
+00465 param2                         L              1 monitor.obj          00004
+00469 cmdData                        L              1 monitor.obj          00004
+0046d Mon_Flags                      L              1 monitor.obj          00001
+0046e param1Data                     L              1 monitor.obj          0000b
+00479 param2Data                     L              1 monitor.obj          0000b
+17909 cmd_cr                         F              0 cmdconfig.obj        00005
+1790e cmd_fwv                        F              0 cmdconfig.obj        00039
+17947 cmd_echo                       F              0 cmdconfig.obj        00031
+17978 cmd_scs                        F              0 cmdconfig.obj        0001c
+17994 cmd_ecs                        F              0 cmdconfig.obj        0001c
+179b0 cmd_ipa                        F              0 cmdconfig.obj        0001c
+179cc cmd_iph                        F              0 cmdconfig.obj        0001c
+179e8 cmd_sbd                        F              0 cmdconfig.obj        000f4
+17adc cmd_sd                         F              0 cmdconfig.obj        000d5
+17bb1 cmd_sw                         F              0 cmdconfig.obj        000cf
+17c80 cmd_fwu                        F              0 cmdconfig.obj        0002a
+17caa cmd_ior                        F              0 cmdconfig.obj        00097
+17d41 cmd_iow                        F              0 cmdconfig.obj        000c5
+17e06 cmd_ini                        F              0 cmdconfig.obj        00011
+17e17 diskInit                       F              0 cmddisk.obj          00003
+17e1a cmd_dir                        F              0 cmddisk.obj          001b5
+17fcf cmd_cd                         F              0 cmddisk.obj          000a1
+18070 cmd_rd                         F              0 cmddisk.obj          000cb
+1813b cmd_dld                        F              0 cmddisk.obj          000c8
+18203 cmd_mkd                        F              0 cmddisk.obj          00081
+18284 cmd_dlf                        F              0 cmddisk.obj          000b5
+18339 cmd_wrf                        F              0 cmddisk.obj          0006d
+183a6 cmd_opw                        F              0 cmddisk.obj          000db
+18481 cmd_clf                        F              0 cmddisk.obj          0002d
+184ae cmd_rdf                        F              0 cmddisk.obj          00065
+18513 cmd_ren                        F              0 cmddisk.obj          000a1
+185b4 cmd_opr                        F              0 cmddisk.obj          00095
+18649 cmd_sek                        F              0 cmddisk.obj          0004d
+18696 cmd_fs_handler                 F              0 cmddisk.obj          00070
+18706 cmd_fs                         F              0 cmddisk.obj          00015
+1871b cmd_fse                        F              0 cmddisk.obj          00010
+1872b cmd_idd_handler                F              0 cmddisk.obj          00264
+1898f cmd_idd                        F              0 cmddisk.obj          00015
+189a4 cmd_idde                       F              0 cmddisk.obj          00010
+189b4 cmd_dsn                        F              0 cmddisk.obj          00036
+189ea cmd_dvl                        F              0 cmddisk.obj          00039
+18a23 cmd_dirt                       F              0 cmddisk.obj          0011b
+18b3e cmd_dri                        F              0 cmddisk.obj          00010
+00484 FILE                           L              1 cmddisk.obj          00043
+004c7 fileState                      L              1 cmddisk.obj          00001
+18b4e ftGetPortInfo                  F              0 cmdft.obj            000be
+18c0c ftSendSetup                    F              0 cmdft.obj            00079
+18c85 cmd_fbd                        F              0 cmdft.obj            000df
+18d64 cmd_fmc                        F              0 cmdft.obj            000bb
+18e1f cmd_fsd                        F              0 cmdft.obj            000bb
+18eda cmd_ffc                        F              0 cmdft.obj            0009e
+18f78 cmd_fgm                        F              0 cmdft.obj            0008b
+19003 cmd_fsl                        F              0 cmdft.obj            000aa
+190ad cmd_fgb                        F              0 cmdft.obj            00087
+19134 cmd_fsb                        F              0 cmdft.obj            000bd
+191f1 cmd_pgs                        F              0 cmdprinter.obj       00123
+19314 cmd_psr                        F              0 cmdprinter.obj       00109
+1941d cmd_sud                        F              0 cmdpwr.obj           0001c
+19439 cmd_wkd                        F              0 cmdpwr.obj           00028
+19461 cmd_sum                        F              0 cmdpwr.obj           00028
+19489 cmd_qp1                        F              0 cmdusb.obj           00054
+194dd cmd_qp2                        F              0 cmdusb.obj           00051
+1952e cmd_qd                         F              0 cmdusb.obj           003bc
+198ea cmd_sc                         F              0 cmdusb.obj           0007f
+19969 cmd_sf                         F              0 cmdusb.obj           0002e
+19997 cmd_dsd                        F              0 cmdusb.obj           00184
+19b1b cmd_drd                        F              0 cmdusb.obj           002f5
+19e10 cmd_ssu                        F              0 cmdusb.obj           001bd
+19fcd diskCheckDisk                  F              0 svcdisk.obj          001c7
+1a194 diskRemoveDisk                 F              0 svcdisk.obj          0000c
+1a1a0 diskResetDisk                  F              0 svcdisk.obj          00044
+1a1e4 diskCheckFwu                   F              0 svcdisk.obj          00154
+1a338 hostConnected                  F              0 svchost.obj          00039
+1a371 hostAddToDeviceList            F              0 svchost.obj          000e2
+1a453 hostRemoveFromDeviceList       F              0 svchost.obj          00087
+1a4da hostSuspend                    F              0 svchost.obj          0004f
+1a529 hostWake                       F              0 svchost.obj          0004f
+1a578 hostGetDevType                 F              0 svchost.obj          000c7
+1a63f hostGetPortDevType             F              0 svchost.obj          00088
+1a6c7 hostSetDeviceFtdi              F              0 svchost.obj          00055
+1a71c hostSelectDevice               F              0 svchost.obj          0001d
+004c8 deviceList                     L              1 svchost.obj          00070
+00538 curDevice                      L              1 svchost.obj          00001
+1a739 cmd_vpf                        F              0 cmdvmusic.obj        00007
+1a740 cmd_vrf                        F              0 cmdvmusic.obj        00007
+1a747 cmd_vst                        F              0 cmdvmusic.obj        00007
+1a74e cmd_vp                         F              0 cmdvmusic.obj        00007
+1a755 cmd_v3a                        F              0 cmdvmusic.obj        00007
+1a75c cmd_vra                        F              0 cmdvmusic.obj        00007
+1a763 cmd_vrr                        F              0 cmdvmusic.obj        00007
+1a76a cmd_vsf                        F              0 cmdvmusic.obj        00007
+1a771 cmd_vsb                        F              0 cmdvmusic.obj        00007
+1a778 cmd_vsd                        F              0 cmdvmusic.obj        00007
+1a77f cmd_vf                         F              0 cmdvmusic.obj        00007
+1a786 cmd_vb                         F              0 cmdvmusic.obj        00007
+1a78d cmd_vrd                        F              0 cmdvmusic.obj        00007
+1a794 cmd_vwr                        F              0 cmdvmusic.obj        00007
+1a79b cmd_vsv                        F              0 cmdvmusic.obj        00007
+1a7a2 cmd_a                          F              0 cmdvdfc.obj          00007
+1a7a9 cmd_b                          F              0 cmdvdfc.obj          00007
+1a7b0 cmd_ims                        F              0 cmdvdfc.obj          00007
+1a7b7 cmd_imf                        F              0 cmdvdfc.obj          00007
+1a7be cmd_cps                        F              0 cmdvdfc.obj          00007
+1a7c5 cmd_cpf                        F              0 cmdvdfc.obj          00007
+1a7cc cmd_qss                        F              0 cmdvdps.obj          00007
+00539 hFT232                         L              1 cmdvdps.obj          00002
+1a7d3 slaveConnected                 F              0 svcslave.obj         00039
+1a80c slaveDataRx                    F              0 svcslave.obj         00051
+1a85d slaveDataTx                    F              0 svcslave.obj         00051
+1a8ae slaveSelectDevice              F              0 svcslave.obj         00015
