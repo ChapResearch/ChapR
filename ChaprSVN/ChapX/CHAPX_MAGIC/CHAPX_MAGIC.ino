@@ -76,9 +76,9 @@ void loop(){
 }
 // clssic
 int hardness = 10000; //ten seconds to touch
-int score = 0;
+long score = 0;
 int strikes = 0;
-boolean win = false; 
+boolean win = true; 
 int pinTouched;
 int highscore = 1;
 //
@@ -98,7 +98,7 @@ void doClassic(){
           
               if(hardness > 1000){
                    hardness = hardness-1000;
-                   addScore = 100 + timeBonus;
+                   addScore = 100 + timeBonus - 500;
                    Serial.print("Score: ");
                    Serial.println(score);
                    Serial.println(hardness);
@@ -136,37 +136,45 @@ void doClassic(){
 }
 //simon
 int promptList[20];
-int level = 0;
+int level = 1;
 int strikes1 = 0;
 bool right = true;
 bool levelUp = false;
 int highScore1 = 0;
 //
 void doSimon(){
-  int randNum = (int)random(0,NUMFRUITS);
-  promptList[level-1] = randNum;
+  
+  int randNum1 = (int)random(0,NUMFRUITS);
+  Serial.print(randNum1);
+  promptList[level-1] = randNum1;
   playPrompt(promptList[level-1]);
+  Serial.print("play prompt");
+  Serial.println(promptList[level-1]);
   letUserTry();
-  while(!right && strikes1 < 6){
+  while(!levelUp && strikes1 < 6){
     letUserTry();
+    delay(1000);
   }
+  delay(1000);
 }
 void letUserTry(){
   int checker = 0;
+  Serial.println(promptList[checker]);
   while(right && checker < level){
     if(readTouchInputs() == promptList[checker]){
        checker = checker + 1;
        Serial.println("CORRECT");
+       delay(1000);
     }  
     else if(readTouchInputs() != promptList[checker] && readTouchInputs() != -1){
        right =  false;
        Serial.println("WRONG");
        strikes1++;
+       delay(1000);
     }   
   }
-  if(!right){
-    return;
-  }else{
+  if(right)
+  {
     levelUp = true;
   }
 }
@@ -175,7 +183,7 @@ void doTeam(){
 }
 
 void checkClassic(){
-  if(strikes > 3){
+   if(strikes > 3){
       if(score > highscore){   
         playNoise('g', 5);//game over
         delay(6000);
@@ -183,8 +191,9 @@ void checkClassic(){
         Serial.print("New highscore: "); //play sound score
         playNoise('g',3);//your new high score is
         delay(5000);
+        delay(6000);
         Serial.println(score);
-        //playScore(score);//score
+        playScore(score);//score
         highscore = score;
         newGameSet();
       }else{
@@ -192,8 +201,10 @@ void checkClassic(){
         delay(6000);
         Serial.println("BOO! You SUCK at this game."); //play badsound
         Serial.print("Score: "); //play sound score
+        playNoise('g', 4);
+         delay(11000);
         Serial.println(score);
-        //playScore(score);  //play sound score
+        playScore(score);  //play sound score
         newGameSet();
       }
     }
@@ -206,7 +217,7 @@ void checkClassic(){
         Serial.println(score);
         playNoise('g',3); //your new high score is
         delay(2000);
-        //playScore(score); //play sound score
+        playScore(score); //play sound score
         highscore = score;
         newGameSet();
         delay(500);
@@ -215,7 +226,7 @@ void checkClassic(){
         Serial.print("Score: ");
         playNoise('g',1); //you win
         delay(2000);
-        //playScore(score);
+        playScore(score);
         Serial.println(score);
         newGameSet();
         delay(500);
@@ -260,7 +271,7 @@ void checkSimon(){
       Serial.print("Score: ");
       playNoise('g',1); //you win
       delay(2000);
-      //playScore(score);
+      playScore(score);
       Serial.println(level);
       delay(500);
       pressStart = true;
@@ -277,49 +288,97 @@ void checkTeam(){
   
 }
 
-void playScore(int score)
+void playScore(long score)
 {
+  while(mySerial.available()){
+  Serial.print("Message from vmusic: ");
+  Serial.println((char) mySerial.read());
+  delay(20);
+  }
   int scoreDigits[6];
   int i = 0;
+  score = 569000;
+  Serial.print(score);
   while(score >0 && i <6){
-    int temp = score%10;
+    int temp = (int)(score%10);
+    Serial.print(temp);
+    delay(500);
     score = score/10;
     scoreDigits[i] = temp;
     i++;
-  } 
+  }
+  if(!(scoreDigits[5]>=0 && scoreDigits[5]<10)){
+    scoreDigits[5] = 0;
+  }
   
-  while(mySerial.available()){
-    Serial.print("Message from vmusic: ");
-    Serial.println((char) mySerial.read());
-    delay(20);
+ 
+  //test
+  for(int i =0; i < 6; i++)
+  {
+    Serial.println(i);
+    
+    
+    mySerial.write("VPF ");
+    Serial.print("VPF ");
+    mySerial.write((char)((scoreDigits[i])+48));
+    Serial.print(scoreDigits[i]+48);
+    mySerial.write(".mp3\r");
+    Serial.print(".mp3\r");
+    delay(1000);
   }
   
   for(int i = 5; i > -1; i--){
-    if(i == 5 && scoreDigits[i] == 0){ //fist digit
+    if(scoreDigits[i] == 0){
       playNoise('g', 6);
     }else{
-      //play number + hundred
-    }
-    
-    if(i == 4 && scoreDigits[i] == 0) // second digit
-    {
-      playNoise('g', 6);
-    }else{
-      //play number + 0 to play sound like "sixty"
-    }
-    
-     if(i == 3 && scoreDigits[i] == 0) // third digit
-    {
-      playNoise('g', 6);
-    }else{
-      //play number + thousand
-    }
-    
-     if(i == 2 && scoreDigits[i] == 0) // fourth digit
-    {
-      playNoise('g', 6);
-    }else{
-      //play number + hundred 
+          if(i == 5){ //fist digit
+          //play number + hundred
+          Serial.print(scoreDigits[i]);// it's getting mixed up here
+          delay(2000);
+          mySerial.write("VPF ");
+          mySerial.write((char)(scoreDigits[i]+48));
+          mySerial.write(".mp3\r");
+          delay(500);
+          mySerial.write("VPF 100.mp3\r");
+          }
+        
+          if(i == 4) // second digit
+          {
+          //play number + 0 to play sound like "sixty"
+          Serial.print(scoreDigits[i]);
+          delay(2000);
+          mySerial.write("VPF ");
+          mySerial.write((char)(scoreDigits[i] + 48));
+          mySerial.write("0.mp3\r");
+          Serial.print("Yay");
+          //mySerial.write(temp);
+          //mySerial.write('0');
+          //mySerial.write(".mp3\r");
+          } 
+        
+         if(i == 3) // third digit
+         {
+          //play number + thousand
+          Serial.print(scoreDigits[i]);
+          delay(2000);
+          mySerial.write("VPF ");
+          mySerial.write((char)(scoreDigits[i]+48));
+          mySerial.write(".mp3\r");
+          delay(500);
+          mySerial.write("VPF 1000.mp3\r ");
+        }
+        
+         if(i == 2) // fourth digit
+         {
+          //play number + hundred
+          Serial.print(scoreDigits[i]);
+          delay(5000); 
+          mySerial.write("VPF ");
+          mySerial.write((char)(scoreDigits[i]+48));
+          mySerial.write(".mp3\r");
+          delay(500);
+          mySerial.write("VPF 100.mp3\r ");
+        }
     }
   // thats all since all scores are multiples of 100
   } 
@@ -391,11 +450,11 @@ int readTouchInputs(){
           Serial.print(i);
           Serial.println(" was just touched");
           Serial.print("pin 8:");*/
-          Serial.println(digitalRead(8));
+          ////Serial.println(digitalRead(8));
           //while(digitalRead(8)){
           //}
           //mySerial.write("VPF s0.mp3\r");
-          Serial.println(mySerial.read());
+          ////Serial.println(mySerial.read());
           return i;
         }else if(touchStates[i] == 1){
           //pin i is still being touched
