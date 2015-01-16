@@ -297,7 +297,7 @@ void playScore(long score)
   }
   int scoreDigits[6];
   int i = 0;
-  score = 569000;
+  score = 56900;
   Serial.print(score);
   while(score >0 && i <6){
     int temp = (int)(score%10);
@@ -313,10 +313,10 @@ void playScore(long score)
   
  
   //test
-  for(int i =0; i < 6; i++)
-  {
+//  for(int i =0; i < 6; i++)
+ /* {
     Serial.println(i);
-    
+   
     
     mySerial.write("VPF ");
     Serial.print("VPF ");
@@ -325,7 +325,7 @@ void playScore(long score)
     mySerial.write(".mp3\r");
     Serial.print(".mp3\r");
     delay(1000);
-  }
+  }*/
   
   for(int i = 5; i > -1; i--){
     if(scoreDigits[i] == 0){
@@ -345,6 +345,7 @@ void playScore(long score)
           if(i == 4) // second digit
           {
           //play number + 0 to play sound like "sixty"
+          Serial.print("Yay");
           Serial.print(scoreDigits[i]);
           delay(2000);
           mySerial.write("VPF ");
@@ -372,10 +373,11 @@ void playScore(long score)
          {
           //play number + hundred
           Serial.print(scoreDigits[i]);
-          delay(5000); 
+          delay(2000); 
           mySerial.write("VPF ");
           mySerial.write((char)(scoreDigits[i]+48));
           mySerial.write(".mp3\r");
+          Serial.print("Yay");
           delay(500);
           mySerial.write("VPF 100.mp3\r ");
         }
