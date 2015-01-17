@@ -1,6 +1,6 @@
 #include "mpr121.h"
 #include <Wire.h>
-#include <SoftwareSerial.h> 
+#include <SoftwareSerial.h>
 
 
 SoftwareSerial mySerial(12, 11); // RX, TX (flipped from docs)
