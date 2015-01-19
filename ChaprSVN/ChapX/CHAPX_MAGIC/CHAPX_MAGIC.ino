@@ -69,8 +69,7 @@ void loop(){
     if(gameType == 3){
       checkTeam();
     }
-    if (mySerial.available())
-      Serial.write(mySerial.read());
+    readVMusic();
     if (Serial.available())
       mySerial.write(Serial.read());
 }
@@ -78,7 +77,7 @@ void loop(){
 int hardness = 10000; //ten seconds to touch
 long score = 0;
 int strikes = 0;
-boolean win = true; 
+boolean win = false; 
 int pinTouched;
 int highscore = 1;
 //
@@ -287,17 +286,42 @@ void checkSimon(){
 void checkTeam(){
   
 }
-
+void readVMusic()
+{
+  Serial.println("Message from vmusic: ");
+  while(mySerial.available()){
+      Serial.print((char) mySerial.read());
+  }
+  Serial.println(".");
+}
+void checkVPlayed()
+{
+  //waiting for response from VMusic
+   while(!mySerial.available())
+  {
+      delay(500);
+  }
+  readVMusic();
+}
+void playDigit(char d)
+{
+  readVMusic();
+  mySerial.write("VPF ");
+  mySerial.write(d);
+  mySerial.write(".mp3\r");
+  checkVPlayed();
+}
+void playFile(const char* filename)
+{
+    readVMusic();
+    mySerial.write(filename);
+    mySerial.write("\r");
+    checkVPlayed();
+}
 void playScore(long score)
 {
-  while(mySerial.available()){
-  Serial.print("Message from vmusic: ");
-  Serial.println((char) mySerial.read());
-  delay(20);
-  }
   int scoreDigits[6];
   int i = 0;
-  score = 56900;
   Serial.print(score);
   while(score >0 && i <6){
     int temp = (int)(score%10);
@@ -313,10 +337,10 @@ void playScore(long score)
   
  
   //test
-//  for(int i =0; i < 6; i++)
- /* {
+  /*for(int i =0; i < 6; i++)
+  {
     Serial.println(i);
-   
+    
     
     mySerial.write("VPF ");
     Serial.print("VPF ");
@@ -325,61 +349,78 @@ void playScore(long score)
     mySerial.write(".mp3\r");
     Serial.print(".mp3\r");
     delay(1000);
-  }*/
-  
+  }//
+  */
+  int firstDigit=5;
   for(int i = 5; i > -1; i--){
-    if(scoreDigits[i] == 0){
-      playNoise('g', 6);
+    Serial.print("playing i=");
+    Serial.println(i);
+    if(scoreDigits[i] == 0&&i==firstDigit){
+      Serial.println("playing empty noise");
+      firstDigit--;//next digit is the first now.
+//      delay(500);
+      //playNoise('g', 6);
     }else{
           if(i == 5){ //fist digit
           //play number + hundred
-          Serial.print(scoreDigits[i]);// it's getting mixed up here
-          delay(2000);
-          mySerial.write("VPF ");
-          mySerial.write((char)(scoreDigits[i]+48));
-          mySerial.write(".mp3\r");
-          delay(500);
-          mySerial.write("VPF 100.mp3\r");
+            Serial.print(scoreDigits[i]);// it's getting mixed up here
+            playDigit((char)(scoreDigits[i]+48));
+            playFile("VPF 100.mp3");
+            delay(500);
           }
         
-          if(i == 4) // second digit
+          if(i == 4 && scoreDigits[i]>1) // second digit not in teens of thousands
           {
           //play number + 0 to play sound like "sixty"
-          Serial.print("Yay");
           Serial.print(scoreDigits[i]);
-          delay(2000);
+          readVMusic();
+          char temp=(char)(scoreDigits[i] + 48);
           mySerial.write("VPF ");
-          mySerial.write((char)(scoreDigits[i] + 48));
-          mySerial.write("0.mp3\r");
-          Serial.print("Yay");
-          //mySerial.write(temp);
-          //mySerial.write('0');
-          //mySerial.write(".mp3\r");
+          mySerial.write(temp);
+          mySerial.write('0');
+          mySerial.write(".mp3\r");
+          checkVPlayed();
+          delay(200);
+          Serial.println("Yay");
+
           } 
-        
+
          if(i == 3) // third digit
          {
           //play number + thousand
           Serial.print(scoreDigits[i]);
-          delay(2000);
-          mySerial.write("VPF ");
-          mySerial.write((char)(scoreDigits[i]+48));
-          mySerial.write(".mp3\r");
+          
+          if(scoreDigits[4]==1) {
+            if(scoreDigits[i]>2){
+              playDigit((char)(scoreDigits[i]+48));
+              playFile("VPF teen.mp3");
+            }
+            else{//for 10, 11 and 12
+              //FIXME: need files...
+              readVMusic();
+              mySerial.write("VPF ");
+              mySerial.write('1');
+              mySerial.write((char)(scoreDigits[i]+48));
+              mySerial.write(".mp3\r");
+              checkVPlayed();
+            }
+          }else
+          {
+            playDigit((char)(scoreDigits[i]+48));
+          }
+          
+          playFile("VPF 1000.mp3");
           delay(500);
-          mySerial.write("VPF 1000.mp3\r ");
-        }
-        
+        }        
          if(i == 2) // fourth digit
          {
           //play number + hundred
-          Serial.print(scoreDigits[i]);
-          delay(2000); 
-          mySerial.write("VPF ");
-          mySerial.write((char)(scoreDigits[i]+48));
-          mySerial.write(".mp3\r");
-          Serial.print("Yay");
+           Serial.println("playing 4th digit");
+          Serial.println(scoreDigits[i]);
+          playDigit((char)(scoreDigits[i]+48));
+          Serial.print("SOmething happened");
+          playFile("VPF 100.mp3");
           delay(500);
-          mySerial.write("VPF 100.mp3\r ");
         }
     }
   // thats all since all scores are multiples of 100
@@ -404,11 +445,7 @@ void playSound(int fruit){
    playNoise('s', fruit); 
 }
 void playNoise(char type, int fruit){
-  while(mySerial.available()){
-    Serial.print("Message from vmusic: ");
-    Serial.println((char) mySerial.read());
-    delay(20);
-  }
+  readVMusic();
   char filename[10];
   char therealrealFruit[3];
   int i =0;
