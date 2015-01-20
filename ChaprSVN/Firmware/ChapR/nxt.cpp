@@ -11,7 +11,7 @@
 //
 
 #include "BT.h"
-#include "vdip.h"
+#include "VDIP.h"
 #include "nxt.h"
 #include "settings.h"
 #include "debug.h"
