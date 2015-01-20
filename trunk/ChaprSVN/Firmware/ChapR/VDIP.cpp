@@ -11,15 +11,15 @@
 
 extern void software_Reset();
 
+extern BT bt;
 extern settings myEEPROM;
-
 extern sound beeper;
 
 //#define HAVE_JOY1	(_p1 && _p1_dev != -1 && !(_p1_devtype & CLASS_BOMS) )
 //#define HAVE_JOY2	(_p2 && _p2_dev != -1 && !(_p2_devtype & CLASS_BOMS) )
 
 // turn this on for some useful debugging code
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 void DEBUG_PORT_CONFIG(portConfig *config)
@@ -33,11 +33,50 @@ void DEBUG_PORT_CONFIG(portConfig *config)
      Serial.println("");
 }
 
-/*void VDIP::debug_port_config()
+void VDIP::debug_port_config()
 {
      DEBUG_PORT_CONFIG(&ports[0]);
      DEBUG_PORT_CONFIG(&ports[1]);
-}*/
+}
+
+void DEBUG_HEX_BYTE(unsigned char c)
+{
+     if(c < 16) {
+	  Serial.print("0");
+     }
+     Serial.print(c,HEX);
+}
+
+//
+// DEBUG_USB_QD() - given a buffer, print out the QD data
+//
+void DEBUG_USB_QD(int dev, unsigned char *buffer)
+{
+     Serial.print("UA (");
+     Serial.print(dev);
+     Serial.print("): ");
+     DEBUG_HEX_BYTE(buffer[0]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[1]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[2]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[3]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[4]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[5]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[6]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[7]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[8]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[9]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[10]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[11]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[12]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[13]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[15]);
+     DEBUG_HEX_BYTE(buffer[14]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[17]);
+     DEBUG_HEX_BYTE(buffer[16]); Serial.print(" ");
+     DEBUG_HEX_BYTE(buffer[19]);
+     DEBUG_HEX_BYTE(buffer[18]); Serial.print(" ");
+     Serial.println();
+}
 
 #endif
 
@@ -75,12 +114,6 @@ bool VDIP::deviceUpdate()
 	  // given a configuration buffer, get this port's data
 	  
 	  mapDevice(i,incoming,&portConfigBuffer);
-
-	  Serial.print("i: ");
-	  Serial.println(i);
-
-	  Serial.print("portConfigBuffer port: ");
-	  Serial.println(portConfigBuffer.port);
 
 	  if(portConfigBuffer.port >= 0 && portConfigBuffer.port < 2) {	// we have a good assignment
 
@@ -142,55 +175,15 @@ bool VDIP::deviceUpdate()
 		    if(ports[i].type == DEVICE_NXT) {
 			 ejectNXT();
 		    }
+		    if(ports[i].type == DEVICE_FIREPLUG) {
+			 ejectFirePlug();
+		    }
 	       }
 	  }
      }
 
      return(changed);
 }
-
-#ifdef DEBUG
-
-void DEBUG_HEX_BYTE(unsigned char c)
-{
-     if(c < 16) {
-	  Serial.print("0");
-     }
-     Serial.print(c,HEX);
-}
-
-//
-// DEBUG_USB_QD() - given a buffer, print out the QD data
-//
-void DEBUG_USB_QD(int dev, unsigned char *buffer)
-{
-     Serial.print("UA (");
-     Serial.print(dev);
-     Serial.print("): ");
-     DEBUG_HEX_BYTE(buffer[0]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[1]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[2]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[3]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[4]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[5]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[6]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[7]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[8]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[9]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[10]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[11]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[12]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[13]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[15]);
-     DEBUG_HEX_BYTE(buffer[14]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[17]);
-     DEBUG_HEX_BYTE(buffer[16]); Serial.print(" ");
-     DEBUG_HEX_BYTE(buffer[19]);
-     DEBUG_HEX_BYTE(buffer[18]); Serial.print(" ");
-     Serial.println();
-}
-
-#endif
 
 //
 // portConnection() - returns the type, the VID, and the PID of the device connected to 
@@ -221,8 +214,6 @@ bool VDIP::portConnection(int port, int *type, unsigned short *vid, unsigned sho
 //
 void VDIP::mapDevice(int dev, char *deviceReport, portConfig *returnPortConfig)
 {
-//     DEBUG_USB_QD(dev, (unsigned char *) deviceReport);
-
      // given the report, map the port number = -1 means that it not a useful report
 
      returnPortConfig->port = deviceReport[DEV_LOCATION] - 1;	// maps 1 => 0, and 2=> 1, and 0 => -1
@@ -231,13 +222,9 @@ void VDIP::mapDevice(int dev, char *deviceReport, portConfig *returnPortConfig)
      returnPortConfig->vid = (deviceReport[DEV_VID+1] << 8) | (deviceReport[DEV_VID]&0x00ff);
      returnPortConfig->pid = (deviceReport[DEV_PID+1] << 8) | (deviceReport[DEV_PID]&0x00ff);
 
-// OLD WAY TO DO THIS
-//     if(deviceReport[DEV_VID] == '\x94') && (deviceReport[DEV_VID+1] == '\x06')) {
-
      if(returnPortConfig->vid == (unsigned short)0x0694) {
 	  returnPortConfig->type = DEVICE_NXT;
      } else if(returnPortConfig->vid == (unsigned short)0x403) {
-       Serial.println("fire");
        returnPortConfig->type = DEVICE_FIREPLUG;
      } else if(deviceReport[DEV_TYPE] == '\x08') {
 	  returnPortConfig->type = DEVICE_CONTROLLER;
@@ -302,7 +289,20 @@ int VDIP::portCmd(int port, vdipcmd vcmd, char *buf, int timeout, int arg /* = 0
 
 int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
 {
-     int	i = 0;
+     // EJR - I read a post about how to decrease the size of a sketch, and one of the interesting
+     //		things was that switch tables work best on (uint8_t) types.  By casting the cmd variable
+     //		below, we save 40 bytes...believe it or not!
+     //
+     //		And THEN I moved the "i" variable to a (uint8_t) and that saved another 48 bytes!  i only
+     //		ever gets to about 10 or so, so this is quite safe.  It appears that index variables benefit
+     //		by being the built-in type.
+     //
+     //		Now I was on a roll, so I went through and moved the loop counters with "x" to (uint8_t)
+     //		and that made NO difference.
+     //
+     //		In any event, this little function now consumes 88 fewer bytes than before.
+
+     uint8_t	i = 0;
      char	cbuf[32];		// command buffer - must be big enough for biggest "rbytes" below
      int	rbytes = 0;		// how many bytes to expect
      bool	twoStage = false;	// true if return has a number of bytes as the first stage
@@ -310,7 +310,7 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
      
      sync();
 
-     switch(cmd) {
+     switch((uint8_t)cmd) {
 
      case VDIP_SUM:		// suspend monitor
 	  {
@@ -367,7 +367,7 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
           {
                cbuf[i++] = '\x0E';
 	       cbuf[i++] = ' ';
-               for (int x = 0; x < 15; x++){
+               for (uint8_t x = 0; x < 15; x++){
                  if (buf[x] == '\0'){
                    break;
                  }
@@ -394,7 +394,7 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
           {
             cbuf[i++] = '\x0A';
             cbuf[i++] = ' ';
-            for (int x = 0; x < 15; x++){
+            for (uint8_t x = 0; x < 15; x++){
                  if (buf[x] == '\0'){
                    break;
                  }
@@ -402,33 +402,17 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
                  i++;
                }
           }
-     case VDIP_FWV:
-         rbytes = arg;
-            {
-              cbuf[i++] = '\x13';
-            }
-          break;
-
-     case VDIP_FBD:
+     
+     case VDIP_FBD:		// note that all useful baud divisors end with byte 3 = 0
          rbytes = 0;
 	 {
 	   cbuf[i++] = '\x18';
 	   cbuf[i++] = '\x20';
-	   cbuf[i++] = '\x1A';
-	   cbuf[i++] = '\x00';
+	   cbuf[i++] = buf[0];
+	   cbuf[i++] = buf[1];
 	   cbuf[i++] = '\x00';
 	 }
           break;
-
-     case VDIP_SF:
-         rbytes = 0;
-	 {
-	   cbuf[i++] = '\x87';
-	   cbuf[i++] = '\x20';
-	   cbuf[i++] = arg;
-	 }
-          break;
-
      }
           	       
      cbuf[i++] = '\r';
@@ -673,8 +657,6 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
        // the EEPROM - instead, it is just used as the current paired device
        // and will be reset (like normal) whenever a new pairing is done.
 
-       extern BT bt;
-
        if(readFile("targetID.txt", buf, BIGENOUGH,true)){
 	    if (bt.addressFilter(buf,BIGENOUGH)) {	// useful address?
 		 bt.setRemoteAddress(buf);
@@ -718,7 +700,7 @@ void VDIP::processNXT(portConfig *portConfigBuffer)
 	  char *name;
 	  char *btAddress;
 	  long	freeMemory;
-          extern BT bt;
+
           if (myEEPROM.getResetStatus() == (byte) 0){
 	    if(nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory)){
 //	      Serial.print("btAddress: \"");
@@ -741,162 +723,147 @@ void VDIP::ejectNXT()
      myEEPROM.setResetStatus(0);
 }
 
-  /*
-bool firePlugBtId(VDIP *vdip, int usbDev, char **btAddress)
+//
+// FirePlug Notes - it seems that the FirePlug operates in a particular baud rate
+// 			ALWAYS.  That is, the FTDI chip in front of the Bluetooth
+//			(CSR) chip always talks to the Bluetooth chip in the baud
+//			rate configured.  This means that when you bring up a
+//			FirePlug, you need to first, guess its baud rate. Then
+//			you can do cool stuff, like ask it for its BlueTooth ID.
+//			You have to talk to the FirePlug using the VDIP built-in
+//			commands to set the baud rate.  THEN you can talk to it
+//			normally.
+
+//
+// tryFirePlugBaud() - given a particular baud rate, try to get the FirePlug to
+//			talk to you.  Leaves the FirePlug in CMD mode when it
+//			finds a good baud rate.
+//
+//		RETURNS: true if it found the baud rate, false otherwise.
+//
+//		NOTE: only a few baud rates are tried at this time to save memory
+//			The baud rates are divisors found in the VDIP documentation.
+//			Sure, this could be a table, but that would more code!
+//
+//				0 -> 9600	(just to check - may ALSO be the switch)
+//				1 -> 38400	(probably ran with this one before)
+//				2 -> 115200	(probably a brand new fireplug)
+//
+
+#define FTDIBAUD_COUNT	3	// number of baud rates available
+#define FTDIBAUD_9600	0
+#define FTDIBAUD_38400	1
+#define FTDIBAUD_115200	2
+
+// note that this table is tied directly to the defines above
+static char divisors[][2] = {
+     { '\x38', '\x41' },	// 9600
+     { '\x4E', '\xC0' },	// 38400
+     { '\x1A', '\x00' }		// 115200
+};
+
+int VDIP::tryFirePlugBaud(portConfig *portConfigBuffer, int rate)
 {
-     // assumes we are connected, otherwise this routine shouldn't be called
+     char	cbuf[50];	// enough for a long DRD return
+     int	r;
 
-     char		cbuf[50];		// arbritarily large buffer for command and response
-     static char	btAddressbuf[13];	// 6 bytes of BT address (ignores the last one)
+     delay(100);	// a bit of time between loops for sure
 
-     *btAddress = btAddressbuf;
-     
-     vdip->cmd(VDIP_SC,NULL,100,usbDev);	// set the current VDIP port to the FirePlug
+     cbuf[0] = divisors[rate][0];
+     cbuf[1] = divisors[rate][1];
 
-     int i = 0;
-     cbuf[i++] = '$';
-     cbuf[i++] = '$';
-     cbuf[i++] = '$';
-     cbuf[i++] = '\r';
+     cmd(VDIP_FBD,cbuf,100,portConfigBuffer->usbDev);
 
-     vdip->cmd(VDIP_DSD,cbuf,100,i);		// send the command
+     delay(100);	// give it time to get the baud rate in there
 
-     delay(1000);			       	// second delay for return of command
+     flush();
 
-     cbuf[i++] = 'G';
-     cbuf[i++] = 'B';
-     cbuf[i++] = '\r';
+     // now try to enter command mode and get the "CMD" prompt back
+     // NOTE that we assume that the FirePlug has just been plugged in
+     // so it is NOT already in command mode
 
-     int r = vdip->cmd(VDIP_DRD,cbuf,100);
+     cmd(VDIP_DSD,"$$$",100,3);
 
-     return true;
+     delay(100);	// time to get into command mode
 
-          if(r != 33) {
-	  return(0);
-     } else {
-          for (int i = 0; i < 15; i++){
-            namebuf[i] = cbuf[3 + i];
-          }
-          
-          int j = 0;
-          for (int i = 18; i < 24; i++){
-            //the last byte is always zero (sorta like a null terminator)
-            btAddressbuf[j++] = hexConverter[(cbuf[i]>>4)&0x0F];  
-            btAddressbuf[j++] = hexConverter[cbuf[i]&0x0F];
-          }
-          btAddressbuf[j] = '\0';
-          
-          long m = 1;
-          for (int i = 29; i < 33; i++, m *= 256){
-            *freeMemory += cbuf[i]*m;
-          }
-          
-	  return(1);
-	  }
-}*/
+     r = cmd(VDIP_DRD,cbuf,100);
+
+     return( (r!=0) && (strncmp("CMD",cbuf,3) == 0));
+}
+
 
 void VDIP::processFirePlug(portConfig *portConfigBuffer)
 {
-  char *btAddress;
-  RIO RIO2;
-  // TODO - maybe shouldn't be an object
-
-  Serial.println("processing fireplug");
-
      char		cbuf[50];		// arbritarily large buffer for command and response
-     static char	btAddressbuf[13];	// 6 bytes of BT address (ignores the last one)
+     int		l;
+     int		i;
 
-    cmd(VDIP_SC,NULL,100,portConfigBuffer->usbDev);	// set the current VDIP port to the FirePlug
+     if (myEEPROM.getResetStatus() != (byte) 0){
+	  // if we are being reset, then don't REprocess the FirePlug
+	  return;
+     }
 
-    Serial.print("usbDev: ");
-    Serial.println(portConfigBuffer->usbDev);
+     delay(100);	// let things setting for a small bit
 
-    delay(1000);
+     cmd(VDIP_SC,NULL,100,portConfigBuffer->usbDev);	// set the current VDIP port to the FirePlug
 
-    cmd(VDIP_SF,cbuf,100, portConfigBuffer->usbDev);		// send the command
+     // we're going to try to get the Bluetooth ID and set the baud rate
+     // for the FirePlug, so when we plug it into the roboRIO, it will
+     // just connect.  We do a software reset at the end of a successful
+     // setting, so we can deal with the potential for being in "pairing"
+     // mode.  Otherwise, the main code would do this, and the FirePlug
+     // would try to be processed again.
 
-    delay(1000);
+     // try all of the baud rates we know about
+     for(i=0; i < FTDIBAUD_COUNT; i++) {
+	  if(tryFirePlugBaud(portConfigBuffer,i)) {
+	       break;
+	  }
+     }
 
-    cmd(VDIP_FBD,cbuf,100);		// send the command
+     if(i==FTDIBAUD_COUNT) {
+	  beeper.icky();
+	  return;	// couldn't find baud rate, so don't do anything useful
+     }
 
-    delay(1000);
+     // Found baud rate, Yippie!
+     // now ask it for the bluetooth ID
 
-    return;
+     cmd(VDIP_DSD,"GB\r",100,3);
+     delay(100);
+     if(cmd(VDIP_DRD,cbuf,100)<12) {
+	  beeper.icky();
+	  return;	// couldn't get a useful BT address, so, again, don't do anything useful
+     }
 
-    int l = cmd(VDIP_DRD,cbuf,100);
+     cbuf[12] = '\0';	// terminate after 12 chars
 
-    delay(1000);			       	// second delay for return of command
+     bt.setRemoteAddress(cbuf);	// and feed straight to local RN42
 
-    Serial.println(l);
+     // now go ahead and set the baud rate to match the ChapR normal operating mode
+     // it will take effect at the NEXT booting...like when the FirePlug is
+     // removed from the ChapR and plugged into something else.
 
-    int i = 0;
-    cbuf[i++] = '$';
-    cbuf[i++] = '$';
-    cbuf[i++] = '$';
-    //    cbuf[i++] = '\r';
+     cmd(VDIP_DSD,BT_SU_BAUD_STRING,100,strlen(BT_SU_BAUD_STRING));
 
-    cmd(VDIP_DSD,cbuf,100,i);		// send the command
+     // and then we're done!  So take it out of command mode
+     delay(100);
+     cmd(VDIP_DSD,"---\r",100,4);
 
-    delay(1000);
+     // at this point we've done some useful stuff, so prepare for a software reset
+     // that will not cause us to try to process the FirePlug again.
 
-    l = cmd(VDIP_DRD,cbuf,100);
+     myEEPROM.setResetStatus(1); // increments the "status" so that the ChapR knows it has been reset
 
-    delay(1000);			       	// second delay for return of command
+     delay(100);
+     software_Reset();
 
-    Serial.println(l);
-
-     i = 0;
-     cbuf[i++] = 'G';
-     cbuf[i++] = 'B';
-     cbuf[i++] = '\r';
-
-     cmd(VDIP_DSD,cbuf,100,i);		// send the command
-
-     delay(1000);
-
-     int r = cmd(VDIP_DRD,cbuf,100);
-
-     Serial.println(r);
-
-     delay(1000);
-
-//     return true;
-
-//  if (firePlugBtId(this, portConfigBuffer->usbDev,&btAddress)){
-	      Serial.print("btAddress: \"");
-	      Serial.print(cbuf);
-	      Serial.print("\"");
-
-	      //              bt.setRemoteAddress(btAddress);
-
-
-	      //  }
-  /*
-	  char *name;
-	  char *btAddress;
-	  long	freeMemory;
-          extern BT bt;
-          if (myEEPROM.getResetStatus() == (byte) 0){
-	    if(nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory)){
-//	      Serial.print("btAddress: \"");
-//	      Serial.print(btAddress);
-//	      Serial.print("\"");
-              bt.setRemoteAddress(btAddress);
-              delay(100);
-//	      Serial.print(myEEPROM.getResetStatus());
-              myEEPROM.setResetStatus(1); // increments the "status" so that the ChapR knows it has been reset
-//	      Serial.print(myEEPROM.getResetStatus());
-
-              delay(1000);
-              software_Reset();
-            }
-	    }    */
+     return;
 }
 
 void VDIP::ejectFirePlug()
 {  
-  Serial.println("ejected FirePlug");
-  //     myEEPROM.setResetStatus(0);
+     myEEPROM.setResetStatus(0);
 }
 
 //
