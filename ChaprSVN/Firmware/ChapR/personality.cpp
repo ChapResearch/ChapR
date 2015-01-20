@@ -4,7 +4,7 @@
 //   General personality class, implementing matchMode etc.
 //
 
-#include <arduino.h>
+#include <Arduino.h>
 #include "VDIP.h"
 #include "BT.h"
 #include "gamepad.h"

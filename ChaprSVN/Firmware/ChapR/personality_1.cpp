@@ -4,7 +4,7 @@
 //   Implements the personality:  NXT-G
 //
 
-#include <arduino.h>
+#include <Arduino.h>
 #include "VDIP.h"
 #include "BT.h"
 #include "gamepad.h"

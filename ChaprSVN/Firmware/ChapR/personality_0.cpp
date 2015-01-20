@@ -3,7 +3,7 @@
 //
 //   Implements the personality:  NXT-RobotC
 //
-#include <arduino.h>
+#include <Arduino.h>
 #include "VDIP.h"
 #include "BT.h"
 #include "gamepad.h"

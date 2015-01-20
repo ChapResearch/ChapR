@@ -1,4 +1,4 @@
-#include <arduino.h>
+#include <Arduino.h>
 #include <EEPROM.h>
 #include <avr/sleep.h>
 #include <SoftwareSerial.h>

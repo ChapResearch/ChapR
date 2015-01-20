@@ -4,7 +4,7 @@
 //	Debug routines.
 //
 
-#include <arduino.h>
+#include <Arduino.h>
 #include "debug.h"
 
 void dumpDataHex(char *label, byte *buffer, int count)

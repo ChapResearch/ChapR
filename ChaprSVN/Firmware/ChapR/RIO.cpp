@@ -2,7 +2,7 @@
 // RIO.cpp  (see RIO.h too)
 //
 
-#include <arduino.h>
+#include <Arduino.h>
 #include "VDIP.h"
 #include "gamepad.h"
 #include "RIO.h"

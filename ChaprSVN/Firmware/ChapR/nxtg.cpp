@@ -6,7 +6,7 @@
 //  These routines know about the message format for the NXT when running NXT-G.
 //
 
-#include <arduino.h>
+#include <Arduino.h>
 #include "nxtg.h"
 
 //
