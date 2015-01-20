@@ -41,7 +41,7 @@
 // a flash drive, and storing the controller database in EEPROM (or part of it anyway).
 // There would undoubtedly be a mechanism for clearing the controller data too.
 
-#include <arduino.h>
+#include <Arduino.h>
 #include "VDIP.h"
 #include "drivers.h"
 #include "gamepad.h"

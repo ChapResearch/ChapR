@@ -2,7 +2,7 @@
 // robotc.cpp  (see robotc.h too)
 //
 
-#include <arduino.h>
+#include <Arduino.h>
 #include "VDIP.h"
 #include "gamepad.h"
 #include "robotc.h"
