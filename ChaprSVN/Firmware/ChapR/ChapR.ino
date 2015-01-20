@@ -71,7 +71,7 @@ Gamepad		g2_prev(2);	// the buffer for the gamepad data before current changes
 /****************************************************************************************/
 
 bool    inConfigMode; // whether or not the ChapR is in pairing mode
-long    powerTimeout; // how long until the ChapR turns itself off (configured by user)
+unsigned long    powerTimeout; // how long until the ChapR turns itself off (configured by user)
 int     lag; // changes the delay between loops
 
 // set to true when the power button is pressed for the first time, which makes sure kill codes

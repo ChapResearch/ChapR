@@ -358,7 +358,7 @@ void BT::btWrite(byte *buffer, int size)
 //
 int BT::recv(char *buffer, long timeout)
 {
-     long target = millis() + timeout;
+     unsigned long target = millis() + timeout;
      int i = 0;
 
      do {
@@ -380,7 +380,7 @@ int BT::recv(char *buffer, long timeout)
 // recv() - receive the specified number of bytes without null termination
 int BT::recv(byte *buffer, int count, long timeout){
      //read first two bytes to determine size (use timeout as an escape hatch)
-     long target = millis() + timeout;
+     unsigned long target = millis() + timeout;
      int i = 0;
      
      while (millis() < target && count){
