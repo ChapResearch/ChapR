@@ -17,7 +17,7 @@ class button
   int _pin;
   bool _wasPressed;
   bool _inverted;
-  long _target;
+  unsigned long _target;
 };
 
 #endif BUTTON_H

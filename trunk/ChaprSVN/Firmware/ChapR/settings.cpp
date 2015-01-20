@@ -111,7 +111,7 @@ void settings::printCurrentValue(int eAddress, unsigned int max, int type)
 
 
        case PROMPT_BITS:
-	  for (int i=0, d=EEPROM.read(eAddress); i < max; i++) {
+	  for (unsigned int i=0, d=EEPROM.read(eAddress); i < max; i++) {
 	       Serial.print((d&0x01)?"1":"0");
 	       d = d>>1;
 	  }
@@ -142,7 +142,7 @@ void settings::doSetting(int			 eAddress, 	// EEPROM address of this setting
      long	num = 0;
      double     dnum;
      bool	invalid;
-     int	i;
+     unsigned int	i;
 
      while(true) {
 	  Serial.print(F("Enter ChapR "));
