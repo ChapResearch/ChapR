@@ -180,9 +180,11 @@ void BT::configMode(char *name)
 #endif
      delay(30);
 
-     btSend("SU,");		// set appropriate baud
-     btSend(BT_SU_BAUD);
-     btSend("\r");
+     btSend(BT_SU_BAUD_STRING);	// set appropriate baud
+
+//     btSend("SU,");		// old way
+//     btSend(BT_SU_BAUD);
+//     btSend("\r");
 
      delay(30);
 

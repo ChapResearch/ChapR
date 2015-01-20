@@ -14,6 +14,7 @@
 //
 #define BT_OP_BAUD	38400
 #define BT_SU_BAUD     	"38"
+#define BT_SU_BAUD_STRING     	"SU,38\r"
 #define BT_U_BAUD	"38.4"
 #define BT_CONFIG_BAUD  9600
 
