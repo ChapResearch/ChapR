@@ -139,7 +139,7 @@ void settings::doSetting(int			 eAddress, 	// EEPROM address of this setting
 {
 #define MAXLINE		50
      char	lineBuffer[MAXLINE];		// just statically set - will cover all read types
-     long	num;
+     long	num = 0;
      double     dnum;
      bool	invalid;
      int	i;
@@ -324,7 +324,6 @@ void settings::setString(int start, int maxLength, char *thing)
 //
 char* settings::getString(int start, int length)
 {
-  int size = length;
   int i;
   static char buffer[EEPROM_MAXSTRINGLENGTH];
   

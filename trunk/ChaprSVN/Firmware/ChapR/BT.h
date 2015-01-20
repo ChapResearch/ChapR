@@ -46,7 +46,7 @@ public:
      BT(uint8_t receive,
 	uint8_t transmit, 
 	uint8_t reset, 		// TO BT> used to reset the BT module (necessary?)
-	uint8_t auto, 		// TO BT> sets auto connect mode - off when pairing
+	uint8_t automode,	// TO BT> sets auto connect mode - off when pairing
 	uint8_t baud,		// TO BT> sets 9600 baud mode
 	uint8_t connect);	// FROM BT< high when connected
 
