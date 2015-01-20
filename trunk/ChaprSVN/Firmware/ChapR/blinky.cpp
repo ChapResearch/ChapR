@@ -82,6 +82,7 @@ void blinky::update()
      unsigned long	now = millis();
 
      switch(_state) {
+     default:
      case BLINKY_ON:	output = HIGH; break;
      case BLINKY_OFF:	output = LOW; break;
      case BLINKY_SLOW:	output = (now & 512)?(_shift)?LOW:HIGH:(_shift)?HIGH:LOW; break;
