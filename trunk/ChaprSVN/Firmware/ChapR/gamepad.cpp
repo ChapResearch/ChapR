@@ -40,32 +40,6 @@ void Gamepad::clear()
 }
 
 //
-// load() - given a byte array of data from a USB read of a gamepad, load it into
-//	    the standardized form in this gamepad object/structure.  Assumes that
-//	    the incoming byte array has 7 useful bytes.
-//
-void Gamepad::load(byte *usbdata)
-{
-     x1 = ((int)(usbdata[0]))-128;			// joystick 1 (left) X axis 
-     y1 = ((int)(usbdata[1]))-128;			// joystick 1 (left) Y axis 
-     x2 = ((int)(usbdata[2]))-128;			// joystick 2 (right) X axis 
-     y2 = ((int)(usbdata[3]))-128;			// joystick 2 (right) Y axis 
-
-     // usbdata[4] has buttons 4-1 in top 4 bits
-     // usbdata[5] has buttons 12-5
-
-     buttons = ((unsigned int)((usbdata[4]&0xf0)>>4)) | (((unsigned int)usbdata[5])<<4);
-     
-     tophat = usbdata[4] & 0x0f;				// tophat
-     if (tophat & 0x08) {					// 0x08 means that no tophat pressed
-         tophat = 0;
-     } else{
-       tophat++; //we have to map north to 1 to match the canonical form
-     }
-     //debugPrint("");
-}
-
-//
 // update() - updates the gamepad to see if anything has changed.  If so, returns true,
 //		false if nothing has changed.  If there was a change, the gamepad is
 //		updated to include the new values.
