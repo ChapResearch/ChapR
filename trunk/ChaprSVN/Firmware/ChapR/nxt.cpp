@@ -193,10 +193,10 @@ int nxtOpenFileToRead(BT *bt, char *buf, long *fileSize)
 
      // determines the size of the file
      
-     *fileSize = outbuff[4];
-     *fileSize |= outbuff[5] << 8;
-     *fileSize |= outbuff[6] << 16;
-     *fileSize |= outbuff[7] << 24;
+     *fileSize = (long)outbuff[4];
+     *fileSize |= ((long)outbuff[5]) << 8;
+     *fileSize |= ((long)outbuff[6]) << 16;
+     *fileSize |= ((long)outbuff[7]) << 24;
      
      // returns the handle of the file
 

@@ -59,7 +59,7 @@
 //	  turns on the right LED to identify the controller - it will do the same for PS3
 //
 
-struct {
+struct usbIDTable {
      unsigned short	vid;	// vendor ID
      unsigned short	pid;	// product ID
      xlateFn	xlate;	// function to xlate to gamepad canonical form
