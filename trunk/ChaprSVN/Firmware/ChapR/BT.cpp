@@ -4,6 +4,15 @@
 #include "SoftwareSerial.h"
 
 //
+// delay30() - a replacement for delay(30) that, becuase it is used so much in this
+//		file, saved 84 bytes.
+//
+static void delay30()
+{
+	delay(30);
+}
+
+//
 // constructor
 //
 BT::BT(uint8_t receive,
@@ -156,7 +165,7 @@ void BT::configMode(char *name)
 
      btSend("$$$");		// get into command mode
 
-     delay(30);
+     delay30();
 
      // see the bottom of the file for notes about GPIOs
 
@@ -171,14 +180,14 @@ void BT::configMode(char *name)
      btSend("SA,4");            // tells the RN-42 to use simple pin mode authentication
      btSend("\r");
 
-     delay(30);
+     delay30();
 
      btSend("SY,000C\r");	// set power to 12 db
 #endif
 #ifdef btV477
      btSend("SY,0004\r");	// set power to 12 db
 #endif
-     delay(30);
+     delay30();
 
      btSend(BT_SU_BAUD_STRING);	// set appropriate baud
 
@@ -186,23 +195,23 @@ void BT::configMode(char *name)
 //     btSend(BT_SU_BAUD);
 //     btSend("\r");
 
-     delay(30);
+     delay30();
 
      btSend("SN,");		// set the appropriate name
      btSend(name);
      btSend("\r");
 
-     delay(30);
+     delay30();
 
      btSend("SM,4");		// auto connect mode
      btSend("\r");
 
-     delay(30);
+     delay30();
 
      btSend("SR,Z");		// erased previously stored connection
      btSend("\r");
 
-     delay(30);
+     delay30();
 
      btSend("SX,1");		// set bonding mode (only stored device can attach)
      btSend("\r");
@@ -211,7 +220,7 @@ void BT::configMode(char *name)
 
 //     btSend("S?,1");		// attempt master/slave flip
 //     btSend("\r");
-//     delay(30);		// no reason to do this any more - we do it manually
+//     delay30();		// no reason to do this any more - we do it manually
 
      btSend("U,");		// do an immediate baud rate setting
      btSend(BT_U_BAUD);		// to eliminate the need for a reboot
@@ -233,16 +242,16 @@ void BT::setRemoteAddress(char *address)
   reset();
 
   btSend("$$$");		// get into command mode
-  delay(30);
+  delay30();
 
   btSend("SR,");
   btSend(address);
   btSend("\r");
-  delay(30);
+  delay30();
 
   btSend("---");		// and out of command mode
   btSend("\r");
-  delay(30);
+  delay30();
 
   baud9600mode(false);	// get out of 9600 mode, but leave auto connect off
   autoConnectMode(true);
@@ -267,12 +276,12 @@ void BT::opMode()
 
      btSend("$$$");		// get into command mode
 
-     delay(30);
+     delay30();
 
      btSend("Q,1");		// make the chapr undiscoverable (don't know if this works)
      btSend("\r");
 
-     delay(30);
+     delay30();
 
      btSend("---");		// and out of command mode
      btSend("\r");
@@ -531,12 +540,12 @@ void BT::zombieMode()
 
      btSend("$$$");		// get into command mode
 
-     delay(30);
+     delay30();
 
      btSend("K,");		// disconnects any connection
      btSend("\r");
 
-     delay(30);
+     delay30();
 
      btSend("Z");              //enters deep sleep mode
      btSend("\r");
@@ -566,11 +575,11 @@ void BT::zombieMode()
 //
 // set GPI08 - GPIO11 as inputs (normally only 8 is an output anyway
 //     btSend("S*,0f00\r");
-//     delay(30);
+//     delay30();
 //
 // turn off GPIO 0,1,5 0b00100011 mask, 0b00000000 value
 //     btSend("S@,2300\r");
-//     delay(30);
+//     delay30();
 //     btSend("S&,2300\r");	// no pull-ups
-//     delay(30);
+//     delay30();
 ///////////////////////////////////////////////////////////////////
