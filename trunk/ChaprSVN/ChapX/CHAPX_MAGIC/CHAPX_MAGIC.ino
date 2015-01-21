@@ -57,7 +57,7 @@ void loop(){
           doSimon();
         }
         if(gameType == 3){
-          doTeam();
+          doPiano();
         }
     }
     if(gameType == 1){
@@ -67,7 +67,7 @@ void loop(){
       checkSimon();
     }
     if(gameType == 3){
-      checkTeam();
+      //checkTeam();
     }
     readVMusic();
     if (Serial.available())
@@ -234,7 +234,20 @@ void checkClassic(){
     
     
 }
-
+void doPiano(){
+  int note = readTouchInputs();
+  bool playing = true;
+  for(int x = 0; x < 12; x++){
+    if(note == x){
+      playNoise('n',x);
+      delay(500);
+      if(x == 11){
+        pressStart = true;
+      }
+    }
+  }
+  
+}
 void checkSimon(){
   if(strikes1 == 6){
     if(level > highScore1){  
