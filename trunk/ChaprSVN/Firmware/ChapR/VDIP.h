@@ -116,7 +116,7 @@ private:
      portConfig ports[2];	// two physical ports [0] = port1, [1] = port2
 
      int  _resetDelay;	// we've been reset, and are still in reset mode (set by reset())
-     long _resetTarget;	// target time before out of reset (set by reset())
+     unsigned long _resetTarget;	// target time before out of reset (set by reset())
 
      bool readBytes(int count, char *, int);
      bool sendBytes(int count, const char *, int);

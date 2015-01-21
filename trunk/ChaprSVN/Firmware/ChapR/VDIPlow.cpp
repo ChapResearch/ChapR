@@ -44,7 +44,7 @@ VDIP::VDIP(uint8_t clockPin, uint8_t mosiPin, uint8_t misoPin, uint8_t csPin, ui
 //
 bool VDIP::readBytes(int count, char  *retarray, int timeout)
 {
-     long	 target = millis() + timeout;
+  unsigned long	 target = millis() + timeout;
      
      for (int i=0; i < count; i++) {
 	  while(!recv((unsigned char *)retarray+i)) {
@@ -69,7 +69,7 @@ bool VDIP::readBytes(int count, char  *retarray, int timeout)
 //
 bool VDIP::sendBytes(int count, const char *buffer, int timeout)
 {
-     long	 target = millis() + timeout;
+     unsigned long	 target = millis() + timeout;
 
      for (int i=0; i < count; i++) {
 	  while(!send(buffer[i],false)) {
@@ -78,6 +78,7 @@ bool VDIP::sendBytes(int count, const char *buffer, int timeout)
 	       }
 	  }
      }
+     return true;
 }
 
 //
@@ -99,7 +100,7 @@ bool VDIP::sendBytes(int count, const char *buffer, int timeout)
 //
 void VDIP::flush(int timeout)
 {
-     long		target = millis() + timeout;
+     unsigned long		target = millis() + timeout;
      unsigned char	buffer[1];
 
      while(recv(buffer)) {
@@ -180,7 +181,7 @@ bool VDIP::sync()
      #define RESENDTIME		200
 
      while(true) {
-	     long	timeout;
+	     unsigned long	timeout;
 
 	     timeout = millis() + RESENDTIME;
 

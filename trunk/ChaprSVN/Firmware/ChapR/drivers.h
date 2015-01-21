@@ -25,7 +25,7 @@ typedef bool (*xlateFn)(byte *,int, Gamepad &);
 
 typedef bool (*initFn)(int,VDIP*);
 
-extern void driverLookup(int,int,xlateFn *,initFn *);
+extern void driverLookup(unsigned int,unsigned int,xlateFn *,initFn *);
 extern bool driverF310(byte *, int, Gamepad &);
 extern bool driverXbox360(byte *, int, Gamepad &);
 extern bool driverAttack3(byte *, int, Gamepad &);

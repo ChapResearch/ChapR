@@ -60,8 +60,8 @@
 //
 
 struct {
-     short	vid;	// vendor ID
-     short	pid;	// product ID
+     unsigned short	vid;	// vendor ID
+     unsigned short	pid;	// product ID
      xlateFn	xlate;	// function to xlate to gamepad canonical form
      initFn	init;	// function to init gamepad the first time
 } usbIDTable[] = {
@@ -76,7 +76,7 @@ struct {
      { 0x0000, 0x0000, (xlateFn) NULL, (initFn) NULL }	// last one in table must be this
 };
 
-void driverLookup(int vid, int pid, xlateFn *xlate, initFn *init)
+void driverLookup(unsigned int vid, unsigned int pid, xlateFn *xlate, initFn *init)
 {
      int	i = 0;
 
@@ -108,7 +108,8 @@ bool driverAttack3(byte *data, int count, Gamepad &target)
 
      target.buttons = data[3];			// start by just copying first 8 buttons
      target.buttons |= ((int)data[4]) << 8;	// then put in others
-
+     
+     return true;
 }
 
 //
