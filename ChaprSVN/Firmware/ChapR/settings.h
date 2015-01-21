@@ -95,8 +95,8 @@ public:
      short analog4;
      bool matchModeEnable;
 
-     void doSetting(int,const __FlashStringHelper *, const __FlashStringHelper *,unsigned int,unsigned int,int);
-     void printCurrentValue(int,unsigned int, int);
+     void doSetting(int,const __FlashStringHelper *, const __FlashStringHelper *,unsigned int,unsigned int,uint8_t);
+     void printCurrentValue(int,unsigned int, uint8_t);
      int  getStringFromMonitor(char*, int);
      void setString(int, int, char*);
      char *getString(int, int);

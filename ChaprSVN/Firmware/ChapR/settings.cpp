@@ -87,7 +87,7 @@ int settings::getStringFromMonitor(char *buffer, int size)
 #define PROMPT_BITS	2
 #define PROMPT_SHORT	3
 #define PROMPT_ANALOG   4
-void settings::printCurrentValue(int eAddress, unsigned int max, int type)
+void settings::printCurrentValue(int eAddress, unsigned int max, uint8_t type)
 {
   short num;
      switch(type) {
@@ -135,7 +135,7 @@ void settings::doSetting(int			 eAddress, 	// EEPROM address of this setting
 			    const __FlashStringHelper *help,		// the "help" string - used only during setting, not confirmation
 			    unsigned int   	 min,		// minimum value for error checking
 			    unsigned int   	 max,		// maximum value for error checking
-			    int	    	   	 type)		// how the input is read from the user
+			    uint8_t	  	 type)		// how the input is read from the user
 {
 #define MAXLINE		50
      char	lineBuffer[MAXLINE];		// just statically set - will cover all read types

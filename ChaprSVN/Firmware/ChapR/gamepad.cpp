@@ -4,7 +4,7 @@
 
 // constructor - loads up a blank (but valid) gamepad
 
-Gamepad::Gamepad(int _id) : id(_id), x1(0), y1(0), x2(0), y2(0), buttons(0), tophat(0), translator(NULL), init(NULL), initialized(false)
+Gamepad::Gamepad(int _id) : translator(NULL), init(NULL), id(_id), x1(0), y1(0), x2(0), y2(0), buttons(0), tophat(0), initialized(false)
 {
 }
 

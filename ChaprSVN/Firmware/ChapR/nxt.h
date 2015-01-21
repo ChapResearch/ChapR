@@ -176,7 +176,7 @@ extern bool nxtQueryDevice(VDIP *, int, char **, char **, long *);
 extern bool  nxtBTKillCommand(BT *);
 extern bool nxtGetProgramName(BT *, char*);
 extern bool nxtGetChosenProgram(BT *, char*);
-extern int nxtOpenFileToRead(BT *, char*);
+extern int nxtOpenFileToRead(BT *, char*, long*);
 extern int nxtReadFile(BT *, char *, int, int);
 extern bool nxtCloseFile(BT *, int);
 extern bool nxtRunProgram(BT *, char *);

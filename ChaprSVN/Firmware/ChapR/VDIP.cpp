@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "RIO.h"
+//#include "RIO.h"
 #include "VDIPSPI.h"
 #include "VDIP.h"
 #include "BT.h"
@@ -546,27 +546,20 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 
        if(readFile("timeout.txt", buf, BIGENOUGH)){
          byte newNum = (byte) atoi(buf);
-         if (newNum >= 0 && newNum <= EEPROM_MAXTIMEOUT){
          myEEPROM.setTimeout(newNum);
-         }
        }
 
        // get the lag time
 
        if(readFile("lag.txt", buf, BIGENOUGH)){
-         byte newNum = (byte) atoi(buf);
-         if (newNum >= 0 && newNum <= EEPROM_MAXLAG){
-         myEEPROM.setSpeed(newNum);
-         }
+	   myEEPROM.setSpeed((byte) atoi(buf));
        }
 
        // get the user mode
 
        if(readFile("mode.txt", buf, BIGENOUGH)){
          byte newNum = (byte) atoi(buf);
-         if (newNum >= 0 && newNum <= EEPROM_MAXMODE){
          myEEPROM.setMode(newNum);
-         }
        }
 
        // enable or disable match mode cycling
@@ -666,7 +659,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 
 // TODO: make target.txt work - it should take a NAME and find the BT ID for it
 
-       if(readFile("target.txt", buf, BIGENOUGH,true)){
+//       if(readFile("target.txt", buf, BIGENOUGH,true)){
 //	    Serial.print("target: \"");
 //	    Serial.print(buf);
 //	    Serial.println("\"");
@@ -674,7 +667,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 //		 bt.setRemoteAddress(buf);
 //		 delay(100);
 //	    }
-       }
+//       }
 
        // the confirm beep indicates that all files that existed were read
        // it doesn't confirm that all data was cool
@@ -701,8 +694,8 @@ void VDIP::processNXT(portConfig *portConfigBuffer)
 	  char *btAddress;
 	  long	freeMemory;
 
-          if (myEEPROM.getResetStatus() == (byte) 0){
-	    if(nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory)){
+          if (myEEPROM.getResetStatus() == (byte) 0 && 
+	    nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory)){
 //	      Serial.print("btAddress: \"");
 //	      Serial.print(btAddress);
 //	      Serial.print("\"");
@@ -714,8 +707,7 @@ void VDIP::processNXT(portConfig *portConfigBuffer)
 
               delay(1000);
               software_Reset();
-            }
-          }    
+	  }
 }
 
 void VDIP::ejectNXT()
@@ -795,7 +787,6 @@ int VDIP::tryFirePlugBaud(portConfig *portConfigBuffer, int rate)
 void VDIP::processFirePlug(portConfig *portConfigBuffer)
 {
      char		cbuf[50];		// arbritarily large buffer for command and response
-     int		l;
      int		i;
 
      if (myEEPROM.getResetStatus() != (byte) 0){
