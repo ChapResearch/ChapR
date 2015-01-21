@@ -105,7 +105,6 @@ public:
      unsigned int	buttons;	// buttons & 0x01 is button 1, 0x02 is 2, 0x04 is 3, 0x08 is 4, etc.
      unsigned int	tophat;		// 0 if nothing pressed, 1 thru 8 for N, NE, E, etc... (clockwise)
 
-     void		load(byte *usbdata);
      void		debugPrint(char *);
      bool		update(VDIP *);
      void		deviceUpdate(VDIP *);
