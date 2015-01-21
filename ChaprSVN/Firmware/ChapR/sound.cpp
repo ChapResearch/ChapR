@@ -10,6 +10,11 @@
 #define SOUND_ON	tonePowerOn()
 #define SOUND_OFF       tonePowerOff()
 
+void delay50()
+{
+	delay(50);
+}
+
 sound::sound(int pin) :
      _pin(pin)
 {
@@ -21,9 +26,9 @@ void sound::confirm()
 {
      SOUND_ON;
      tone(_pin,440,50);
-     delay(50);
+     delay50();
      tone(_pin,880,50);
-     delay(50);
+     delay50();
      SOUND_OFF;
 }
 
@@ -128,13 +133,13 @@ void sound::select()
   noTone(_pin);
   
   tone(_pin,1500);
-  delay(50);
+  delay50();
 
   tone(_pin,1000);
-  delay(50);
+  delay50();
 
   tone(_pin,1500);
-  delay(50);
+  delay50();
   
   noTone(_pin);
   SOUND_OFF;
@@ -146,13 +151,13 @@ void sound::select()
   noTone(_pin);
   
   tone(_pin,1500);
-  delay(50);
+  delay50();
 
   tone(_pin,1000);
-  delay(50);
+  delay50();
 
   tone(_pin,1500);
-  delay(50);
+  delay50();
   
   noTone(_pin);
   SOUND_OFF;
