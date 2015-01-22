@@ -14,11 +14,12 @@
 #include "settings.h"
 #include "button.h"
 #include "gamepad.h"
+#include "matchmode.h"
 #include "personality.h"
 #include "personality_0.h"		// NXT-RobotC
 #include "personality_1.h"		// NXT-G
 #include "personality_2.h"              // NXT-LabView
-#include "personality_3.h"		// cRIO-LabView
+#include "personality_3.h"		// RIO (roboRIO in particular)
 #include "power.h"
 
 #include "debug.h"
@@ -54,8 +55,9 @@ settings myEEPROM;
 Personality_0	p0;
 Personality_1	p1;
 Personality_2   p2;
-Personality_3	p3;
-Personality	*personalities[] = { &p0, &p1, &p2, &p3 };
+//Personality_3	p3;
+//Personality	*personalities[] = { &p0, &p1, &p2, &p3 };
+Personality	*personalities[] = { &p0, &p1, &p2 };
 int		current_personality;
 
 Gamepad		g1(1);		// I'm gamepad #1!
@@ -70,15 +72,15 @@ Gamepad		g2_prev(2);	// the buffer for the gamepad data before current changes
 /*											*/
 /****************************************************************************************/
 
-bool    inConfigMode; // whether or not the ChapR is in pairing mode
-unsigned long    powerTimeout; // how long until the ChapR turns itself off (configured by user)
-int     lag; // changes the delay between loops
+bool		inConfigMode; // whether or not the ChapR is in pairing mode
+unsigned long   powerTimeout; // how long until the ChapR turns itself off (configured by user)
+int	 	lag; 	      // changes the delay between loops
 
 // set to true when the power button is pressed for the first time, which makes sure kill codes
 // aren't sent on power up (and the ChapR isn't turned off by having the power button pressed for
 // too long).
-bool	power_button_released = false;
 
+bool	power_button_released = false;
 
 //
 // setup() - this routine is run ONCE by the Arduino upon start-up.
@@ -169,7 +171,8 @@ void loop()
 {
      static int	        loopCount = 0;
      static bool	wasConnected = false;
-     static long         timeButtonPressed; //how long the power button has been pressed (makes sure the ChapR isn't accidentally turned off)
+     static long        timeButtonPressed; //how long the power button has been pressed
+                                           //       (makes sure the ChapR isn't accidentally turned off)
      static long        lastAnyAction = millis();
      bool		js1 = false;
      bool		js2 = false;
@@ -198,6 +201,8 @@ void loop()
        }
      }
      
+     // if you hold the power button down for awhile, it will turn off the ChapR
+
      if (power_button_released && powerButton.isPressed()){
        if (millis() - timeButtonPressed > POWEROFFHOLDDOWN){
            powerLED.off();

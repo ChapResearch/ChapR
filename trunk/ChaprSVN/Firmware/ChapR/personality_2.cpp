@@ -9,6 +9,7 @@
 #include "BT.h"
 #include "gamepad.h"
 #include "nxt.h"
+#include "matchmode.h"
 #include "personality.h"
 #include "personality_0.h"
 #include "personality_2.h"
