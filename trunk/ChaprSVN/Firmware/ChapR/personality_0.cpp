@@ -35,6 +35,9 @@ extern settings myEEPROM;
 bool Personality_0::matchStateProcess(mmState mmState, void *rock)
 {
      switch(mmState) {
+     case MM_OFF:
+	  enabled = false;	// ensure we are always disabled when in OFF state
+	  break;
 
      case MM_AUTO_PREP:		// prepare for autonomous - allow the standard "true" to be returned
 	  mode = MODE_AUTO;	//   because we don't wait for anything to get going in autonomous
@@ -60,20 +63,19 @@ bool Personality_0::matchStateProcess(mmState mmState, void *rock)
 	  break;
 
      case MM_ENDGAME_START:	// endgame (within teleop) is starting
-	  // need an engame start sound here
+	  // need an endgame start sound here
 	  break;
 
      case MM_TELEOP_END:	// teleop is ending
 	  // need a end of game sound here
-	  break;
+	  // FALL THROUGH to next case - 'cause we need to kill the program at the end of Teleop
 
      case MM_KILL:		// the match as been killed
 	  myKill((BT*)rock);	// kill any running program
 	  break;
 
      default:
-	  // there are a few states that we don't care about, so they don't do anything
-	  // in this code: MM_ENDGAME_END, MM_OFF
+	  // we don't need MM_ENDGAME_END at this point
 	  break;
      }
 
