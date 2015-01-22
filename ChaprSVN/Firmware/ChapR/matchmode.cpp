@@ -132,6 +132,10 @@ void MatchMode::MatchButtonProcess(void *rock_incoming)
 //	    Should only be called if match mode is enabled, but just in case...
 //	    When the kill switch isn't active, it switches match mode in/out.
 //
+//	Note that the MATCHMODE_SWITCH_DELAY is the number of milliseconds between
+//	kill's that cause the matchmode to switch.
+//
+#define MATCHMODE_SWITCH_DELAY	2000
 void MatchMode::MatchKillProcess(void *rock_incoming)
 {
      rock = rock_incoming;
@@ -140,10 +144,19 @@ void MatchMode::MatchKillProcess(void *rock_incoming)
 	  switch(currentState) {
 
 	  case MM_OFF:
-	       // check to see if the kill switch was pressed twice within 3 seconds
+	       // if we're in the MM_OFF state, this is the only time when we can
+	       // switch match modes.  BUT - when the kill button is hit, even if
+	       // we DO switch modes, we first need to kill what is currently going
+	       // on.  So to do this, we go ahead and jump to the MM_KILL state
+	       // which will call the kill callback, and then jump back to this state.
+	       // Note that this is done RIGHT AWAY because kill should happen immediately
+
+	       enterState(MM_KILL);
+
+	       // check to see if the kill switch was pressed twice within the MATCHMODE_SWITCH_DELAY
 	       // if so, deactivate matchmode
 
-	       if (lastPressTime > 0 && millis() - lastPressTime <= 3000) {
+	       if (lastPressTime > 0 && millis() - lastPressTime <= MATCHMODE_SWITCH_DELAY) {
 		    active = !active;
 		    beeper.select();
 		    if (active){
@@ -154,6 +167,7 @@ void MatchMode::MatchKillProcess(void *rock_incoming)
 	       lastPressTime = millis();
 	       break;
 
+	       // in any other state, the kill is issued
 	  default:
 	       enterState(MM_KILL);
 	       break;

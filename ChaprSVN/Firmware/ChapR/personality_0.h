@@ -25,6 +25,7 @@ class Personality_0 : public Personality, public MatchMode
 
 private:
      void myKill(BT *bt);
+     void myTeleopStart(BT *bt);
 
 public:
      Personality_0();
@@ -38,7 +39,7 @@ public:
      virtual bool	 matchStateProcess(mmState,void*);
 
      int	 mode;			// either MODE_TELEOP or MODE_AUTO
-     bool	 enabled;		// either TRUE when enabled for FALSE
+     bool	 enabled;		// either TRUE when enabled for FALSE (wait-for-start)
 };
 
 
