@@ -191,8 +191,7 @@ void MatchMode::enterState(mmState newState)
 	  break;
 
      case MM_AUTO_PREP:
-	  if(callBack()) {
-	       // if it returns TRUE, then we go on, not waiting for a button press
+	  if(callBack()) {	 // if it returns TRUE, then we go on, not waiting for a button press
 	       enterState(MM_AUTO_START);
 	  }
 	  break;
@@ -208,8 +207,7 @@ void MatchMode::enterState(mmState newState)
 	 break;
 
     case MM_TELEOP_PREP:
-	 if(callBack()) {
-	       // if it returns TRUE, then we go on, not waiting for a button press
+	 if(callBack()) {	// if it returns TRUE, then we go on, not waiting for a button press
 	       enterState(MM_TELEOP_START);
 	 }
 	 break;

@@ -32,6 +32,9 @@
 
 class Personality_1 : public Personality
 {
+private:
+     void mySendMessageInt(BT *,int,int);
+     void mySendMessageBool(BT *,int,bool);
 public:
      virtual void ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *);
      virtual void ChangeButton(BT *bt, bool button);

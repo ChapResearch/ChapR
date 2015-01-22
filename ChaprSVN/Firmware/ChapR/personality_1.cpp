@@ -16,10 +16,6 @@
 
 #include "debug.h"
 
-// this little define scales the joystick value from -100 to 100
-
-#define GPADSCALE(x)	(x+((x<0)?0:1))*100/128
-
 extern sound beeper;
 
 //
@@ -33,9 +29,6 @@ extern sound beeper;
 //
 void Personality_1::ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *gnu)
 {
-     byte	msgbuff[64];	// max size of a BT message
-     int	size;
-
      if (device != 1) {
 	  return;
      }
@@ -45,46 +38,54 @@ void Personality_1::ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *gnu)
      }
 
      if (gnu->x1 != old->x1) {		// if change, scale to 100, send on 1
-	  size = nxtGInt(msgbuff,GPADSCALE(gnu->x1));
-	  size = nxtBTMailboxMsgCompose(1,msgbuff,size);
-	  (void)bt->btWrite(msgbuff,size);
+	  mySendMessageInt(bt,1,gnu->x1);
      }
      if (gnu->y1 != old->y1) {		// if change, scale to 100, send on 2
-	  size = nxtGInt(msgbuff,GPADSCALE(gnu->y1));
-	  size = nxtBTMailboxMsgCompose(2,msgbuff,size);
-	  (void)bt->btWrite(msgbuff,size);
+	  mySendMessageInt(bt,2,gnu->y1);
      }
      if (gnu->x2 != old->x2) {		// if change, scale to 100, send on 3
-	  size = nxtGInt(msgbuff,GPADSCALE(gnu->x2));
-	  size = nxtBTMailboxMsgCompose(3,msgbuff,size);
-	  (void)bt->btWrite(msgbuff,size);
+	  mySendMessageInt(bt,3,gnu->x2);
      }
      if (gnu->y2 != old->y2) {		// if change, scale to 100, send on 4
-	  size = nxtGInt(msgbuff,GPADSCALE(gnu->y2));
-	  size = nxtBTMailboxMsgCompose(4,msgbuff,size);
-	  (void)bt->btWrite(msgbuff,size);
+	  mySendMessageInt(bt,4,gnu->y2);
      }
 
      if (GAMEPAD_B1(gnu) != GAMEPAD_B1(old)) {		// if change, send on 5
-	  size = nxtGBool(msgbuff,GAMEPAD_B1(gnu));
-	  size = nxtBTMailboxMsgCompose(5,msgbuff,size);
-	  (void)bt->btWrite(msgbuff,size);
+	  mySendMessageBool(bt,5,GAMEPAD_B1(gnu));
      }
      if (GAMEPAD_B2(gnu) != GAMEPAD_B2(old)) {		// if change, send on 6
-	  size = nxtGBool(msgbuff,GAMEPAD_B2(gnu));
-	  size = nxtBTMailboxMsgCompose(6,msgbuff,size);
-	  (void)bt->btWrite(msgbuff,size);
+	  mySendMessageBool(bt,6,GAMEPAD_B2(gnu));
      }
      if (GAMEPAD_B3(gnu) != GAMEPAD_B3(old)) {		// if change, send on 7
-	  size = nxtGBool(msgbuff,GAMEPAD_B3(gnu));
-	  size = nxtBTMailboxMsgCompose(7,msgbuff,size);
-	  (void)bt->btWrite(msgbuff,size);
+	  mySendMessageBool(bt,7,GAMEPAD_B3(gnu));
      }
      if (GAMEPAD_B4(gnu) != GAMEPAD_B4(old)) {		// if change, send on 8
-	  size = nxtGBool(msgbuff,GAMEPAD_B4(gnu));
-	  size = nxtBTMailboxMsgCompose(8,msgbuff,size);
-	  (void)bt->btWrite(msgbuff,size);
+	  mySendMessageBool(bt,8,GAMEPAD_B4(gnu));
      }
+}
+
+// this little define scales the joystick value from -100 to 100
+
+#define GPADSCALE(x)	(x+((x<0)?0:1))*100/128
+
+void Personality_1::mySendMessageInt(BT *bt,int mbox,int value)
+{
+     byte	msgbuff[64];	// max size of a BT message
+     int	size;
+
+     size = nxtGInt(msgbuff,GPADSCALE(value));
+     size = nxtBTMailboxMsgCompose(mbox,msgbuff,size);
+     (void)bt->btWrite(msgbuff,size);
+}
+
+void Personality_1::mySendMessageBool(BT *bt,int mbox, bool value)
+{
+     byte	msgbuff[64];	// max size of a BT message
+     int	size;
+
+     size = nxtGBool(msgbuff,value);
+     size = nxtBTMailboxMsgCompose(mbox,msgbuff,size);
+     (void)bt->btWrite(msgbuff,size);
 }
 
 //
@@ -93,19 +94,12 @@ void Personality_1::ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *gnu)
 //
 void Personality_1::ChangeButton(BT *bt, bool button)
 {
-     byte	msgbuff[64];	// max size of a BT message
-     int	size;
-
-     if (!bt->connected()) {
-	  return;
-     }
-
      // in the other personalities, this button could possibly start a program
      // for for this personality, there is no way to know what program to start
 
-     size = nxtGBool(msgbuff,button);
-     size = nxtBTMailboxMsgCompose(0,msgbuff,size);
-     (void)bt->btWrite(msgbuff,size);
+     if (bt->connected()) {
+	  mySendMessageBool(bt,0,button);
+     }
 }
 
 void Personality_1::Kill(BT *bt)
