@@ -40,15 +40,22 @@ bool Personality_0::matchStateProcess(mmState mmState, void *rock)
 	  mode = MODE_AUTO;	//   because we don't wait for anything to get going in autonomous
 	  break;
 
-     case MM_AUTO_END:		// autonomous is ending
-	  // need an auonomous end sound here
+     case MM_AUTO_START:
+	  // need an auto start sound here
+	  enabled = true;
 	  break;
 
-     case MM_TELEOP_PREP:	// prepare for teleop
-	  mode = MODE_TELEOP;
-	  return(false);	// must wait for button press, though, to start teleop
+     case MM_AUTO_END:		// autonomous is ending
+	  myKill((BT *)rock);	// this does the end program falling sound too
+	  break;
+
+     case MM_TELEOP_PREP:      	// prepare for teleop
+	  mode = MODE_TELEOP;		// Note that this does the start program rising sound too
+	  myTeleopStart((BT*)rock);	// also turns OFF enabled
+	  return(false);		// return false to cause wait for button press to start teleop
 
      case MM_TELEOP_START:	// teleop is starting
+	  enabled = true;
 	  // need a teleop start sound here
 	  break;
 
@@ -66,7 +73,7 @@ bool Personality_0::matchStateProcess(mmState mmState, void *rock)
 
      default:
 	  // there are a few states that we don't care about, so they don't do anything
-	  // in this code: MM_ENDGAME_END, MM_AUTO_START, MM_OFF
+	  // in this code: MM_ENDGAME_END, MM_OFF
 	  break;
      }
 
@@ -110,7 +117,6 @@ void Personality_0::Loop(BT *bt, Gamepad *g1, Gamepad *g2)
      // mailbox used is #0.
      size = nxtBTMailboxMsgCompose(0,msgbuff,size);
 
-     Serial.println(size);
      // then send it over BT, again, operating on the message buffer
      (void)bt->btWrite(msgbuff,size);
 }
@@ -120,7 +126,7 @@ void Personality_0::Loop(BT *bt, Gamepad *g1, Gamepad *g2)
 //
 void Personality_0::Kill(BT *bt)
 {
-  // it is the Kill() that will turn matchmode active, so process when enabled
+  // it is the Kill() that will turn matchmode active, so process all kills when enabled
 
   if(isMatchEnabled()) {
 	  MatchKillProcess((void *)bt);
@@ -145,6 +151,22 @@ void Personality_0::myKill(BT *bt)
 		}
 	}
 }
+
+//
+// myTeleopStart() - start the Teleop program
+//
+void Personality_0::myTeleopStart(BT *bt)
+{
+     char  buf[NXT_PRGM_NAME_SIZE];
+
+     if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf)){
+	  beeper.start();
+	  enabled = false;		// always start off disabled UNTIL the button goes up & down again
+     } else {
+	  beeper.icky();
+     }
+}
+
 
 void Personality_0::ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *gnu)
 {
@@ -186,12 +208,7 @@ void Personality_0::ChangeButton(BT *bt, bool buttonIsDown)
 
 	       } else {
 		    // no program is running, so try to start it
-		    if (nxtGetChosenProgram(bt, buf) && nxtRunProgram(bt, buf)){
-			 beeper.start();
-			 enabled = false;		// always start off disabled UNTIL the button goes up & down again
-		    } else {
-			 beeper.icky();
-		    }
+		    myTeleopStart(bt);
 	       }
 	  } else { 	
 
