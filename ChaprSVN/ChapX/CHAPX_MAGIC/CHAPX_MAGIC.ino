@@ -57,7 +57,7 @@ void loop(){
           doSimon();
         }
         if(gameType == 3){
-          doPiano();
+          /////doPiano();
         }
     }
     if(gameType == 1){
@@ -234,7 +234,7 @@ void checkClassic(){
     
     
 }
-void doPiano(){
+/*void doPiano(){
   int note = readTouchInputs();
   bool playing = true;
   for(int x = 0; x < 12; x++){
@@ -247,7 +247,7 @@ void doPiano(){
     }
   }
   
-}
+}*/
 void checkSimon(){
   if(strikes1 == 6){
     if(level > highScore1){  
