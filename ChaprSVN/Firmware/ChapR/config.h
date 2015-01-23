@@ -79,7 +79,7 @@
 
 #define PERSONALITYCOUNT        4 //how many personalities have been implemented
 #define BOARDBRINGUPVERSION     "1.2" //which version the testing program is
-#define CODEVERSION             "1.3"
+#define CODEVERSION             "2.0"
 
 //these two constants define the time before entering power saving mode and are in milliseconds
 // (the second commented out versions are for debugging)
@@ -110,3 +110,4 @@
 #define DEF_ANALOG2            0.0
 #define DEF_ANALOG3            0.0
 #define DEF_ANALOG4            0.0
+#define DEF_MATCHMODE	       0	// matchmode is "off" by default

@@ -77,7 +77,7 @@ public:
      byte getAutoLen();
      void setMatchModeEnable(bool);
      bool matchModeIsEnabled();
-     void setDefaults(char *,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,double,double,double,double);
+     void setDefaults(char *,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,double,double,double,double,unsigned int);
      void loadCache();
      
  private:
@@ -95,6 +95,7 @@ public:
      short analog4;
      bool matchModeEnable;
 
+     void SerialPrintAnalog(double,int);
      void doSetting(int,const __FlashStringHelper *, const __FlashStringHelper *,unsigned int,unsigned int,uint8_t);
      void printCurrentValue(int,unsigned int, uint8_t);
      int  getStringFromMonitor(char*, int);

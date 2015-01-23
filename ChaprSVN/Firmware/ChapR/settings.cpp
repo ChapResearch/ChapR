@@ -106,15 +106,53 @@ void settings::printCurrentValue(int eAddress, unsigned int max, uint8_t type)
 
        case PROMPT_ANALOG:
           num = getShort(eAddress);
-	  Serial.print(FRC_SHORT_TO_ANALOG(num));
+//	  Serial.print(FRC_SHORT_TO_ANALOG(num));		// uses 538 bytes extra for this call (27878 to 28416)
+	  SerialPrintAnalog(FRC_SHORT_TO_ANALOG(num),3);	// see below for replacement numbers
           break;
-
 
        case PROMPT_BITS:
 	  for (unsigned int i=0, d=EEPROM.read(eAddress); i < max; i++) {
 	       Serial.print((d&0x01)?"1":"0");
 	       d = d>>1;
 	  }
+     }
+}
+
+//
+// SerialPrintAnalog() - this is a replacement to calling Serial.print() with
+//			a (double).  When calling that, the memory increases
+//			by 538 bytes.  When using this instead, it only
+//			rises by 192 bytes, saving 346 bytes total.
+//
+//			It is interesting to look at the two different implementations
+//			below.  While the first "looks" more efficient because it doesn't
+//			use the temporary variable, it is actually less efficient because
+//			is has more lines of integer conversion code.
+// 
+void settings::SerialPrintAnalog(double value, int precision)
+{
+//
+// This version consumes 206 bytes (27878 to 28084)
+//
+//     Serial.print((int)value);
+//     Serial.print(".");
+//     while(--precision) {
+//	  value = (value - (int)value) * 10;
+//	  Serial.print((int)value);
+//     }
+
+//
+// This version consumes 192 bytes (27878 to 28070)
+//
+     uint8_t	first = false;
+
+     while(precision--) {
+	  Serial.print((int)value);
+	  if(first) {
+	       first = !first;
+	       Serial.print(".");
+	  }
+	  value = (value - (int)value) * 10;
      }
 }
 
@@ -269,16 +307,17 @@ void settings::setFromConsole()
 void settings::setDefaults(char *name, 
 			      unsigned int   timeout, 
 			      unsigned int   personality, 
-			      unsigned int   speed, 
+			      unsigned int   speed, 		// also known as lag
 			      unsigned int   mode,
 			      unsigned int   autoLen,
 			      unsigned int   teleLen,
 			      unsigned int   endLen,
 			      unsigned int   dgtl, 
-			      double   analog1,
-			      double   analog2,
-			      double   analog3,
-			      double   analog4)
+			      double	     analog1,
+			      double	     analog2,
+			      double	     analog3,
+			      double	     analog4,	
+                              unsigned int   matchmode)
 {
      setName(name);
      setTimeout((byte)timeout);
@@ -293,6 +332,7 @@ void settings::setDefaults(char *name,
      setAnalogInput2(analog2);
      setAnalogInput3(analog3);
      setAnalogInput4(analog4);
+     setMatchModeEnable(matchmode);
 }
 
 //
