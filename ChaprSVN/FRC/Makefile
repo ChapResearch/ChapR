@@ -39,6 +39,9 @@ chaprd.uu: chaprd.stripped
 chaprd.sh.uu: chaprd.sh
 	uuencode chaprd.sh < chaprd.sh > chaprd.sh.uu
 
+cdebug-transfer: cdebug
+	sshpass -p "" scp cdebug admin@172.22.11.2:/tmp
+
 clean:
 	rm -f chaprd cdebug install_chaprd chaprd.uu chaprd.sh.uu chaprd.stripped install_chaprd
 

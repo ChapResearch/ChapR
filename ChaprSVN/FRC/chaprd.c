@@ -49,11 +49,11 @@ typedef struct chapRPacket{
 typedef struct dsPacket{
   int indexm;
   int indexl;
-  int zconst1;
+  int zconst1; // TODO - change to 1 (this is the comm version)
   int control;
-  int zconst2;
+  int zconst2; // request byte (TODO - probably have to read from the RIO about program start  bit 4 etc.)
   int posally;
-  int nconst3;
+  int nconst3; // tag values 
   int zconst4;
   int joy1_x1;
   int joy1_y1;
@@ -75,7 +75,7 @@ typedef struct dsPacket{
   int joy2_B1;
   int nconst8;
   int zconst9;
-  int joy3_x1;
+  int joy3_x1; // TODO - take out all but two joysticks
   int joy3_y1;
   int joy3_x2;
   int joy3_y2;
@@ -167,8 +167,9 @@ chapRPacket *readChapRPacket(int fd)
 	    exit(1);
 	  }
 	  else if (rval == 0){
-	      return (chapRPacket *) NULL;
+	    return (chapRPacket *) NULL;
 	  }
+	  //	  debug_int("val", (int) rawData);
 		switch (state){
 		case 0:
  		case 1:
@@ -192,6 +193,8 @@ chapRPacket *readChapRPacket(int fd)
 
 		case 4:
 			checkSum = checkSum & 0x7f;
+			debug_int("ecs", checkSum);
+			debug_int("rcs", rawData);
 			if (checkSum == rawData){
 			  cp.cmd = (int) buf[0];
 			  cp.digitalIn = (int) buf[1];
@@ -561,7 +564,7 @@ int main(void) {
 			if (cp == NULL){
 			  break; // the USB port was closed somehow
 			}		
-			debug_string("sending", "");
+			debug_string(".","");
 			dsp = translateChapRPacket(cp);
 			if (dsp != NULL){
 				sendPacket(sd,hp,dsp);
