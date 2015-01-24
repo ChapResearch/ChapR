@@ -1,0 +1,7 @@
+SSH into the roboRIO (we use PuTTY)
+username: admin
+password: 
+[there is no password, just hit enter]
+SCP chaprd (the daemon itself) into /usr/sbin/
+SCP chaprd.sh (the magical init stuff) into /etc/init.d/
+symbolically link chaprd.sh to /etc/rc5.d/K37chaprd
