@@ -539,6 +539,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
          byte newNum = (byte) atoi(buf);
          if (newNum > 0 && newNum <= EEPROM_LASTPERSON){
            myEEPROM.setPersonality(newNum);
+	   
          }
        }
 
@@ -552,6 +553,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
        // get the lag time
 
        if(readFile("lag.txt", buf, BIGENOUGH)){
+	 Serial.println("getting lag!");
 	   myEEPROM.setSpeed((byte) atoi(buf));
        }
 

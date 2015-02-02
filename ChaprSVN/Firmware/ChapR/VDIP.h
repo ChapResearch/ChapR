@@ -69,7 +69,8 @@ typedef enum vcmd {
      VDIP_OPR,                  // open a file for reading
      VDIP_RDF,                  // read from file (specifies how many bytes)
      VDIP_CLF,                  // closes the currently open file
-     VDIP_FBD                  	// change the BAUD rate for FTDI (FirePlug)
+     VDIP_FBD,                	// change the BAUD rate for FTDI (FirePlug)
+     VDIP_FWV                   // determine the firmware version of the VDIP
 } vdipcmd;
 
 typedef enum _deviceType {

@@ -17,9 +17,6 @@
 #ifndef PERSONALITY_0_H
 #define PERSONALITY_0_H
 
-#define MODE_TELEOP	1
-#define MODE_AUTO	0
-
 class Personality_0 : public Personality, public MatchMode
 {
 
@@ -37,9 +34,6 @@ public:
      bool	 buttonToggle;		// used to swich between momentary action and toggle action
 
      virtual bool	 matchStateProcess(mmState,void*);
-
-     int	 mode;			// either MODE_TELEOP or MODE_AUTO
-     bool	 enabled;		// either TRUE when enabled for FALSE (wait-for-start)
 };
 
 
