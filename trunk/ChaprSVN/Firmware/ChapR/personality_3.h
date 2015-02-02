@@ -17,11 +17,10 @@
 #ifndef PERSONALITY_3_H
 #define PERSONALITY_3_H
 
-class Personality_3 : public Personality
+class Personality_3 : public Personality, public MatchMode
 {
 
 private:
-     bool startedProgram; 	// if true, then the program was just started with the button
 
 public:
      Personality_3();
@@ -29,6 +28,8 @@ public:
      virtual void ChangeButton(BT *bt, bool button);
      virtual void Loop(BT *bt, Gamepad *, Gamepad *);
      virtual void Kill(BT *bt);
+
+     virtual bool	 matchStateProcess(mmState,void*);
 };
 
 

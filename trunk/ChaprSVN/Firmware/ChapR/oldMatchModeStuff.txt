@@ -1,0 +1,38 @@
+              if (isInMatchMode()){
+	 if (updateMode()){ // determines if the mode has changed
+	   Serial.print("state: ");
+	   Serial.println(getMatchMode());
+	   switch (getMatchMode()){
+	   case AUTO :                     // just started auto
+	     // cmd = AUTO_OFF;    // will be enabled when action button is pressed
+	     enabled = false;
+	     isTele = false;
+	     Serial.println("----------auto mode-----------");
+	     break;
+	   case TELE :                     // just became teleOp 
+	     // cmd = TELE_OFF;               // will be enabled when action button is pressed
+	     enabled = false;
+	     isTele = true;
+	     Serial.println("-----------tele mode---------");
+	     break;
+	   case END :                     // just entered endgame
+	     beeper.confirm();
+	     Serial.println("-----------end mode-------------");
+	     break;
+	   case NONE :                    // just ended everything...
+	     // cmd = AUTO_OFF;
+	     enabled = false;
+	     isTele = false;
+	     Serial.println("----------none mode--------");
+	     break;
+	   }
+	 }
+       } else {
+	 if (myEEPROM.getMode() == AUTO){
+	   Serial.println("something horrible is happening");
+	   isTele = false;
+	 } else {
+	   isTele = true;
+	 }
+       }
+

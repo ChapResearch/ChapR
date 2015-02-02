@@ -95,6 +95,12 @@
 // noticing a button press before it reports the next one.
 #define DEBOUNCE 25
 
+// defines the personalities (relates the numbers to the names)
+#define PERSON_RBT_C           1
+#define PERSON_NXT_G           2
+#define PERSON_LABVIEW         3
+#define PERSON_RIO             4
+
 // default settings for EEPROM values that are used during board bringup.
 
 #define DEF_NAME               "ChapRX"

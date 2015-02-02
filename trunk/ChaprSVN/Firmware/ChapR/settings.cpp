@@ -2,9 +2,23 @@
 #include <EEPROM.h>
 #include "settings.h"
 #include "config.h"
+#include "button.h"
+#include "VDIP.h"
+#include "blinky.h"
+#include "BT.h"
+#include "sound.h"
 
 #define FRC_ANALOG_TO_SHORT(a)       ((short) ((a*1023)/5 + 0.5)) // 0.5 makes rounding occur
 #define FRC_SHORT_TO_ANALOG(a)       (((double) a * 5)/1023)
+
+extern button theButton;
+
+extern blinky powerLED;
+extern blinky indicateLED;
+
+extern VDIP vdip;
+
+extern BT bt;
 
 settings::settings()
 {
@@ -40,6 +54,11 @@ void settings::flushSerial()
   }
 }
 
+void settings::hitReturn()
+{
+     Serial.println(F("Hit RET to continue"));
+}
+
 //
 // getStringFromMonitor() - read a string from the serial monitor.  The data
 //			    is put into the given buffer.  The given size is
@@ -71,6 +90,77 @@ int settings::getStringFromMonitor(char *buffer, int size)
   buffer[index - 1] = '\0';		// or we stop when we've run out of buffer
   flushSerial();			// need to flush until we get the return in this case
   return size;
+}
+
+void settings::boardBringUp()
+{
+  extern void software_Reset();
+
+  flushSerial();
+  
+  char buf[25];
+  extern sound beeper;
+  buf[0] = ' ';
+  Serial.print(F("Test prog v"));
+  Serial.println(BOARDBRINGUPVERSION);
+  indicateLED.off();
+  Serial.println(F("Power LED..."));
+  powerLED.on();
+  hitReturn();
+  getStringFromMonitor(buf, 2);
+  while (buf[0] != '\0'){
+    getStringFromMonitor(buf, 2);
+  }
+  Serial.println(F("BT LED..."));
+  powerLED.off();
+  indicateLED.on();
+  hitReturn();
+  getStringFromMonitor(buf, 1);
+  while (buf[0] != '\0'){
+    getStringFromMonitor(buf, 1);
+  }
+  indicateLED.off();
+  Serial.println(F("RET to squeep"));
+  getStringFromMonitor(buf, 2);
+  while (buf[0] != '\0'){
+    getStringFromMonitor(buf, 2);
+  }
+  beeper.squeep();
+  Serial.println(F("WFS to cont."));
+  while (theButton.check() != true){
+  }
+
+  while(true) {
+       Serial.println(F("VDIP version(3.69)...?"));
+       for (int i = 0; i < sizeof(buf); i++){
+	    buf[i] ='\0';
+       }
+       vdip.cmd(VDIP_FWV, buf, DEFAULTTIMEOUT, 15); //expects 15 bytes back see pg 23 of Viniculum Firmware reference
+       Serial.print(F("v"));
+       Serial.println(buf);
+       Serial.print(F("Enter \"!\" to flash now"));
+       hitReturn();
+
+       getStringFromMonitor(buf, 25);
+       if(buf[0] == '\0' || buf[0] != '!') {
+	    break;		// if return or something other than !, go on with life
+       }
+
+       Serial.println(F("Put flash in USB 2; press RETURN."));
+       getStringFromMonitor(buf, 25);
+
+       Serial.println(F("15 sec delay (don't do stuff)..."));
+       vdip.reset();
+       delay(5000);
+       vdip.flush(10000);
+       Serial.print(F("Remove flash; "));
+       hitReturn();
+       getStringFromMonitor(buf, 25);
+  }
+
+  Serial.println(F("RN-42 version (should be 6.15)...?"));
+  bt.checkVersion();
+  Serial.println(F("Done."));
 }
 
 //

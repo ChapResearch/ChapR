@@ -18,10 +18,8 @@
 #ifndef PERSONALITY_H
 #define PERSONALITY_H
 
-#define AUTO 0
-#define TELE 1
-#define END  2
-#define NONE 3
+#define MODE_TELEOP	1
+#define MODE_AUTO	0
 
 //
 // The Personality class is meant to be an "interface" that all true personalities
@@ -81,6 +79,7 @@ class Personality
   virtual void Kill(BT *bt) = 0;
 
   bool enabled;		     // used by all personalities to track when the robot is enabled
+  int   mode;			
 
   bool updateMode();
   void swapInMatchMode();

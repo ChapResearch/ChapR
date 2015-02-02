@@ -37,6 +37,7 @@ bool Personality_0::matchStateProcess(mmState mmState, void *rock)
      switch(mmState) {
      case MM_OFF:
 	  enabled = false;	// ensure we are always disabled when in OFF state
+	  mode = MODE_AUTO; 
 	  break;
 
      case MM_AUTO_PREP:		// prepare for autonomous - allow the standard "true" to be returned

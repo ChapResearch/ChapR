@@ -10,6 +10,7 @@
 #include "gamepad.h"
 #include "nxt.h"
 #include "RIO.h"
+#include "matchmode.h"
 #include "personality.h"
 #include "personality_3.h"
 #include "robotc.h"
@@ -21,12 +22,75 @@ RIO   RIO;                    // the container for all of the RIO calls (makes l
 extern settings myEEPROM;
 extern sound beeper;
 
-//int    cmd = AUTO_OFF;          // specifies which command is being sent to the RIO (teleop on/off
-                                // or auto on/off)
 
-Personality_3::Personality_3() : startedProgram(false)
+//
+// matchStateProcess() - the matchmode callback that is used by matchmode to do
+//		  whatever needs to be done with the state changes during
+//		  match mode.  The NEW state that was just entered is
+//		  passed to the callback routine.
+//
+//	NOTE: this routine is handed the "rock" that was given to it to, so that
+//		it could be handed back during callbacks.
+//
+//	NOTE: Processing of the MM_OFF state needs to be "idempotent" - it should
+//		be callable any number of times.
+//
+bool Personality_3::matchStateProcess(mmState mmState, void *rock)
 {
-    
+  
+     switch(mmState) {
+     case MM_OFF:
+	  enabled = false;	// ensure we are always disabled when in OFF state
+	  mode = MODE_AUTO; 
+	  break;
+
+     case MM_AUTO_PREP:		// prepare for autonomous - allow the standard "true" to be returned
+	  mode = MODE_AUTO;	//   because we don't wait for anything to get going in autonomous
+	  break;
+
+     case MM_AUTO_START:
+	  // need an auto start sound here
+	  enabled = true;
+	  break;
+
+     case MM_AUTO_END:		// autonomous is ending
+          enabled = false;
+	  break;
+
+     case MM_TELEOP_PREP:      	// prepare for teleop
+	  mode = MODE_TELEOP;		// Note that this does the start program rising sound too
+	  return(false);		// return false to cause wait for button press to start teleop
+
+     case MM_TELEOP_START:	// teleop is starting
+	  enabled = true;
+	  // need a teleop start sound here
+	  break;
+
+     case MM_ENDGAME_START:	// endgame (within teleop) is starting
+	  // need an endgame start sound here
+	  break;
+
+     case MM_TELEOP_END:	// teleop is ending
+          enabled = false;
+	  // need a end of game sound here
+	  // FALL THROUGH to next case - 'cause we need to kill the program at the end of Teleop
+
+     case MM_KILL:		// the match as been killed
+          // nothing to do because the program is always running for FRC bots
+	  break;
+
+     default:
+	  // we don't need MM_ENDGAME_END at this point
+	  break;
+     }
+
+     return(true);
+  
+}
+
+Personality_3::Personality_3()
+{
+
 }
 
 //
@@ -39,68 +103,37 @@ void Personality_3::Loop(BT *bt, Gamepad *g1, Gamepad *g2)
 {
      byte	msgbuff[64];	// max size of a BT message
      int	size;
-     bool       isTele;
 
-     if (bt->connected()) {
+     bool isRoboRIO = true;
 
-       // deals with matchMode switching
-       if (isInMatchMode()){
-	 if (updateMode()){ // determines if the mode has changed
-	   Serial.print("state: ");
-	   Serial.println(getMatchMode());
-	   switch (getMatchMode()){
-	   case AUTO :                     // just started auto
-	     // cmd = AUTO_OFF;    // will be enabled when action button is pressed
-	     enabled = false;
-	     isTele = false;
-	     Serial.println("----------auto mode-----------");
-	     break;
-	   case TELE :                     // just became teleOp 
-	     // cmd = TELE_OFF;               // will be enabled when action button is pressed
-	     enabled = false;
-	     isTele = true;
-	     Serial.println("-----------tele mode---------");
-	     break;
-	   case END :                     // just entered endgame
-	     beeper.confirm();
-	     Serial.println("-----------end mode-------------");
-	     break;
-	   case NONE :                    // just ended everything...
-	     // cmd = AUTO_OFF;
-	     enabled = false;
-	     isTele = false;
-	     Serial.println("----------none mode--------");
-	     break;
-	   }
-	 }
-       } else {
-	 if (myEEPROM.getMode() == AUTO){
-	   Serial.println("something horrible is happening");
-	   isTele = false;
-	 } else {
-	   isTele = true;
-	 }
-       }
+     // if we're not connected to Bluetooth, then ingore the loop
+     if (!bt->connected()) {
+	  return;
+     }
+       
+     // only deal with matchmode when it is active
 
-       bool isRoboRIO = true;
+     if (isMatchActive()){
+	     MatchLoopProcess((void *)bt);	// mode is set in the match callback above
+     } else {
+	     mode = myEEPROM.getMode();		// mode is set by the EEPROM setting
+     }
 
        // first create a packet using the RIO structure
-       size = RIO.createPacket(msgbuff,enabled,g1,g2,isTele,isRoboRIO);
+       size = RIO.createPacket(msgbuff,enabled,g1,g2,mode,isRoboRIO);
 
        // then send it over BT, again, operating on the message buffer
        (void)bt->btWrite(msgbuff,size);
-     }
 }
 
 void Personality_3::Kill(BT *bt)
 {  
-  enabled = false;
+  // it is the Kill() that will turn matchmode active, so process all kills when enabled
 
-  if (isInMatchMode()){
-    endCycle();
-  }
-  else if (myEEPROM.matchModeIsEnabled() && getMatchMode() == NONE){
-    swapInMatchMode();
+  if(isMatchEnabled()) {
+	  MatchKillProcess((void *)bt);
+  } else {
+    enabled = false;
   }
 }
 
@@ -115,19 +148,10 @@ void Personality_3::ChangeButton(BT *bt, bool button)
     // swaps enabled
     enabled = !enabled;
 
-    if (!isInMatchMode()){ // normal operation
+    if (isMatchActive()){ // normal operation   
+      MatchButtonProcess((void *)bt);
+    } else {
       (enabled && bt->connected())?beeper.beep():beeper.boop();
-      Serial.println("not in match mode");
-    }
-    else { // pretty much a single player FCS
-      Serial.println(getMatchMode());
-      if (getMatchMode()==TELE){
-	Serial.println("Tele start!");
-	beginTele();
-      } else if (getMatchMode()==NONE){
-	Serial.println("Auto start!");
-	beginAuto();
-      }
     }
   }
 }

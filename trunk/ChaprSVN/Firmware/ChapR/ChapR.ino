@@ -55,9 +55,8 @@ settings myEEPROM;
 Personality_0	p0;
 Personality_1	p1;
 Personality_2   p2;
-//Personality_3	p3;
-//Personality	*personalities[] = { &p0, &p1, &p2, &p3 };
-Personality	*personalities[] = { &p0, &p1, &p2 };
+Personality_3	p3;
+Personality	*personalities[] = { &p0, &p1, &p2, &p3 };
 int		current_personality;
 
 Gamepad		g1(1);		// I'm gamepad #1!
@@ -103,6 +102,7 @@ void setup()
      // arguments in setDefaults().  See config.h for the defaults.
 
      if (!myEEPROM.isInitialized()){
+     	  myEEPROM.boardBringUp();
 	  myEEPROM.setDefaults(DEF_NAME, DEF_TIMEOUT, DEF_PERSON, DEF_LAG, DEF_MODE,
 			       DEF_FTCAUTOLEN, DEF_FTCTELELEN, DEF_FTCENDLEN,
 			       DEF_DGTLIN, DEF_ANALOG1, DEF_ANALOG2, DEF_ANALOG3, DEF_ANALOG4,
