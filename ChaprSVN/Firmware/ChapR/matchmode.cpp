@@ -290,3 +290,9 @@ bool MatchMode::callBack()
 {
 	return(matchStateProcess(currentState,rock));
 }
+
+void MatchMode::MatchReset()
+{
+  currentState = MM_OFF;
+  timerOff();
+}

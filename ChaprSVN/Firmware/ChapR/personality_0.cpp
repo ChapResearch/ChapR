@@ -101,6 +101,10 @@ void Personality_0::Loop(BT *bt, Gamepad *g1, Gamepad *g2)
 
      // if we're not connected to Bluetooth, then ingore the loop
      if (!bt->connected()) {
+          enabled = false;
+	  if (isMatchActive()){
+	    MatchReset();
+	  }
 	  return;
      }
        
