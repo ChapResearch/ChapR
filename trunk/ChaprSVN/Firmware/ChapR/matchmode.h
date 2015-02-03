@@ -68,6 +68,8 @@ public:
      bool isMatchActive();		// returns TRUE if matchmode is active
      bool isMatchEnabled();		// returns TRUE if matchmode is enabled
 
+     void MatchReset(); // safely kill timers etc. and go to "off" state (no callbacks)
+     
      virtual bool matchStateProcess(mmState,void*) = 0;
 
 };
