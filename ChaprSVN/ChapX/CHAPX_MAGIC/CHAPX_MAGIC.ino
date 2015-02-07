@@ -20,8 +20,6 @@ void setup(){
   mySerial.begin(9600);
   Wire.begin();
 
-  Serial.println("It's magic, you know...");
-
   mpr121_setup();
 }
 
