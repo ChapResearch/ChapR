@@ -101,44 +101,39 @@ void settings::boardBringUp()
   char buf[25];
   extern sound beeper;
   buf[0] = ' ';
-  Serial.print(F("Test prog v"));
+  Serial.print("Test prog v");
   Serial.println(BOARDBRINGUPVERSION);
   indicateLED.off();
-  Serial.println(F("Power LED..."));
+
+  Serial.println("Power LED...");
   powerLED.on();
   hitReturn();
   getStringFromMonitor(buf, 2);
-  while (buf[0] != '\0'){
-    getStringFromMonitor(buf, 2);
-  }
-  Serial.println(F("BT LED..."));
+
+  Serial.println("BT LED...");
   powerLED.off();
   indicateLED.on();
   hitReturn();
-  getStringFromMonitor(buf, 1);
-  while (buf[0] != '\0'){
-    getStringFromMonitor(buf, 1);
-  }
-  indicateLED.off();
-  Serial.println(F("RET to squeep"));
   getStringFromMonitor(buf, 2);
-  while (buf[0] != '\0'){
-    getStringFromMonitor(buf, 2);
-  }
+
+  indicateLED.off();
+  Serial.println("RET to squeep");
+  getStringFromMonitor(buf, 2);
+
   beeper.squeep();
-  Serial.println(F("WFS to cont."));
+  Serial.println("WFS to cont.");
   while (theButton.check() != true){
   }
 
   while(true) {
-       Serial.println(F("VDIP version(3.69)...?"));
+       Serial.println("VDIP ver (3.69)...?");
        for (int i = 0; i < sizeof(buf); i++){
 	    buf[i] ='\0';
        }
        vdip.cmd(VDIP_FWV, buf, DEFAULTTIMEOUT, 15); //expects 15 bytes back see pg 23 of Viniculum Firmware reference
        Serial.print(F("v"));
        Serial.println(buf);
-       Serial.print(F("Enter \"!\" to flash now"));
+       Serial.print(F("Enter \"!\" to flash"));
        hitReturn();
 
        getStringFromMonitor(buf, 25);
@@ -146,19 +141,19 @@ void settings::boardBringUp()
 	    break;		// if return or something other than !, go on with life
        }
 
-       Serial.println(F("Put flash in USB 2; press RETURN."));
+       Serial.println("Put flash in USB 2; press RET.");
        getStringFromMonitor(buf, 25);
 
-       Serial.println(F("15 sec delay (don't do stuff)..."));
+       Serial.println("wait 15 sec...");
        vdip.reset();
        delay(5000);
        vdip.flush(10000);
-       Serial.print(F("Remove flash; "));
+       Serial.print("Remove flash; ");
        hitReturn();
        getStringFromMonitor(buf, 25);
   }
 
-  Serial.println(F("RN-42 version (should be 6.15)...?"));
+  Serial.println("RN-42 ver (want 6.15)...?");
   bt.checkVersion();
   Serial.println(F("Done."));
 }
@@ -284,8 +279,7 @@ void settings::doSetting(int			 eAddress, 	// EEPROM address of this setting
 	  // now read - if RETURN is pressed with something, check and set the value
 	  // appropriately.  If the user just presses RETURN do nothing.
 
-	  getStringFromMonitor(lineBuffer, MAXLINE);	// only get 20 characters
-	  flushSerial();				// and flush the rest
+	  getStringFromMonitor(lineBuffer, MAXLINE);	// only get MAXLINE characters - flushes the rest
 
 	  if (lineBuffer[0] == '\0'){
 	       // user just pressed RETURN with no data
@@ -364,26 +358,28 @@ void settings::doSetting(int			 eAddress, 	// EEPROM address of this setting
 void settings::setFromConsole()
 {
      flushSerial();
+     const __FlashStringHelper	*from00to50 = F("from 0.0 to 5.0");
+     const __FlashStringHelper	*from0to255secs = F("from 0 to 255 secs");
 
-     Serial.println(F("--- Enter ChapR settings ---"));
+     Serial.println(F("--- Enter Settings ---"));
 
-     doSetting(EEPROM_NAME,		F("Name"),               F("max 15 chars"),           1, 15,    PROMPT_STRING);
-     doSetting(EEPROM_TIMEOUT,		F("Timeout"),            F("0 (none) - 120 min"),    0, 120,   PROMPT_BYTE  );
-     doSetting(EEPROM_PERSONALITY,	F("Personality"),        F("1 - 4"),                  1, 4,     PROMPT_BYTE  );
-     doSetting(EEPROM_SPEED,		F("Lag"),                F("0 is none"),              0, 255,   PROMPT_BYTE  );
-     doSetting(EEPROM_MODE,		F("Mode"),               F("0 or 1"),                 0, 1,     PROMPT_BYTE  );
-     doSetting(EEPROM_DIGITALIN,	F("Digital Inputs"),     F("8 bits from LSB to MSB"), 8, 8,     PROMPT_BITS  );
-     //doSetting(EEPROM_ANALOGIN1,	F("Analog Input 1"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
-     //doSetting(EEPROM_ANALOGIN2,	F("Analog Input 2"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
-     //doSetting(EEPROM_ANALOGIN3,	F("Analog Input 3"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
-    //doSetting(EEPROM_ANALOGIN4,	F("Analog Input 4"),     F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
-     doSetting(EEPROM_ANALOGIN1,	F("Analog Input 1"),     F("from 0.0 to 5.0"),        0, 1023,  PROMPT_ANALOG );
-     doSetting(EEPROM_ANALOGIN2,	F("Analog Input 2"),     F("from 0.0 to 5.0"),        0, 1023,  PROMPT_ANALOG );
-     doSetting(EEPROM_ANALOGIN3,	F("Analog Input 3"),     F("from 0.0 to 5.0"),        0, 1023,  PROMPT_ANALOG );
-     doSetting(EEPROM_ANALOGIN4,	F("Analog Input 4"),     F("from 0.0 to 5.0"),        0, 1023,  PROMPT_ANALOG );
-     doSetting(EEPROM_AUTOLEN,		F("Autonomous Length"),  F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
-     doSetting(EEPROM_TELELEN,		F("TeleOp Length"),      F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
-     doSetting(EEPROM_ENDLEN,		F("Endgame Length"),     F("0 to 255 secs"),          0, 255,   PROMPT_BYTE  );
+     doSetting(EEPROM_NAME,		F("Name"),           F("max 15 chars"),           1, 15,    PROMPT_STRING);
+     doSetting(EEPROM_TIMEOUT,		F("Timeout"),        F("0 (none) - 120 min"),     0, 120,   PROMPT_BYTE  );
+     doSetting(EEPROM_PERSONALITY,	F("Personality"),    F("1 - 4"),                  1, 4,     PROMPT_BYTE  );
+     doSetting(EEPROM_SPEED,		F("Lag"),            F("0 is none"),              0, 255,   PROMPT_BYTE  );
+     doSetting(EEPROM_MODE,		F("Mode"),           F("0 or 1"),                 0, 1,     PROMPT_BYTE  );
+     doSetting(EEPROM_DIGITALIN,	F("Digital In"),     F("8 bits from LSB to MSB"), 8, 8,     PROMPT_BITS  );
+     //doSetting(EEPROM_ANALOGIN1,	F("Analog In 1"),    F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+     //doSetting(EEPROM_ANALOGIN2,	F("Analog In 2"),    F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+     //doSetting(EEPROM_ANALOGIN3,	F("Analog In 3"),    F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+    //doSetting(EEPROM_ANALOGIN4,	F("Analog In 4"),    F("from 0 to 65535"),        0, 65535, PROMPT_SHORT );
+     doSetting(EEPROM_ANALOGIN1,	F("Analog In 1"),    from00to50,		      0, 1023,  PROMPT_ANALOG );
+     doSetting(EEPROM_ANALOGIN2,	F("Analog In 2"),    from00to50,                  0, 1023,  PROMPT_ANALOG );
+     doSetting(EEPROM_ANALOGIN3,	F("Analog In 3"),    from00to50,                  0, 1023,  PROMPT_ANALOG );
+     doSetting(EEPROM_ANALOGIN4,	F("Analog In 4"),    from00to50,                  0, 1023,  PROMPT_ANALOG );
+     doSetting(EEPROM_AUTOLEN,		F("Auto Len"),       from0to255secs,              0, 255,   PROMPT_BYTE  );
+     doSetting(EEPROM_TELELEN,		F("TeleOp Len"),     from0to255secs,              0, 255,   PROMPT_BYTE  );
+     doSetting(EEPROM_ENDLEN,		F("Endgame Len"),    from0to255secs,              0, 255,   PROMPT_BYTE  );
      doSetting(EEPROM_MATCHMODE,	F("MatchMode Enabled"),  F("0 for false"),            0,   1,   PROMPT_BYTE  );
 
      markInitialized();
@@ -418,10 +414,10 @@ void settings::setDefaults(char *name,
      setTeleLen((byte)teleLen);
      setEndLen((byte)endLen);
      setDigitalInputs((byte)dgtl);
-     setAnalogInput1(analog1);
-     setAnalogInput2(analog2);
-     setAnalogInput3(analog3);
-     setAnalogInput4(analog4);
+     setAnalogInput(1,analog1);
+     setAnalogInput(2,analog2);
+     setAnalogInput(3,analog3);
+     setAnalogInput(4,analog4);
      setMatchModeEnable(matchmode);
 }
 
@@ -553,45 +549,21 @@ byte settings::getDigitalInputs()
   return (dgtlIn);
 }
 
-void settings::setAnalogInput1(double a)
+//
+// setAnalogInput() - sets/gets the analog value - numbered from 1 to 4
+// getAnalogInput()
+//
+void settings::setAnalogInput(int num, double value)
 {
-  analog1 = FRC_ANALOG_TO_SHORT(a);
-  setShort(EEPROM_ANALOGIN1, analog1);
-}
-void settings::setAnalogInput2(double a)
-{
-  analog2 = FRC_ANALOG_TO_SHORT(a);
-  setShort(EEPROM_ANALOGIN2, analog2);
-}
-void settings::setAnalogInput3(double a)
-{
-  analog3 = FRC_ANALOG_TO_SHORT(a);
-  setShort(EEPROM_ANALOGIN3, analog3);
-}
-void settings::setAnalogInput4(double a)
-{
-  analog4 = FRC_ANALOG_TO_SHORT(a);
-  setShort(EEPROM_ANALOGIN4, analog4);
+     num--;
+     analog[num] = FRC_ANALOG_TO_SHORT(value);
+     setShort(EEPROM_ANALOGIN + ((num-1)*2),analog[num]);
 }
 
-short settings::getAnalogInput1()
+short settings::getAnalogInput(int num)
 {
-  return analog1;
-}
-
-short settings::getAnalogInput2()
-{
-  return analog2;
-}
-
-short settings::getAnalogInput3()
-{
-  return analog3;
-}
-
-short settings::getAnalogInput4()
-{
-  return analog4;
+     num--;
+     return(analog[num]);
 }
 
 void settings::setAutoLen(byte a)
@@ -645,10 +617,10 @@ void settings::loadCache()
   speed =  EEPROM.read(EEPROM_SPEED);
   mode = EEPROM.read(EEPROM_MODE);
   dgtlIn =  EEPROM.read(EEPROM_DIGITALIN);
-  analog1 =  getShort(EEPROM_ANALOGIN1);
-  analog2 =  getShort(EEPROM_ANALOGIN2);
-  analog3 =  getShort(EEPROM_ANALOGIN3);
-  analog4 =  getShort(EEPROM_ANALOGIN4);
+  analog[0] = getShort(EEPROM_ANALOGIN1);
+  analog[1] = getShort(EEPROM_ANALOGIN2);
+  analog[2] = getShort(EEPROM_ANALOGIN3);
+  analog[3] = getShort(EEPROM_ANALOGIN4);
   autoLen =  EEPROM.read(EEPROM_AUTOLEN);
   teleLen =  EEPROM.read(EEPROM_TELELEN);
   endLen =  EEPROM.read(EEPROM_ENDLEN);

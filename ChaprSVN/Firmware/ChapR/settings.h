@@ -20,6 +20,7 @@
 #define EEPROM_SPEED           25	// byte (lag)
 #define EEPROM_MODE            26	// byte (bool) - (NXT definition) true(1) is teleop, false(0) is auto
 #define EEPROM_DIGITALIN       27	// byte
+#define EEPROM_ANALOGIN	       28	// serves as the base for writing analog values
 #define EEPROM_ANALOGIN1       28	// 2 bytes
 #define EEPROM_ANALOGIN2       30	// 2 bytes
 #define EEPROM_ANALOGIN3       32	// 2 bytes
@@ -61,14 +62,16 @@ public:
      byte getResetStatus();
      void setDigitalInputs(byte);
      byte getDigitalInputs();
-     void setAnalogInput1(double);
-     void setAnalogInput2(double);
-     void setAnalogInput3(double);
-     void setAnalogInput4(double);
-     short getAnalogInput1(); // TODO - convert to return doubles
-     short getAnalogInput2();
-     short getAnalogInput3();
-     short getAnalogInput4();
+     void setAnalogInput(int,double);
+     short getAnalogInput(int);
+//     void setAnalogInput1(double);
+//     void setAnalogInput2(double);
+//     void setAnalogInput3(double);
+//     void setAnalogInput4(double);
+//     short getAnalogInput1(); // TODO - convert to return doubles
+//     short getAnalogInput2();
+//     short getAnalogInput3();
+//     short getAnalogInput4();
      void setAutoLen(byte);
      void setTeleLen(byte);
      void setEndLen(byte);
@@ -89,12 +92,14 @@ public:
      long teleLen; 
      long endLen;
      byte dgtlIn;
-     short analog1;
-     short analog2;
-     short analog3;
-     short analog4;
+     short analog[4];		// four "analog" values
+//     short analog1;
+//     short analog2;
+//     short analog3;
+//     short analog4;
      bool matchModeEnable;
 
+     void hitReturn();
      void SerialPrintAnalog(double,int);
      void doSetting(int,const __FlashStringHelper *, const __FlashStringHelper *,unsigned int,unsigned int,uint8_t);
      void printCurrentValue(int,unsigned int, uint8_t);
