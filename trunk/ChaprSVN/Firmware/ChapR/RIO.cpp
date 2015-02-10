@@ -34,7 +34,7 @@ int RIO::createPacket(byte *msgbuff, bool enable, Gamepad *g1, Gamepad *g2, bool
     cmd = CRIO_ESTOP(false) | CRIO_ENABLE(enable) | CRIO_TELEOP(mode);
   }
 
-  int size = 0;
+  uint8_t size = 0;
 
   msgbuff[size++] = 0xff;
   msgbuff[size++] = 0xff;
@@ -42,17 +42,17 @@ int RIO::createPacket(byte *msgbuff, bool enable, Gamepad *g1, Gamepad *g2, bool
   msgbuff[size++] = (byte) cmd;
   msgbuff[size++] = myEEPROM.getDigitalInputs();
   msgbuff[size++] = 0;
-  msgbuff[size++] = (byte) ((myEEPROM.getAnalogInput1()>>8)&0x00FF); // MSB
-  msgbuff[size++] = (byte) (0x00FF&myEEPROM.getAnalogInput1()); // LSB
+  msgbuff[size++] = (byte) ((myEEPROM.getAnalogInput(1)>>8)&0x00FF); // MSB
+  msgbuff[size++] = (byte) (0x00FF&myEEPROM.getAnalogInput(1)); // LSB
   msgbuff[size++] = g1->tophat;
-  msgbuff[size++] = (byte) ((myEEPROM.getAnalogInput2()>>8)&0x00FF); // MSB
-  msgbuff[size++] = (byte) (0x00FF&myEEPROM.getAnalogInput2()); // LSB
+  msgbuff[size++] = (byte) ((myEEPROM.getAnalogInput(2)>>8)&0x00FF); // MSB
+  msgbuff[size++] = (byte) (0x00FF&myEEPROM.getAnalogInput(2)); // LSB
   msgbuff[size++] = g1->buttons&0xff;                              // joystick 1 B0 to B7
-  msgbuff[size++] = (byte) ((myEEPROM.getAnalogInput3()>>8)&0x00FF); // MSB
-  msgbuff[size++] = (byte) (0x00FF&myEEPROM.getAnalogInput3()); // LSB
+  msgbuff[size++] = (byte) ((myEEPROM.getAnalogInput(3)>>8)&0x00FF); // MSB
+  msgbuff[size++] = (byte) (0x00FF&myEEPROM.getAnalogInput(3)); // LSB
   msgbuff[size++] = (g1->buttons>>8)&0xff;                         // joystick 1 B8 to B11
-  msgbuff[size++] = (byte) ((myEEPROM.getAnalogInput4()>>8)&0x00FF); // MSB
-  msgbuff[size++] = (byte) (0x00FF&myEEPROM.getAnalogInput4()); // LSB
+  msgbuff[size++] = (byte) ((myEEPROM.getAnalogInput(4)>>8)&0x00FF); // MSB
+  msgbuff[size++] = (byte) (0x00FF&myEEPROM.getAnalogInput(4)); // LSB
   msgbuff[size++] = 0;
   msgbuff[size++] = (byte) g1->x1;				   // joystick 1 (left) X axis
   msgbuff[size++] = (byte) g1->y1;			           // joystick 1 (left) Y axis 
@@ -92,59 +92,4 @@ byte RIO::checksum(byte *msgbuff, int size)
 
   return(cs);
 }
-
-/*
-bool firePlugBT_ID(VDIP *vdip, int usbDev, char **btAddress)
-{
-     // assumes we are connected, otherwise this routine shouldn't be called
-
-     char		cbuf[50];		// arbritarily large buffer for command and response
-     static char	btAddressbuf[13];	// 6 bytes of BT address (ignores the last one)
-
-     *btAddress = btAddressbuf;
-     
-     vdip->cmd(VDIP_SC,NULL,100,usbDev);	// set the current VDIP port to the FirePlug
-
-     int i = 0;
-     cbuf[i++] = '$';
-     cbuf[i++] = '$';
-     cbuf[i++] = '$';
-     cbuf[i++] = '\r';
-
-     vdip->cmd(VDIP_DSD,cbuf,100,i);		// send the command
-
-     delay(1000);			       	// second delay for return of command
-
-     cbuf[i++] = 'G';
-     cbuf[i++] = 'B';
-     cbuf[i++] = '\r';
-
-     int r = vdip->cmd(VDIP_DRD,cbuf,100);
-
-     return true;
-
-          if(r != 33) {
-	  return(0);
-     } else {
-          for (int i = 0; i < 15; i++){
-            namebuf[i] = cbuf[3 + i];
-          }
-          
-          int j = 0;
-          for (int i = 18; i < 24; i++){
-            //the last byte is always zero (sorta like a null terminator)
-            btAddressbuf[j++] = hexConverter[(cbuf[i]>>4)&0x0F];  
-            btAddressbuf[j++] = hexConverter[cbuf[i]&0x0F];
-          }
-          btAddressbuf[j] = '\0';
-          
-          long m = 1;
-          for (int i = 29; i < 33; i++, m *= 256){
-            *freeMemory += cbuf[i]*m;
-          }
-          
-	  return(1);
-	  }
-}*/
-
 
