@@ -182,6 +182,9 @@ void loop()
      bool		lowBattery = false;
 
     if (Serial.available() > 0){
+	 if(Serial.read() == '!') {
+	      myEEPROM.boardBringUp();
+	 }
 	 myEEPROM.setFromConsole();
 	 current_personality = myEEPROM.getPersonality();	// in case the personality changed
 	 powerTimeout = 60000 * (long) myEEPROM.getTimeout();
