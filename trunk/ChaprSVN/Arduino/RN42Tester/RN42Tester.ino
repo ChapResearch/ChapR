@@ -392,14 +392,18 @@ int autoConnectPinTest()
 //			keep up with 115200 unfortunately).  We also assume
 //			that we're in command mode.
 //
-int getRN42Version(char *buffer,int size, unsigned long timeout)
+int getRN42Version(char *buffer,int size, unsigned long timeout, int highbaud = false)
 {
      unsigned long	target;
      int		results = false;
 
      target = millis() + timeout;
 
-     serialRN42(9600);
+     if(highbaud) {
+	  serialRN42(115200);
+     } else {
+	  serialRN42(9600);
+     }
 
      // first we need to turn off echo
      Serial.write("+\r");
@@ -496,6 +500,12 @@ void setup()
 	  results = false;
      }
 
+     testTitleOutput("Version for Debugging (RXI pin - 115k, Trig pin 3)");
+     digitalWrite(DEBUG_PIN,HIGH);
+     (void)getRN42Version(buffer,sizeof(buffer),1000,true);
+     testPassedOutput();
+     digitalWrite(DEBUG_PIN,LOW);
+
      // note that the RN42 is left in command mode from the initialTest()
      //  ... so long as it works anyway
 
@@ -513,6 +523,7 @@ void setup()
 	       results = false;
 	  }
      }
+
 
      testTitleOutput("RN42 9600 Baud");
 
