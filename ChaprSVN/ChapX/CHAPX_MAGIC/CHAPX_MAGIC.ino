@@ -5,14 +5,17 @@
 
 SoftwareSerial mySerial(12, 11); // RX, TX (flipped from docs)
 
-int irqpin = 2;  // Digital 2
 boolean touchStates[12]; //to keep track of the previous touch states
 int RTS = 0;
-
+volatile boolean touch_status_changed =false;
+void touch_irq()
+{
+  touch_status_changed=true;
+}
 void setup(){
-  pinMode(irqpin, INPUT);
-  digitalWrite(irqpin, HIGH); //enable pullup resistor
-  
+
+  attachInterrupt(0, touch_irq, FALLING);
+ 
   pinMode(8, INPUT);
   digitalWrite(8, HIGH);
   
@@ -89,9 +92,10 @@ void doClassic(){
   while(millis() < touchWindow){
      pinTouched = readTouchInputs();
      if(pinTouched == randNum){
-     playSound(randNum); //play fruit sound
-     delay(2000);
-     int timeBonus = ((touchWindow - millis())%100)*100 - (hardness/1000 +4) * 100 ;
+         long touch_time=millis();
+         playSound(randNum); //play fruit sound
+         delay(2000);
+         int timeBonus = ((touchWindow - touch_time)%100)*100 - (hardness/1000 +4) * 100 ;
           
               if(hardness > 1000){
                    hardness = hardness-1000;
@@ -479,142 +483,194 @@ void playNoise(char type, int fruit){
   mySerial.write(filename);
   mySerial.write("\r");
 }
+int _i2caddr=0x5A;
+
 int readTouchInputs(){
-  if(!checkInterrupt()){
-    
+  int touched_pin=-1;
+  if(touch_status_changed){
+    touch_status_changed=false;
+    Serial.println("something happened!");
     //read the touch state from the MPR121
-    Wire.requestFrom(0x5A,2); 
-    
+    while(Wire.requestFrom(0x5A,2)!=2);
+
     byte LSB = Wire.read();
     byte MSB = Wire.read();
-    
+
     uint16_t touched = ((MSB << 8) | LSB); //16bits that make up the touch states
 
-    
     for (int i=0; i < 12; i++){  // Check what electrodes were pressed
       if(touched & (1<<i)){
-      
+
         if(touchStates[i] == 0){
+          Serial.print("hi");
           //pin i was just touched
-          /*Serial.print("pin ");
-          Serial.print(i);
-          Serial.println(" was just touched");
-          Serial.print("pin 8:");*/
-          ////Serial.println(digitalRead(8));
-          //while(digitalRead(8)){
+          //if(i == 0){
+            Serial.print("pin ");
+            Serial.print(i);
+            Serial.println(" was just touched");
           //}
-          //mySerial.write("VPF s0.mp3\r");
-          ////Serial.println(mySerial.read());
-          return i;
-        }else if(touchStates[i] == 1){
+          touched_pin=i;
+
+        }
+        else if(touchStates[i] == 1){
           //pin i is still being touched
-        }  
-      
-        touchStates[i] = 1;      
-      }else{
+        }
+
+        touchStates[i] = 1;
+      }
+      else{
         if(touchStates[i] == 1){
-          Serial.print("pin ");
-          Serial.print(i);
-          Serial.println(" is no longer being touched");
-          
+          //if(i == 0){
+            Serial.print("pin ");
+            Serial.print(i);
+            Serial.println(" is no longer being touched");
+          //}
           //pin i is no longer being touched
-       }
-       
+        }
         touchStates[i] = 0;
       }
-    
     }
-    
   }
-  return -1;
+  return touched_pin;
 }
-
-
 
 
 void mpr121_setup(void){
+  writeRegister(MPR121_SOFTRESET, 0x63);
+  delay(1);
+  writeRegister(ELE_CFG, 0x00);
 
-  set_register(0x5A, ELE_CFG, 0x00); 
-  
   // Section A - Controls filtering when data is > baseline.
-  set_register(0x5A, MHD_R, 0x01);
-  set_register(0x5A, NHD_R, 0x01);
-  set_register(0x5A, NCL_R, 0x00);
-  set_register(0x5A, FDL_R, 0x00);
+  writeRegister(MHD_R, 0x01);
+  writeRegister(NHD_R, 0x01);
+  writeRegister(NCL_R, 0x0E);
+  writeRegister(FDL_R, 0x00);
 
   // Section B - Controls filtering when data is < baseline.
-  set_register(0x5A, MHD_F, 0x01);
-  set_register(0x5A, NHD_F, 0x01);
-  set_register(0x5A, NCL_F, 0xFF);
-  set_register(0x5A, FDL_F, 0x02);
-  
+  writeRegister(MHD_F, 0x01);
+  writeRegister(NHD_F, 0x05);
+  writeRegister(NCL_F, 0x01);
+  writeRegister(FDL_F, 0x00);
+
   // Section C - Sets touch and release thresholds for each electrode
-  set_register(0x5A, ELE0_T, 0x44);
-  set_register(0x5A, ELE0_R, 0x44);
- 
-  set_register(0x5A, ELE1_T, 0x33);
-  set_register(0x5A, ELE1_R, 0x33);
-  
-  set_register(0x5A, ELE2_T, TOU_THRESH);
-  set_register(0x5A, ELE2_R, REL_THRESH);
-  
-  set_register(0x5A, ELE3_T, TOU_THRESH);
-  set_register(0x5A, ELE3_R, REL_THRESH);
-  
-  set_register(0x5A, ELE4_T, TOU_THRESH);
-  set_register(0x5A, ELE4_R, REL_THRESH);
-  
-  set_register(0x5A, ELE5_T, TOU_THRESH);
-  set_register(0x5A, ELE5_R, REL_THRESH);
-  
-  set_register(0x5A, ELE6_T, TOU_THRESH);
-  set_register(0x5A, ELE6_R, REL_THRESH);
-  
-  set_register(0x5A, ELE7_T, TOU_THRESH);
-  set_register(0x5A, ELE7_R, REL_THRESH);
-  
-  set_register(0x5A, ELE8_T, TOU_THRESH);
-  set_register(0x5A, ELE8_R, REL_THRESH);
-  
-  set_register(0x5A, ELE9_T, TOU_THRESH);
-  set_register(0x5A, ELE9_R, REL_THRESH);
-  
-  set_register(0x5A, ELE10_T, TOU_THRESH);
-  set_register(0x5A, ELE10_R, REL_THRESH);
-  
-  set_register(0x5A, ELE11_T, TOU_THRESH);
-  set_register(0x5A, ELE11_R, REL_THRESH);
-  
+  writeRegister(ELE0_T, TOU_THRESH);
+  writeRegister(ELE0_R, REL_THRESH);
+
+  writeRegister(ELE1_T, TOU_THRESH); //apple
+  writeRegister(ELE1_R, REL_THRESH);
+
+  writeRegister(ELE2_T, TOU_THRESH); //2,5
+  writeRegister(ELE2_R, REL_THRESH);
+
+  writeRegister(ELE3_T, TOU_THRESH);//1,4
+  writeRegister(ELE3_R, REL_THRESH);
+
+  writeRegister(ELE4_T, TOU_THRESH);//5,7
+  writeRegister(ELE4_R, REL_THRESH);
+
+  writeRegister(ELE5_T, TOU_THRESH);
+  writeRegister(ELE5_R, REL_THRESH);
+
+  writeRegister(ELE6_T, TOU_THRESH);
+  writeRegister(ELE6_R, REL_THRESH);
+
+  writeRegister(ELE7_T, TOU_THRESH);//7,7
+  writeRegister(ELE7_R, REL_THRESH);
+
+  writeRegister(ELE8_T, TOU_THRESH);
+  writeRegister(ELE8_R, REL_THRESH);
+
+  writeRegister(ELE9_T, TOU_THRESH);
+  writeRegister(ELE9_R, REL_THRESH);
+
+  writeRegister(ELE10_T, TOU_THRESH);
+  writeRegister(ELE10_R, REL_THRESH);
+
+  writeRegister(ELE11_T, TOU_THRESH);
+  writeRegister(ELE11_R, REL_THRESH);
+
   // Section D
   // Set the Filter Configuration
   // Set ESI2
-  set_register(0x5A, FIL_CFG, 0x04);
-  
+  //writeRegister(FIL_CFG, 16);
+   writeRegister(MPR121_CONFIG1, 0x1f); // default, 16uA charge current
+   writeRegister(MPR121_CONFIG2, 0x20); // 0.5uS encoding, 1ms period
+
   // Section E
   // Electrode Configuration
   // Set ELE_CFG to 0x00 to return to standby mode
-  set_register(0x5A, ELE_CFG, 0x0C);  // Enables all 12 Electrodes
-  
-  
+  writeRegister(ELE_CFG, 0x0C);  // Enables all 12 Electrodes
+
+  read_register(0x5A);
+
+
   // Section F
   // Enable Auto Config and auto Reconfig
-  /*set_register(0x5A, ATO_CFG0, 0x0B);
-  set_register(0x5A, ATO_CFGU, 0xC9);  // USL = (Vdd-0.7)/vdd*256 = 0xC9 @3.3V   set_register(0x5A, ATO_CFGL, 0x82);  // LSL = 0.65*USL = 0x82 @3.3V
-  set_register(0x5A, ATO_CFGT, 0xB5);*/  // Target = 0.9*USL = 0xB5 @3.3V
-  
-  set_register(0x5A, ELE_CFG, 0x0C);
-  
+  /*writeRegister(ATO_CFG0, 0x0B);
+   writeRegister(ATO_CFGU, 0xC9);  // USL = (Vdd-0.7)/vdd*256 = 0xC9 @3.3V   writeRegister(ATO_CFGL, 0x82);  // LSL = 0.65*USL = 0x82 @3.3V
+   writeRegister(ATO_CFGT, 0xB5);*/  // Target = 0.9*USL = 0xB5 @3.3V
+
+  //writeRegister(ELE_CFG, 0x0C);
+
 }
 
 
-boolean checkInterrupt(void){
-  return digitalRead(irqpin);
+void read_register(int address){
+  while(Wire.requestFrom(address, 6)!=6);    // request 6 bytes from slave device #2
+
+  while(Wire.available())    // slave may send less than requested
+  {
+    char c = Wire.read();    // receive a byte as character
+    Serial.print(c);         // print the character
+  }
+
+  delay(500); 
+}
+uint16_t  filteredData(uint8_t t) {
+  if (t > 12) return 0;
+  return readRegister16(MPR121_FILTDATA_0L + t*2);
 }
 
+uint16_t  baselineData(uint8_t t) {
+  if (t > 12) return 0;
+  uint16_t bl = readRegister8(MPR121_BASELINE_0 + t);
+  return (bl << 2);
+}
 
-void set_register(int address, unsigned char r, unsigned char v){
-    Wire.beginTransmission(address);
-    Wire.write(r);
-    Wire.write(v);
+uint16_t  touched(void) {
+  uint16_t t = readRegister16(MPR121_TOUCHSTATUS_L);
+  return t & 0x0FFF;
+}
+
+/*********************************************************************/
+
+
+uint8_t readRegister8(uint8_t reg) {
+    Wire.beginTransmission(_i2caddr);
+    Wire.write(reg);
+    Wire.endTransmission(false);
+    while (Wire.requestFrom(_i2caddr, 1) != 1);
+    return ( Wire.read());
+}
+
+uint16_t readRegister16(uint8_t reg) {
+    Wire.beginTransmission(_i2caddr);
+    Wire.write(reg);
+    Wire.endTransmission(false);
+    while (Wire.requestFrom(_i2caddr, 2) != 2);
+    uint16_t v = Wire.read();
+    v |=  ((uint16_t) Wire.read()) << 8;
+    return v;
+}
+
+/**************************************************************************/
+/*!
+    @brief  Writes 8-bits to the specified destination register
+*/
+/**************************************************************************/
+void writeRegister(uint8_t reg, uint8_t value) {
+    Wire.beginTransmission(_i2caddr);
+    Wire.write((uint8_t)reg);
+    Wire.write((uint8_t)(value));
     Wire.endTransmission();
 }
