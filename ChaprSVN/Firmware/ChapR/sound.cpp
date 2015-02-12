@@ -145,21 +145,4 @@ void sound::select()
   SOUND_OFF;
 }
 
-/*void sound::endStart() //only used to signify the beginning of endGame
-{
-  SOUND_ON;
-  noTone(_pin);
-  
-  tone(_pin,1500);
-  delay50();
-
-  tone(_pin,1000);
-  delay50();
-
-  tone(_pin,1500);
-  delay50();
-  
-  noTone(_pin);
-  SOUND_OFF;
-  }*/
 

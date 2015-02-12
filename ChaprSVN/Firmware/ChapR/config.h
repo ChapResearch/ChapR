@@ -111,6 +111,9 @@
 #define DEF_FTCAUTOLEN         30 // (secs) defaults set for FTC
 #define DEF_FTCTELELEN         60 // (secs)
 #define DEF_FTCENDLEN          30 // (secs)
+#define DEF_FRCAUTOLEN         15 // (secs) defaults set for FRC
+#define DEF_FRCTELELEN         135 // (secs)
+#define DEF_FRCENDLEN          0 // (secs)
 #define DEF_DGTLIN             0
 #define DEF_ANALOG1            0.0
 #define DEF_ANALOG2            0.0

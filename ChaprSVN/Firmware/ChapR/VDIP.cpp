@@ -539,8 +539,17 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
          byte newNum = (byte) atoi(buf);
          if (newNum > 0 && newNum <= EEPROM_LASTPERSON){
            myEEPROM.setPersonality(newNum);
-	   
-         }
+	   if (newNum == 1 || newNum == 3){ // is an FTC personality
+	     myEEPROM.setAutoLen(DEF_FTCAUTOLEN);
+	     myEEPROM.setTeleLen(DEF_FTCTELELEN);
+	     myEEPROM.setEndLen(DEF_FTCENDLEN);
+	   }
+	   if (newNum == 4){ // is an FTC personality
+	     myEEPROM.setAutoLen(DEF_FRCAUTOLEN);
+	     myEEPROM.setTeleLen(DEF_FRCTELELEN);
+	     myEEPROM.setEndLen(DEF_FRCENDLEN);
+	   }
+	 }
        }
 
        // get the power-down timeout

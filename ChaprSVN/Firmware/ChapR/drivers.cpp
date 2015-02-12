@@ -264,14 +264,15 @@ bool driverXbox360(byte *data, int count, Gamepad &target)
 */
      target.buttons |= (data[3] & 0x03)<<4;	// grab the two near shoulder buttons
 
-     // the two far shoulder buttons on the xbox 360 are analog, so interpret them
-
-     target.x2 = data[4];
-     Serial.print("x2: ");
-     Serial.println(target.x2);
-     target.y2 = data[5]; //^ 0xff
-     Serial.print("y2: ");
-     Serial.println(target.y2);
+     // the two far shoulder buttons on the xbox 360 are analog, so interpret them TODO
+     target.x2 = 0; // currently just doesn't use those
+     //     target.x2 = data[4];
+     // Serial.print("x2: ");
+     //     Serial.println(target.x2);
+     target.y2 = 0; // currently just ignores the triggers
+     //     target.y2 = data[5]; //^ 0xff
+     //     Serial.print("y2: ");
+     //     Serial.println(target.y2);
 
      // old way of translating triggers to buttons    
 
