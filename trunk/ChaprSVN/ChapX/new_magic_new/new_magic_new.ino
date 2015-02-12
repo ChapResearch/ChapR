@@ -29,7 +29,7 @@ void setup(){
 ////////////////////////////////////////////////////////////////////////////////////////
 //ALL FRUIT MUST BE PUT ON THE PINS WITH NUMBERS THE SAME AS THEIR SOUND FILE NUMMBERS//
 ////////////////////////////////////////////////////////////////////////////////////////
-#define NUMFRUITS 2
+#define NUMFRUITS 12
 int gameType = -1; //1-classic,2-Simon,3-team
 boolean pressStart = true;
 
@@ -93,12 +93,13 @@ void doClassic(){
   playPrompt(randNum); //play prompt sound
   long start = millis(); 
   int addScore = 0;
-  long touchWindow = start + hardness; //reaction time
+  long touchWindow = start + hardness; //reaction timeF
   while(millis() < touchWindow){
      pinTouched = readTouchInputs();
      if(pinTouched == randNum){
          long touch_time=millis();
          playSound(randNum); //play fruit sound
+         
          delay(2000);
          int timeBonus = ((touchWindow - touch_time)%100)*100 - (hardness/1000 +4) * 100 ;
           
@@ -347,7 +348,7 @@ void playScore(long score)
   while(score >0 && i <6){
     int temp = (int)(score%10);
     Serial.print(temp);
-    delay(500);
+    //delay(500);
     score = score/10;
     scoreDigits[i] = temp;
     i++;
@@ -559,8 +560,8 @@ void mpr121_setup(void){
   writeRegister(FDL_F, 0x00);
 
   // Section C - Sets touch and release thresholds for each electrode
-  writeRegister(ELE0_T, TOU_THRESH);
-  writeRegister(ELE0_R, REL_THRESH);
+  writeRegister(ELE0_T, 7);
+  writeRegister(ELE0_R, 2);
 
   writeRegister(ELE1_T, TOU_THRESH); //apple
   writeRegister(ELE1_R, REL_THRESH);

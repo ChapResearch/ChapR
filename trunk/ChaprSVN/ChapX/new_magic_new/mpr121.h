@@ -54,8 +54,8 @@
 
 
 // Global Constants
-#define TOU_THRESH	3
-#define	REL_THRESH	1
+#define TOU_THRESH	7 //9 //3
+#define	REL_THRESH	2 //1
 // The default I2C address
 #define MPR121_I2CADDR_DEFAULT 0x5A
 
