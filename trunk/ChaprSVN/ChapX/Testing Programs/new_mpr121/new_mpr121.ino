@@ -22,13 +22,14 @@ void setup(){
 void loop(){
   readTouchInputs();
   /*Serial.print("Baseline for pin 1: ");
-  Serial.println(baselineData(1));
+  Serial.println(baselineData(0));
   Serial.print("Filt Data for pin 1: ");
-  Serial.println(filteredData(1));
+  Serial.println(filteredData(0));
   Serial.print("touch status for pin 1: ");
 
   Serial.println(touched()&0x02);
-  *///delay(1000);
+  delay(1000);
+*/
 }
 int _i2caddr=0x5A;
 
@@ -100,8 +101,8 @@ void mpr121_setup(void){
   set_register(0x5A, FDL_F, 0x00);
 
   // Section C - Sets touch and release thresholds for each electrode
-  set_register(0x5A, ELE0_T, TOU_THRESH);
-  set_register(0x5A, ELE0_R, REL_THRESH);
+  set_register(0x5A, ELE0_T, 7);
+  set_register(0x5A, ELE0_R, 2);
 
   set_register(0x5A, ELE1_T, TOU_THRESH); //apple
   set_register(0x5A, ELE1_R, REL_THRESH);
@@ -109,7 +110,7 @@ void mpr121_setup(void){
   set_register(0x5A, ELE2_T, TOU_THRESH); //2,5
   set_register(0x5A, ELE2_R, REL_THRESH);
 
-  set_register(0x5A, ELE3_T, TOU_THRESH);//1,4
+  set_register(0x5A, ELE3_T, 9);//1,4
   set_register(0x5A, ELE3_R, REL_THRESH);
 
   set_register(0x5A, ELE4_T, TOU_THRESH);//5,7
@@ -127,11 +128,11 @@ void mpr121_setup(void){
   set_register(0x5A, ELE8_T, TOU_THRESH);
   set_register(0x5A, ELE8_R, REL_THRESH);
 
-  set_register(0x5A, ELE9_T, TOU_THRESH);
-  set_register(0x5A, ELE9_R, REL_THRESH);
+  set_register(0x5A, ELE9_T, 7);
+  set_register(0x5A, ELE9_R, 2);
 
-  set_register(0x5A, ELE10_T, TOU_THRESH);
-  set_register(0x5A, ELE10_R, REL_THRESH);
+  set_register(0x5A, ELE10_T, 7);
+  set_register(0x5A, ELE10_R, 2);
 
   set_register(0x5A, ELE11_T, TOU_THRESH);
   set_register(0x5A, ELE11_R, REL_THRESH);
