@@ -49,12 +49,13 @@ bool Personality_3::matchStateProcess(mmState mmState, void *rock)
 	  break;
 
      case MM_AUTO_START:
-	  // need an auto start sound here
+          beeper.beep();
 	  enabled = true;
 	  break;
 
      case MM_AUTO_END:		// autonomous is ending
           enabled = false;
+          beeper.boop();
 	  break;
 
      case MM_TELEOP_PREP:      	// prepare for teleop
@@ -63,15 +64,17 @@ bool Personality_3::matchStateProcess(mmState mmState, void *rock)
 
      case MM_TELEOP_START:	// teleop is starting
 	  enabled = true;
-	  // need a teleop start sound here
+	  beeper.beep();
 	  break;
 
      case MM_ENDGAME_START:	// endgame (within teleop) is starting
 	  // need an endgame start sound here
+          beeper.beep();
 	  break;
 
      case MM_TELEOP_END:	// teleop is ending
           enabled = false;
+	  beeper.boop();
 	  // need a end of game sound here
 	  // FALL THROUGH to next case - 'cause we need to kill the program at the end of Teleop
 
@@ -83,7 +86,8 @@ bool Personality_3::matchStateProcess(mmState mmState, void *rock)
 	  // we don't need MM_ENDGAME_END at this point
 	  break;
      }
-
+     Serial.print("mmState:");
+Serial.println(mmState);
      return(true);
   
 }
