@@ -32,7 +32,7 @@ void setup(){
 #define NUMFRUITS 12
 int gameType = -1; //1-classic,2-Simon,3-team
 boolean pressStart = true;
-#define NUMGAMES 2
+#define NUMGAMES 3
 
 
 //team
@@ -271,7 +271,7 @@ void doPiano(){
   if(note == 10)
     pressStart = true;
   playNoise('n',note);
-  delay(500);
+  delay(50);
 
 }
 
