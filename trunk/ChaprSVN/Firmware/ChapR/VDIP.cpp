@@ -234,20 +234,20 @@ void VDIP::mapDevice(int dev, char *deviceReport, portConfig *returnPortConfig)
 	  returnPortConfig->type = DEVICE_UNKNOWN;
      }
 
-#ifdef DEBUG
-     Serial.print("vid 0x");
-     Serial.print(returnPortConfig->vid,HEX);
-     Serial.print(" pid 0x");
+     #ifdef DEBUG
+       //  Serial.print("vid 0x");
+          Serial.print(returnPortConfig->vid,HEX);
+     //     Serial.print(" pid 0x");
      Serial.print(returnPortConfig->pid,HEX);
-     Serial.print(" usbDev 0x");
+     //     Serial.print(" usbDev 0x");
      Serial.print(returnPortConfig->usbDev,HEX);
 
-     Serial.print(" type 0x");
+     /*     Serial.print(" type 0x");
      Serial.print(returnPortConfig->type,HEX);
      Serial.print(" (0x");
      Serial.print(deviceReport[DEV_TYPE],HEX);
-     Serial.println(")");
-#endif
+     */     Serial.println(")");
+     #endif
 }
 
 

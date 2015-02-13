@@ -130,6 +130,13 @@ private:
      void ejectNXT();
      void init();
 
+#ifdef DEBUG
+     void DEBUG_PORT_CONFIG(portConfig *);
+     void debug_port_config();
+     void DEBUG_HEX_BYTE(unsigned char);
+     void DEBUG_USB_QD(int, unsigned char *buffer);
+#endif
+
      int tryFirePlugBaud(portConfig *,int);
      void updateDevices();
      void mapDevice(int, char *, portConfig *);
