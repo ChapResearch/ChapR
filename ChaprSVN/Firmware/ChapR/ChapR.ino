@@ -35,7 +35,7 @@
 /*	start, the better.								*/
 /*											*/
 /*	Some "special" objects are the "personalities".  they govern how the ChapR	*/
-/*	interats with the rest of the world.  they are polymorphic so that the given	*/
+/*	interacts with the rest of the world.  they are polymorphic so that the given	*/
 /*	personality can be chosen, and used.						*/
 /****************************************************************************************/
 
