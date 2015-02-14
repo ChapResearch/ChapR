@@ -52,7 +52,7 @@ void loop(){
           doClassic();
         }
         if(gameType == 2){
-          doSimon();
+          //doSimon();
         }
         if(gameType == 3){
           /////doPiano();
@@ -62,7 +62,7 @@ void loop(){
       checkClassic();
     }
     if(gameType == 2){
-      checkSimon();
+   //   checkSimon();
     }
     if(gameType == 3){
       //checkTeam();
@@ -132,14 +132,15 @@ void doClassic(){
       }
 }
 //simon
-int promptList[20];
+/*int promptList[20];
 int level = 1;
 int strikes1 = 0;
 bool right = true;
 bool levelUp = false;
 int highScore1 = 0;
-//
-void doSimon(){
+*/
+///*
+/*void doSimon(){
   
   int randNum1 = (int)random(0,NUMFRUITS);
   Serial.print(randNum1);
@@ -174,7 +175,7 @@ void letUserTry(){
   {
     levelUp = true;
   }
-}
+}*/
 void doTeam(){
   
 }
@@ -246,7 +247,7 @@ void checkClassic(){
   }
   
 }*/
-void checkSimon(){
+/*void checkSimon(){
   if(strikes1 == 6){
     if(level > highScore1){  
       playNoise('g', 5);//game over
@@ -292,7 +293,7 @@ void checkSimon(){
     right = true;
     levelUp = false;
   }
-}
+}*/
 
 void checkTeam(){
   

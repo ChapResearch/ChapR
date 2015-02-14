@@ -131,7 +131,7 @@ void mpr121_setup(void){
   set_register(0x5A, ELE9_T, 7);
   set_register(0x5A, ELE9_R, 2);
 
-  set_register(0x5A, ELE10_T, 7);
+  set_register(0x5A, ELE10_T, 9);
   set_register(0x5A, ELE10_R, 2);
 
   set_register(0x5A, ELE11_T, TOU_THRESH);
