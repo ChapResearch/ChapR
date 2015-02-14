@@ -301,8 +301,8 @@ bool driverXbox360(byte *data, int count, Gamepad &target)
      //			 v
      //               0x02 (S)
      
-     Serial.print("final: ");
-     Serial.println(target.buttons);
+     //     Serial.print("final: ");
+     //     Serial.println(target.buttons);
 
      switch(data[2]) {
      case 0x01:	target.tophat = 1; break;
@@ -351,7 +351,7 @@ bool initPS3(int port, VDIP *vdip)
      int	i=0;
      char	cbuf[15];
 
-     Serial.println("PS3 Init");
+     //     Serial.println("PS3 Init");
 
      // the PS3 needs a special command before it will start sending data
 
@@ -380,7 +380,7 @@ bool initPS3(int port, VDIP *vdip)
 
 bool driverPS3(byte *data, int count, Gamepad &target)
 {
-     Serial.println(count);
+  //     Serial.println(count);
 
      if(count != 20) {
 	  return(false);
