@@ -49,6 +49,7 @@ void loop(){
     gameType = readTouchInputs() + 1;
     Serial.print(gameType);
     if(gameType > 0 && gameType <= NUMGAMES){
+      delay(1000);
       // if anything is touched by this time
       pressStart = false;
       Serial.print(gameType);
@@ -105,7 +106,7 @@ void doClassic(){
       delay(2000);
       int timeBonus = ((touchWindow - touch_time)%100)*100 - (hardness/1000 +4) * 100 ;
 
-      if(hardness > 1000){
+      if(hardness > 2000){
         hardness = hardness-1000;
         addScore = 100 + timeBonus - 500;
         Serial.print("Score: ");
@@ -589,8 +590,8 @@ void mpr121_setup(void){
   writeRegister(ELE0_T, 7);
   writeRegister(ELE0_R, 2);
 
-  writeRegister(ELE1_T, TOU_THRESH); //apple
-  writeRegister(ELE1_R, REL_THRESH);
+  writeRegister(ELE1_T, 6); //apple
+  writeRegister(ELE1_R, 3);
 
   writeRegister(ELE2_T, TOU_THRESH); //2,5
   writeRegister(ELE2_R, REL_THRESH);
