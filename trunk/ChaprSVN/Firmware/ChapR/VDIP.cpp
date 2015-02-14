@@ -95,7 +95,7 @@ bool VDIP::deviceUpdate()
 
      // mark the two ports so we know when they've been assigned
 
-     for(i=2; i--; ) {
+     for(i=8; i--; ) {
 	  ports[i].flag = false;
      }
 
@@ -235,18 +235,18 @@ void VDIP::mapDevice(int dev, char *deviceReport, portConfig *returnPortConfig)
      }
 
      #ifdef DEBUG
-       //  Serial.print("vid 0x");
+          Serial.print("vid 0x");
           Serial.print(returnPortConfig->vid,HEX);
-     //     Serial.print(" pid 0x");
-     Serial.print(returnPortConfig->pid,HEX);
-     //     Serial.print(" usbDev 0x");
-     Serial.print(returnPortConfig->usbDev,HEX);
+          Serial.print(" pid 0x");
+	  Serial.print(returnPortConfig->pid,HEX);
+	  Serial.print(" usbDev 0x");
+	  //Serial.print(returnPortConfig->usbDev,HEX);
 
-     /*     Serial.print(" type 0x");
-     Serial.print(returnPortConfig->type,HEX);
-     Serial.print(" (0x");
-     Serial.print(deviceReport[DEV_TYPE],HEX);
-     */     Serial.println(")");
+          //Serial.print(" type 0x");
+	  //Serial.print(returnPortConfig->type,HEX);
+	  //Serial.print(" (0x");
+	  //Serial.print(deviceReport[DEV_TYPE],HEX);
+	  //Serial.println(")");
      #endif
 }
 
