@@ -50,6 +50,8 @@ void loop(){
     Serial.print(gameType);
     if(gameType > 0 && gameType <= NUMGAMES){
       delay(1000);
+      if(gameType == 1)
+         gameType = -1;
       // if anything is touched by this time
       pressStart = false;
       Serial.print(gameType);
@@ -92,8 +94,8 @@ int highscore = 1;
 //
 void doClassic(){
   bool strikeDone = false;
-  int randNum = (int)random(0,NUMFRUITS);
-  playPrompt(randNum); //play prompt sound
+  int randNum = (int)random(1,NUMFRUITS);
+ playPrompt(randNum); //play prompt sound
   long start = millis();
   int addScore = 0;
   long touchWindow = start + hardness; //reaction timeF
@@ -611,16 +613,16 @@ void mpr121_setup(void){
   writeRegister(ELE7_T, TOU_THRESH);//7,7
   writeRegister(ELE7_R, REL_THRESH);
 
-  writeRegister(ELE8_T, TOU_THRESH);
+  writeRegister(ELE8_T, 9);
   writeRegister(ELE8_R, REL_THRESH);
 
   writeRegister(ELE9_T, TOU_THRESH);
   writeRegister(ELE9_R, REL_THRESH);
 
-  writeRegister(ELE10_T, 9);
+  writeRegister(ELE10_T, 10);
   writeRegister(ELE10_R, 2);
 
-  writeRegister(ELE11_T, TOU_THRESH);
+  writeRegister(ELE11_T, 10);
   writeRegister(ELE11_R, REL_THRESH);
 
   // Section D
