@@ -87,6 +87,7 @@ void Gamepad::deviceUpdate(VDIP *vdip)
 //	  Serial.print(pid,HEX);
      } else {
        Serial.println("clear joystick here?");
+       clear();
 	  translator = NULL;
 	  init = NULL;
      }
