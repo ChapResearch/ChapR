@@ -95,7 +95,7 @@ bool VDIP::deviceUpdate()
 
      // mark the two ports so we know when they've been assigned
 
-     for(i=8; i--; ) {
+     for(i=2; i--; ) {
 	  ports[i].flag = false;
      }
 
