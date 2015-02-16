@@ -86,8 +86,6 @@ bool Personality_3::matchStateProcess(mmState mmState, void *rock)
 	  // we don't need MM_ENDGAME_END at this point
 	  break;
      }
-     Serial.print("mmState:");
-Serial.println(mmState);
      return(true);
   
 }
