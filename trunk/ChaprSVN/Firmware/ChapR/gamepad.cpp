@@ -34,7 +34,7 @@ void Gamepad::debugPrint(char *prefix)
 //
 void Gamepad::clear()
 {
-     x1 = y1 = x2 = y2 = 0;
+     x1 = y1 = x2 = y2 = x3 = y3 = 0;
      buttons = 0;
      tophat = 0;
 }
@@ -86,7 +86,6 @@ void Gamepad::deviceUpdate(VDIP *vdip)
 //	  Serial.print("   PID:0x");
 //	  Serial.print(pid,HEX);
      } else {
-       Serial.println("clear joystick here?");
        clear();
 	  translator = NULL;
 	  init = NULL;
