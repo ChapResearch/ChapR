@@ -19,12 +19,12 @@
 #define EEPROM_RSTATUS         24	// reset status used for self-rebooting
 #define EEPROM_SPEED           25	// byte (lag)
 #define EEPROM_MODE            26	// byte (bool) - (NXT definition) true(1) is teleop, false(0) is auto
-#define EEPROM_DIGITALIN       27	// byte
-#define EEPROM_ANALOGIN	       28	// serves as the base for writing analog values
-#define EEPROM_ANALOGIN1       28	// 2 bytes
-#define EEPROM_ANALOGIN2       30	// 2 bytes
-#define EEPROM_ANALOGIN3       32	// 2 bytes
-#define EEPROM_ANALOGIN4       34	// 2 bytes
+//#define EEPROM_DIGITALIN       27	// byte
+//#define EEPROM_ANALOGIN	       28	// serves as the base for writing analog values
+//#define EEPROM_ANALOGIN1       28	// 2 bytes
+//#define EEPROM_ANALOGIN2       30	// 2 bytes
+//#define EEPROM_ANALOGIN3       32	// 2 bytes
+//#define EEPROM_ANALOGIN4       34	// 2 bytes
 #define EEPROM_AUTOLEN         36	// byte
 #define EEPROM_TELELEN         37	// byte
 #define EEPROM_ENDLEN          38       // byte
@@ -60,10 +60,10 @@ public:
      void boardBringUp();
      void setResetStatus(byte);
      byte getResetStatus();
-     void setDigitalInputs(byte);
-     byte getDigitalInputs();
-     void setAnalogInput(int,double);
-     short getAnalogInput(int);
+     //     void setDigitalInputs(byte);
+     //     byte getDigitalInputs();
+     //     void setAnalogInput(int,double);
+     //     short getAnalogInput(int);
 //     void setAnalogInput1(double);
 //     void setAnalogInput2(double);
 //     void setAnalogInput3(double);
@@ -80,7 +80,7 @@ public:
      byte getAutoLen();
      void setMatchModeEnable(bool);
      bool matchModeIsEnabled();
-     void setDefaults(char *,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,double,double,double,double,unsigned int);
+     void setDefaults(char *,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int);
      void loadCache();
      
  private:
@@ -91,8 +91,8 @@ public:
      long autoLen;             
      long teleLen; 
      long endLen;
-     byte dgtlIn;
-     short analog[4];		// four "analog" values
+     //     byte dgtlIn;
+     //     short analog[4];		// four "analog" values
 //     short analog1;
 //     short analog2;
 //     short analog3;
@@ -100,7 +100,7 @@ public:
      bool matchModeEnable;
 
      void hitReturn();
-     void SerialPrintAnalog(double,int);
+     //     void SerialPrintAnalog(double,int);
      void doSetting(int,const __FlashStringHelper *, const __FlashStringHelper *,unsigned int,unsigned int,uint8_t);
      void printCurrentValue(int,unsigned int, uint8_t);
      int  getStringFromMonitor(char*, int);
