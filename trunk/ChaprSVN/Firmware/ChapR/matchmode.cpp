@@ -291,6 +291,10 @@ bool MatchMode::callBack()
 	return(matchStateProcess(currentState,rock));
 }
 
+//
+// MatchReset() - this is the rather punative "kill" the match.  It doesn't call the match
+//			events at all.  So only use this if you KNOW what you're doing.
+//
 void MatchMode::MatchReset()
 {
   currentState = MM_OFF;
