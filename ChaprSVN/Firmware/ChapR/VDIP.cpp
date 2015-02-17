@@ -81,6 +81,39 @@ void DEBUG_USB_QD(int dev, unsigned char *buffer)
 #endif
 
 //
+// deviceCheck() - does a quick check on the USB ports to see if anything has
+//		   changed.  This routine is nice enough to keep track of the
+//		   devices so that it will simply tell you if something changed
+//		   as opposed to you having to do it.  Naturally, you have to
+//		   call it fast enough to keep up with changes.
+//
+//	RETURNS: true if something has changed
+//
+bool VDIP::deviceCheck()
+{
+     bool		retval;
+     char		port1[2];
+     char		port2[2];
+     static char	lastPort1[2] = { '\x00', '\x00' };	// initialize to the value that says
+     static char	lastPort2[2] = { '\x00', '\x00' };	//   "nothing is in the port"
+
+     cmd(VDIP_QP,port1,100,1);	// check port 1
+     cmd(VDIP_QP,port2,100,2);	// check port 2
+
+     retval = port1[0] != lastPort1[0] || 
+	      port1[1] != lastPort1[1] ||
+	      port2[0] != lastPort2[0] || 
+	      port2[1] != lastPort2[1];
+
+     lastPort1[0] = port1[0];
+     lastPort1[1] = port1[1];
+     lastPort2[0] = port2[0];
+     lastPort2[1] = port2[1];
+
+     return(retval);
+}     
+
+//
 // deviceUpdate() - update the USB devices if necessary.  If there was a change
 //			then this returns true, otherwise false.  Note that there
 //			isn't any differentiation as to which port changed in

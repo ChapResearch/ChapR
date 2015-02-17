@@ -101,6 +101,7 @@ public:
 
      VDIP(uint8_t clockPin, uint8_t mosiPin, uint8_t misoPin, uint8_t csPin, uint8_t csReset);
      bool deviceUpdate();
+     bool deviceCheck();
      bool sync();
      void flush(int = 100);
      int getJoystick(int, char *);
