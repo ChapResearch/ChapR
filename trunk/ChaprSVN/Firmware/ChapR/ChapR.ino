@@ -239,9 +239,11 @@ void loop()
      }
 
      if((loopCount % DEVICE_UPDATE_LOOP_COUNT) == 0) {
-	  if(vdip.deviceUpdate()) {
-	       g1.deviceUpdate(&vdip);
-	       g2.deviceUpdate(&vdip);
+	  if(vdip.deviceCheck()) {
+	       if(vdip.deviceUpdate()) {
+		    g1.deviceUpdate(&vdip);
+		    g2.deviceUpdate(&vdip);
+	       }
 	  }
      }
 
