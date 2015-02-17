@@ -19,6 +19,9 @@
 // data       - the information actually being sent (joysticks, alliance/position etc.)
 // checksum   - verifies that the data sent is accurate (cannot be FF)
 
+// These defines are used by createPacket() to compose a command based upon the
+// logical settings of enable and mode (teleop or auto).
+
 // cRIO command byte format -- CAN NEVER BE 0xFF!!!!!!!!!!!!
 // bit 0 : FPGA Checksum (unknown use)                - 0
 // bit 1 : Test (                                     - 0
@@ -29,10 +32,7 @@
 // bit 6 : Emergency Stop (0 to stop)                 - 1 (kill switch)
 // bit 7 : Reset                                      - 0
 
-
-// These defines are used by createPacket() to compose a command based upon the
-// logical settings of enable and mode (teleop or auto).
-
+// cRIO commands (for old comms system)
 #define CRIO_AUTO_BIT	0x10
 #define CRIO_ESTOP_BIT	0x40
 #define CRIO_ENABLE_BIT	0x20
@@ -41,30 +41,12 @@
 #define CRIO_ENABLE(x)	((x)?CRIO_ENABLE_BIT:0x00)
 #define CRIO_TELEOP(x)	((x)?0x00:CRIO_AUTO_BIT)
 
+// roboRIO commands (for v0 of comms)
+#define RRIO_TELE_OFF                                   0x00
+#define RRIO_TELE_ON                                    0x04
+#define RRIO_AUTO_ON                                    0x05
 
-//#define TELE_OFF                                       64
-//#define TELE_ON                                        96
-//#define AUTO_OFF                                       80 // potentially obsolete because the cRIO can start teleOp after this mode just fine
-//#define AUTO_ON                                       112
-#define RRIO_AUTO_OFF                                       80 //0x50// the cRIO can start teleOp after this mode just fine
-#define RRIO_AUTO_ON                                    0x05 //0x06//112 //0x70
-#define E_STOP                                          0
-
-// the following values are empirical data gathered from the Driver's Station software
-// representing what it sends when the modes are set.
-
-//#define TELE_OFF                                       0x40	//  0100 0000
-//#define TELE_ON                                        0x60	//  0110 0000
-//#define AUTO_OFF                                       0x50	//  0101 0000
-//#define AUTO_ON                                        0x70	//  0111 0000
-//#define E_STOP                                         0x00
-
-
-// roboRIO commands
-#define RRIO_TELE_OFF                                       00
-#define RRIO_TELE_ON                                        04
-
-// DATA FORMAT (for both cRIO and roboRIO)
+// Data Format (sent by personality_3 (aka 4) for both cRIO and roboRIO)
 // cmd     : (starts or stops tele/auto etc.)         : 0
 // dgtl_in : (each bit is an input)                   : 1 FF
 // zero    : (0)                                      : 2
@@ -108,7 +90,6 @@ class RIO
 
  private:
   byte checksum(byte *msgbuff, int size);
-
 };
 
 #endif RIO_H

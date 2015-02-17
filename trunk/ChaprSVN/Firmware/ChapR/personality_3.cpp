@@ -22,7 +22,6 @@ RIO   RIO;                    // the container for all of the RIO calls (makes l
 extern settings myEEPROM;
 extern sound beeper;
 
-
 //
 // matchStateProcess() - the matchmode callback that is used by matchmode to do
 //		  whatever needs to be done with the state changes during
@@ -37,7 +36,6 @@ extern sound beeper;
 //
 bool Personality_3::matchStateProcess(mmState mmState, void *rock)
 {
-  
      switch(mmState) {
      case MM_OFF:
 	  enabled = false;	// ensure we are always disabled when in OFF state
@@ -87,7 +85,6 @@ bool Personality_3::matchStateProcess(mmState mmState, void *rock)
 	  break;
      }
      return(true);
-  
 }
 
 Personality_3::Personality_3()
