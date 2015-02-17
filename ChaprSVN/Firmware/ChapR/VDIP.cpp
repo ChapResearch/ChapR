@@ -106,7 +106,7 @@ bool VDIP::deviceUpdate()
      // Note, too, that each port must be accounted for, or its configuration gets
      // zero'd out.
 
-//     for (int i = 0; i < 2; i++) {
+//     for (int i = 0; i < 2; i++) { // old way of only checking 2 usb devices
      for (int i = 0; i < 8; i++) {	// each xbox controller uses 4 usb devices - plan for two
 	                                // potential xbox controllers
 	  cmd(VDIP_QD,incoming,100,i);
@@ -240,13 +240,13 @@ void VDIP::mapDevice(int dev, char *deviceReport, portConfig *returnPortConfig)
           Serial.print(" pid 0x");
 	  Serial.print(returnPortConfig->pid,HEX);
 	  Serial.print(" usbDev 0x");
-	  //Serial.print(returnPortConfig->usbDev,HEX);
+	  Serial.print(returnPortConfig->usbDev,HEX);
 
-          //Serial.print(" type 0x");
-	  //Serial.print(returnPortConfig->type,HEX);
-	  //Serial.print(" (0x");
-	  //Serial.print(deviceReport[DEV_TYPE],HEX);
-	  //Serial.println(")");
+          Serial.print(" type 0x");
+	  Serial.print(returnPortConfig->type,HEX);
+	  Serial.print(" (0x");
+	  Serial.print(deviceReport[DEV_TYPE],HEX);
+	  Serial.println(")");
      #endif
 }
 
@@ -506,7 +506,7 @@ bool VDIP::readFile(char *filename, char *buf, byte numToRead, bool lineOnly)
      return buf[0] != '\0';
 }
 
-//insert defines here for maxes and mins!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//insert defines here for maxes and mins!!!!!!!!!!!!!!!!!!!!!!!!!!! (TODO)
 
 //
 // processDisk() - called when a disk is discovered and properly located
@@ -540,12 +540,12 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
          if (newNum > 0 && newNum <= EEPROM_LASTPERSON){
            myEEPROM.setPersonality(newNum);
 	   if (newNum == 1 || newNum == 3){ // is an FTC personality
-	     myEEPROM.setAutoLen(DEF_FTCAUTOLEN);
+	     myEEPROM.setAutoLen(DEF_FTCAUTOLEN); // reset to defaults
 	     myEEPROM.setTeleLen(DEF_FTCTELELEN);
 	     myEEPROM.setEndLen(DEF_FTCENDLEN);
 	   }
 	   if (newNum == 4){ // is an FTC personality
-	     myEEPROM.setAutoLen(DEF_FRCAUTOLEN);
+	     myEEPROM.setAutoLen(DEF_FRCAUTOLEN); // reset to defaults
 	     myEEPROM.setTeleLen(DEF_FRCTELELEN);
 	     myEEPROM.setEndLen(DEF_FRCENDLEN);
 	   }
@@ -576,8 +576,9 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
        // enable or disable match mode cycling
 
        if(readFile("canMMode.txt", buf, BIGENOUGH)){
-         bool newVal = (buf[0] == 0)?false:true;
-         myEEPROM.setMatchModeEnable(newVal);
+         if (atoi(buf) == 0 || atoi(buf) == 1){
+	   myEEPROM.setMatchModeEnable(atoi(buf));
+	 } 
        }
        
        // allows user to determine number of seconds in autonomous, teleOp and endgame (ChapR3 of EEPROM)
@@ -594,7 +595,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 	   while (*ptr != '\r' && *ptr != '\0' && *ptr != '\n'){
 	     ptr++;
 	   }
-	   while (*ptr == '\r' && *ptr == '\n'){
+	   while (*ptr == '\r' || *ptr == '\n'){
 	     ptr++;
 	   }
 	   if (*ptr == '\0'){
@@ -603,7 +604,8 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 	 }
        }
        
-       // TODO - deal with later
+       // TODO - deal with later (these settings can only be changed through the Serial port)
+       // the following code simply took up too much memory
 
        // contains the settings for the digital I/O pins (for FRC, aka ChapR3 of EEPROM)
        /*
@@ -696,7 +698,8 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 
 void VDIP::ejectDisk()
 {
-     //Serial.println("ejected disk");
+  //Serial.println("ejected disk");
+  // we'll do interesting stuff here one day...
 }
 
 void VDIP::processNXT(portConfig *portConfigBuffer)
@@ -707,15 +710,9 @@ void VDIP::processNXT(portConfig *portConfigBuffer)
 
           if (myEEPROM.getResetStatus() == (byte) 0 && 
 	    nxtQueryDevice(this,portConfigBuffer->usbDev,&name,&btAddress,&freeMemory)){
-//	      Serial.print("btAddress: \"");
-//	      Serial.print(btAddress);
-//	      Serial.print("\"");
               bt.setRemoteAddress(btAddress);
               delay(100);
-//	      Serial.print(myEEPROM.getResetStatus());
               myEEPROM.setResetStatus(1); // increments the "status" so that the ChapR knows it has been reset
-//	      Serial.print(myEEPROM.getResetStatus());
-
               delay(1000);
               software_Reset();
 	  }

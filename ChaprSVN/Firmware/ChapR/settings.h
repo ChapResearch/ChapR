@@ -78,7 +78,7 @@ public:
      byte getEndLen();
      byte getTeleLen();
      byte getAutoLen();
-     void setMatchModeEnable(bool);
+     void setMatchModeEnable(int);
      bool matchModeIsEnabled();
      void setDefaults(char *,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int);
      void loadCache();
@@ -97,7 +97,7 @@ public:
 //     short analog2;
 //     short analog3;
 //     short analog4;
-     bool matchModeEnable;
+     int matchModeEnable; // 0 is false, 1 is true
 
      void hitReturn();
      //     void SerialPrintAnalog(double,int);

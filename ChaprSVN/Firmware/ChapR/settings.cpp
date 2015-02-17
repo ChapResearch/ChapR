@@ -595,17 +595,26 @@ byte settings::getEndLen()
   return(endLen);
 }
 
-void settings::setMatchModeEnable(bool m)
+void settings::setMatchModeEnable(int m)
 {
   matchModeEnable = m;
   EEPROM.write(EEPROM_MATCHMODE, m);
 }
 
+//
+// matchModeIsEnabled() - returns true if matchMode can be used.
+//                        See matchmode.cpp (or www.thechapr.com)
+//                        for more information on matchMode.
 bool settings::matchModeIsEnabled()
 {
   return(matchModeEnable);
 }
 
+//
+// loadCache() - reads in all of the settings from EEPROM and stores them
+//               in runtime memory. This way the EEPROM won't be read
+//               repeatedly during the loop (eventuall it would run out).
+//
 void settings::loadCache()
 {
   timeout =  EEPROM.read(EEPROM_TIMEOUT);

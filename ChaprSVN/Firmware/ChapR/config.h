@@ -119,4 +119,4 @@
 #define DEF_ANALOG2            0.0
 #define DEF_ANALOG3            0.0
 #define DEF_ANALOG4            0.0
-#define DEF_MATCHMODE	       0	// matchmode is "off" by default
+#define DEF_MATCHMODE	       1	// matchmode is "on" by default
