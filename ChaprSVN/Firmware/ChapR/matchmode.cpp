@@ -140,39 +140,38 @@ void MatchMode::MatchKillProcess(void *rock_incoming)
 {
      rock = rock_incoming;
 
-     if(isMatchEnabled()) {
-	  switch(currentState) {
+     //     if(isMatchEnabled()) { this is obsolete because it is only caled when this is true
 
-	  case MM_OFF:
-	       // if we're in the MM_OFF state, this is the only time when we can
-	       // switch match modes.  BUT - when the kill button is hit, even if
-	       // we DO switch modes, we first need to kill what is currently going
-	       // on.  So to do this, we go ahead and jump to the MM_KILL state
-	       // which will call the kill callback, and then jump back to this state.
-	       // Note that this is done RIGHT AWAY because kill should happen immediately
+       if (currentState == MM_OFF){
+	 // if we're in the MM_OFF state, this is the only time when we can
+	 // switch match modes.  BUT - when the kill button is hit, even if
+	 // we DO switch modes, we first need to kill what is currently going
+	 // on.  So to do this, we go ahead and jump to the MM_KILL state
+	 // which will call the kill callback, and then jump back to this state.
+	 // Note that this is done RIGHT AWAY because kill should happen immediately
+	 
+	 enterState(MM_KILL);
 
-	       enterState(MM_KILL);
+	 // check to see if the kill switch was pressed twice within the MATCHMODE_SWITCH_DELAY
+	 // if so, deactivate matchmode
 
-	       // check to see if the kill switch was pressed twice within the MATCHMODE_SWITCH_DELAY
-	       // if so, deactivate matchmode
+	 // acts such that the first press in a while will just read the state
+	 if (lastPressTime > 0 && millis() - lastPressTime <= MATCHMODE_SWITCH_DELAY) {
+	     active = !active;
+	   }
+	   beeper.select();
+	   if (active){
+	     delay(150);
+	     beeper.select();
+	   }
+	 lastPressTime = millis();       
+       }
 
-	       if (lastPressTime > 0 && millis() - lastPressTime <= MATCHMODE_SWITCH_DELAY) {
-		    active = !active;
-		    beeper.select();
-		    if (active){
-			 delay(150);
-			 beeper.select();
-		    }
-	       }
-	       lastPressTime = millis();
-	       break;
-
-	       // in any other state, the kill is issued
-	  default:
-	       enterState(MM_KILL);
-	       break;
-	  }
-     }
+       // in any other state, the kill is issued
+       else {
+	 enterState(MM_KILL);
+       }
+       //     }
 }
 
 //
@@ -198,7 +197,7 @@ void MatchMode::enterState(mmState newState)
 
     case MM_AUTO_START:
 	 callBack();
-	 timerStart(myEEPROM.getAutoLen()*1000);
+	 timerStart(((long) myEEPROM.getAutoLen())*1000);
 	 break;
 
     case MM_AUTO_END:
@@ -214,12 +213,12 @@ void MatchMode::enterState(mmState newState)
 	 
     case MM_TELEOP_START:
 	 callBack();
-	 timerStart(myEEPROM.getTeleLen()*1000);
+	 timerStart(((long) myEEPROM.getTeleLen())*1000);
 	 break;
 
     case MM_ENDGAME_START:
 	 callBack();
-	 timerStart(myEEPROM.getEndLen()*1000);
+	 timerStart(((long) myEEPROM.getEndLen())*1000);
 	 break;
 
     case MM_ENDGAME_END:
@@ -245,7 +244,6 @@ void MatchMode::MatchLoopProcess(void *rock_incoming)
 
      if(timerExpiredEvent()) {
 	  timerOff();
-
 	  switch(currentState) {
 
 	  case MM_AUTO_START:
@@ -266,7 +264,7 @@ void MatchMode::MatchLoopProcess(void *rock_incoming)
      }
 }
 
-void MatchMode::timerStart(int timerMillis)
+void MatchMode::timerStart(long timerMillis)
 {
      timerActive = true;
      timerTarget = millis() + timerMillis;

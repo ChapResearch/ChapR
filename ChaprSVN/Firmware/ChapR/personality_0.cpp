@@ -45,7 +45,7 @@ bool Personality_0::matchStateProcess(mmState mmState, void *rock)
 	  break;
 
      case MM_AUTO_START:
-	  // need an auto start sound here
+          beeper.beep();
 	  enabled = true;
 	  break;
 
@@ -59,16 +59,15 @@ bool Personality_0::matchStateProcess(mmState mmState, void *rock)
 	  return(false);		// return false to cause wait for button press to start teleop
 
      case MM_TELEOP_START:	// teleop is starting
+          beeper.beep();
 	  enabled = true;
-	  // need a teleop start sound here
 	  break;
 
      case MM_ENDGAME_START:	// endgame (within teleop) is starting
-	  // need an endgame start sound here
+          beeper.beep();
 	  break;
 
      case MM_TELEOP_END:	// teleop is ending
-	  // need a end of game sound here
 	  // FALL THROUGH to next case - 'cause we need to kill the program at the end of Teleop
 
      case MM_KILL:		// the match as been killed
@@ -187,9 +186,9 @@ void Personality_0::ChangeButton(BT *bt, bool buttonIsDown)
      // only do the match stuff if matchmode is currently active
 
      if (isMatchActive()) {
-
+       if (buttonIsDown){
 	 MatchButtonProcess((void *)bt);
-
+       }
      } else { // normal operation here - no match mode
 
 	  // in normal operation, pressing the action button starts a program

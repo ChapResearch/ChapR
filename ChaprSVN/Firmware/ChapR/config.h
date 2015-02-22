@@ -109,7 +109,7 @@
 #define DEF_LAG                35
 #define DEF_MODE               1 // teleOp mode
 #define DEF_FTCAUTOLEN         30 // (secs) defaults set for FTC
-#define DEF_FTCTELELEN         60 // (secs)
+#define DEF_FTCTELELEN         90 // (secs)
 #define DEF_FTCENDLEN          30 // (secs)
 #define DEF_FRCAUTOLEN         15 // (secs) defaults set for FRC
 #define DEF_FRCTELELEN         135 // (secs)

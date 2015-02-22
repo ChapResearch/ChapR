@@ -132,9 +132,8 @@ void Personality_3::Loop(BT *bt, Gamepad *g1, Gamepad *g2)
 void Personality_3::Kill(BT *bt)
 {  
   // it is the Kill() that will turn matchmode active, so process all kills when enabled
-
   if(isMatchEnabled()) {
-	  MatchKillProcess((void *)bt);
+    MatchKillProcess((void *)bt);
   } else {
     enabled = false;
   }
@@ -148,13 +147,12 @@ void Personality_3::ChangeInput(BT *bt, int device, Gamepad *old, Gamepad *gnu)
 void Personality_3::ChangeButton(BT *bt, bool button)
 { 
   if (button){
-    // swaps enabled
-    enabled = !enabled;
-
     if (isMatchActive()){ // normal operation   
       MatchButtonProcess((void *)bt);
     } else {
       (enabled && bt->connected())?beeper.beep():beeper.boop();
+      // swaps enabled
+      enabled = !enabled;
     }
   }
 }

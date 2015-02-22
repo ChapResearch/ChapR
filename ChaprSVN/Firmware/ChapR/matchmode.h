@@ -50,7 +50,7 @@ private:
 
      bool		timerActive;
      long		timerTarget;
-     void		timerStart(int);	// fires-up the timer for a certainnumber of seconds
+     void		timerStart(long);	// fires-up the timer for a certainnumber of seconds
      void		timerOff();		// turns-off the timer
      bool		timerExpiredEvent();	// returns true if a timer has "gone off"
 
