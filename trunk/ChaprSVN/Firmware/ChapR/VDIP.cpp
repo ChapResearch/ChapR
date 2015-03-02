@@ -435,6 +435,7 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
                  i++;
                }
           }
+	  break;
      
      case VDIP_FBD:		// note that all useful baud divisors end with byte 3 = 0
          rbytes = 0;
@@ -445,6 +446,13 @@ int VDIP::cmd(vdipcmd cmd, char *buf, int timeout, int arg /* = 0 */)
 	   cbuf[i++] = buf[1];
 	   cbuf[i++] = '\x00';
 	 }
+          break;
+
+     case VDIP_FWV:
+         rbytes = arg;
+            {
+              cbuf[i++] = '\x13';
+            }
           break;
      }
           	       
