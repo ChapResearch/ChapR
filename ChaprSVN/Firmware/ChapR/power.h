@@ -43,3 +43,4 @@
 extern void lowPowerOperation();
 extern void tonePowerOn();
 extern void tonePowerOff();
+extern void powerDown();
