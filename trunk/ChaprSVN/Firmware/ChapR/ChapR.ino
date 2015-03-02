@@ -21,6 +21,7 @@
 #include "personality_2.h"              // NXT-LabView
 #include "personality_3.h"		// RIO (roboRIO in particular)
 #include "power.h"
+#include "watchdog.h"
 
 #include "debug.h"
 
@@ -156,6 +157,20 @@ void setup()
      }
 
      beeper.confirm();
+
+     watchdogOn();
+
+     // from this point forward, we have to "feed the dog" or the watchdog timer will turn
+     // of the ChapR!  The dog is fed every time through the loop.  If we will have any
+     // delays where the loop gets "stopped", then those areas need to turn off the watchdog
+     // until they are done.  Important places to turn off the watchdog are:
+     //
+     //   - board bring-up
+     //	  - eeprom settings
+     //   - communicating with the NXT
+     //   - communicating with the fireplug
+     //	  - reading files on the VDIP
+     //   - (others?)
 }
 
 void software_Reset() // Restarts program from beginning but does not reset the peripherals and registers
@@ -179,7 +194,10 @@ void loop()
      bool               pb = false;
      bool		lowBattery = false;
 
+     watchdogFeed();
+
     if (Serial.available() > 0){
+	 watchdogOff();
 	 if(Serial.read() == '!') {
 	      myEEPROM.boardBringUp();
 	 }
@@ -187,6 +205,7 @@ void loop()
 	 current_personality = myEEPROM.getPersonality();	// in case the personality changed
 	 powerTimeout = 60000 * (long) myEEPROM.getTimeout();
 	 lag = myEEPROM.getSpeed();
+	 watchdogOn();
     }
     
      // when we first boot, the power button is pressed in, so ensure that it changes before monitoring it for shutdown
@@ -207,11 +226,7 @@ void loop()
 
      if (power_button_released && powerButton.isPressed()){
        if (millis() - timeButtonPressed > POWEROFFHOLDDOWN){
-           powerLED.off();
-           indicateLED.off();
-           beeper.yawn();
-           digitalWrite(POWER_ON_HOLD,LOW);
-	   exit(0);
+	    powerDown();	// never returns!
        }
      }
 
@@ -279,8 +294,7 @@ void loop()
      }
      
      if (powerTimeout != 0 && millis() - lastAnyAction >= powerTimeout){
-          beeper.yawn();
-	  digitalWrite(POWER_ON_HOLD,LOW);
+	  powerDown();
      }
      
      // update the state of the LEDs - this should always be done at the end of the loop

@@ -8,6 +8,7 @@
 #include "debug.h"
 #include "config.h"
 #include "settings.h"
+#include "watchdog.h"
 
 extern void software_Reset();
 
@@ -179,15 +180,21 @@ bool VDIP::deviceUpdate()
                     //DEBUG_PORT_CONFIG(&portConfigBuffer);
 		    if(portConfigBuffer.type == DEVICE_DISK) {
                          //debugPortConfig(&portConfigBuffer);
+			 watchdogOff();
 			 processDisk(&portConfigBuffer);
+			 watchdogOn();
 		    }
 
 		    if(portConfigBuffer.type == DEVICE_NXT) {
+			 watchdogOff();
 			 processNXT(&portConfigBuffer);
+			 watchdogOn();
 		    }
 
 		    if(portConfigBuffer.type == DEVICE_FIREPLUG) {
+			 watchdogOff();
 			 processFirePlug(&portConfigBuffer);
+			 watchdogOn();
 		    }
 	       }
 	  }

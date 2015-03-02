@@ -1,5 +1,8 @@
 #include <Arduino.h>
+#include "config.h"
 #include "power.h"
+#include "blinky.h"
+#include "sound.h"
 
 //
 // lowPowerOperation() - configures the arduino to go into the lowest power mode available
@@ -31,6 +34,27 @@ void tonePowerOn()
 void tonePowerOff()
 {
      power_timer2_disable();
+}
+
+//
+// powerDown() - power down the ChapR.  Note that beeps first!  Note, too, that this routine
+//		 never returns.  BTW - the reason that it turns off the LEDs is that when
+//		 programming/debugging the ChapR the programmer supplies power, so lowering
+//		 the POWER_ON_HOLD line doesn't actually turn off the ChapR.
+//
+//	BIG NOTE - this routine never returns!
+//
+void powerDown()
+{
+     extern blinky powerLED;
+     extern blinky indicateLED;
+     extern sound beeper;
+
+     powerLED.off();
+     indicateLED.off();
+     beeper.yawn();
+     digitalWrite(POWER_ON_HOLD,LOW);
+     exit(0);
 }
 
 
