@@ -30,6 +30,7 @@ Testing that the wait for start begins the normal operation of the program
 15.Test that the modes cycle properly with an FTC bot.
 16.Change the personality to FRC.
 17.Turn on the ChapR.
+// reimage the roboRIO and deploy the Linux daemon
 18.Plug the FirePlug into the ChapR (make sure it wasn't already paired).
 19.Allow a minute or so for the FirePlug to connect.
 20.Power on the roboRIO (make sure the test program is running).
@@ -38,3 +39,14 @@ Testing that the wait for start begins the normal operation of the program
 23.Repeat step 22 with the Attack3 and Xbox controller.
 24.Change into match mode and monitor in the code as various sections become enabled
 25.You're done! Congratulations! Yay!
+
+Joysticks take longer to register than before
+//Sometimes takes a couple cycles of disable and enable to begin working properly -- MAKE CHAPR SWITCH TO DISABLED WHEN DISCONNECTED
+When joystick (or FirePlug) is removed, the latest settings continue to be sent to the RIO (surviving even disables/enable cycles)
+//Sometimes is a large amount of lag -- FIXED WITH NEW VERSION OF DAEMON THAT DEALS WITH SIGHUP
+
+LabView brick makes continuous beep when a personality 4 ChapR is connected
+USB pairing doesn't work with a low battery brick
+Joystick values don't reset to 0 when joystick removed (likely all personalities, but definitely LabView)
+ChapR locks up when two Xbox 360 controllers are unplugged then plugged in again 5/15 (when setting up) 1/25 (when enabled)
+//Daemon died when pulled -- probably old verison of daemon?
