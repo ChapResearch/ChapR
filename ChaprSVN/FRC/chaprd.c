@@ -12,6 +12,7 @@
 #include <string.h>
 #include <termios.h>
 #include <arpa/inet.h> 
+#include <signal.h>
 
 #define CHAPR_PCKT_SIZE 33
 
@@ -117,6 +118,11 @@ typedef struct dsPacket{
 
 // TODO - kill signal, logging
 
+void signalHandler(int signal)
+{
+  syslog(LOG_INFO, "received signal: %d", signal);
+}
+
 void logMsg(char *msg)
 {
 	
@@ -163,7 +169,8 @@ chapRPacket *readChapRPacket(int fd)
 	while (1){
 	  int rval = read(fd, (void *) &rawData, 1);
 	  if (rval < 0){
-	    debug_int("goodbye cruel world...:", errno);
+	    syslog(LOG_CRIT, "read failed (rval < 0, errno %d)...exiting", errno);
+	    closelog();
 	    exit(1);
 	  }
 	  else if (rval == 0){
@@ -471,11 +478,11 @@ int openUSBPort(){
 			// check if ttyUSB0 or 1 is available
 			// TODO - check if it has FirePlug connected
 			if (stat(ports[i], &buf) == 0){
-				debug_string("opened port:", ports[i]);
-				fd = open(ports[i], O_RDONLY);				
-				debug_int("stat: ", buf.st_dev);
-				tcsetattr(fd, TCSANOW, &t);
-				return fd;
+			  syslog(LOG_INFO, "opened port: %s",ports[i]);
+			  fd = open(ports[i], O_RDONLY);				
+			  debug_int("stat: ", buf.st_dev);
+			  tcsetattr(fd, TCSANOW, &t);
+			  return fd;
 			}			
 		}
 		// loop every x seconds, waiting patiently
@@ -530,6 +537,10 @@ int main(void) {
 #ifndef DEBUG
 	pid = daemonize();
 #endif
+	(void) signal(SIGHUP, signalHandler);
+
+	openlog("ChapR", LOG_PID, LOG_DAEMON);
+	syslog(LOG_INFO, "Daemonized");
 
 	struct hostent *hp = findMe();
 
@@ -571,7 +582,7 @@ int main(void) {
 			}
 		}	
 		close(fd);
-		debug_int("just closed: ", fd);
+		syslog(LOG_INFO, "just closed port: %d", fd);
 		sleep(10);
 	}
 
