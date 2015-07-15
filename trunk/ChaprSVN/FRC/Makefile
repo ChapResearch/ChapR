@@ -39,6 +39,17 @@ chaprd.uu: chaprd.stripped
 chaprd.sh.uu: chaprd.sh
 	uuencode chaprd.sh < chaprd.sh > chaprd.sh.uu
 
+chaprd-magic: chaprd-transfer chaprd-remotestart
+
+chaprd-transfer: chaprd chaprd-remotekill
+	sshpass -p "" scp chaprd admin@172.22.11.2:/tmp
+
+chaprd-remotestart: 
+	sshpass -p "" ssh admin@172.22.11.2 "cd /tmp; ./chaprd"
+
+chaprd-remotekill: 
+	-sshpass -p "" ssh admin@172.22.11.2 killall chaprd
+
 cdebug-transfer: cdebug
 	sshpass -p "" scp cdebug admin@172.22.11.2:/tmp
 
