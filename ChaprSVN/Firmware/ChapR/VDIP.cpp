@@ -1,5 +1,4 @@
 #include <Arduino.h>
-//#include "RIO.h"
 #include "VDIPSPI.h"
 #include "VDIP.h"
 #include "BT.h"
@@ -21,6 +20,7 @@ extern sound beeper;
 
 // turn this on for some useful debugging code
 //#define DEBUG
+#define TEST
 
 #ifdef DEBUG
 void DEBUG_PORT_CONFIG(portConfig *config)
@@ -656,7 +656,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
        // the following code simply took up too much memory
 
        // contains the settings for the digital I/O pins (for FRC, aka ChapR3 of EEPROM)
-       /*
+ #ifdef TEST
        if (readFile("dgtlIn.txt", buf, BIGENOUGH)){
 	 byte newNum = 0;
 	 
@@ -685,10 +685,10 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 	   double value = atof(ptr);
 	   if (value >= 0 && value <= 5) {
 		switch(i) {
-		case 0:		myEEPROM.setAnalogInput1(value); break;
-		case 1:		myEEPROM.setAnalogInput2(value); break;
-		case 2:		myEEPROM.setAnalogInput3(value); break;
-		case 3:		myEEPROM.setAnalogInput4(value); break;
+		case 0:		myEEPROM.setAnalogInput(1,value); break;
+		case 1:		myEEPROM.setAnalogInput(2,value); break;
+		case 2:		myEEPROM.setAnalogInput(3,value); break;
+		case 3:		myEEPROM.setAnalogInput(4,value); break;
 		}
 	   }
 
@@ -704,7 +704,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 	   }
 	 }
        }
-       */
+#endif
        // get a target bluetooth connection name/ID AND connect if it is there
        // this MAY need to be changed to do the connection AFTER getting
        // done with the flash drive.  Note that this data IS NOT stored in

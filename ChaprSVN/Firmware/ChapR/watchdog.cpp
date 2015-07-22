@@ -100,6 +100,7 @@ void watchdogOn()
 //		    the entry for the watchdog timer.
 //
 ISR(WDT_vect) {
+  Serial.println("bite");
      extern sound beeper;
 
      // OK - this is weird - but we need to turn on interrupts, even though we are in an interrupt

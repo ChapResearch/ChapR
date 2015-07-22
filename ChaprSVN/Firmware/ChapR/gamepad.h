@@ -104,6 +104,8 @@ public:
      int		y3;		// misc axis reading (-128 to 127, -128 is to the top)
      unsigned int	buttons;	// buttons & 0x01 is button 1, 0x02 is 2, 0x04 is 3, 0x08 is 4, etc.
      unsigned int	tophat;		// 0 if nothing pressed, 1 thru 8 for N, NE, E, etc... (clockwise)
+     unsigned short     vid;            // vendor ID (used in conjunction with pid to determine type)
+     unsigned short     pid;            // product ID
 
      void		debugPrint(char *);
      bool		update(VDIP *);

@@ -32,6 +32,14 @@
 // bit 6 : Emergency Stop (0 to stop)                 - 1 (kill switch)
 // bit 7 : Reset                                      - 0
 
+// roboRIO command byte format (v1 of comms)
+// bit 0:     eStop
+// bit 1 - 3: Control_Reserved
+// bit 4:     FMSAttached
+// bit 5:     Enabled
+// bit 6:     Autonomous
+// bit 7:     Test
+
 // cRIO commands (for old comms system)
 #define CRIO_AUTO_BIT	0x10
 #define CRIO_ESTOP_BIT	0x40
@@ -45,6 +53,13 @@
 #define RRIO_TELE_OFF                                   0x00
 #define RRIO_TELE_ON                                    0x04
 #define RRIO_AUTO_ON                                    0x05
+
+// roboRIO commands (for v1 of comms)
+#define RRIO_AUTO_BIT   0x02
+#define RRIO_ENABLE_BIT 0x04
+
+#define RRIO_ENABLE(x)  ((x)?RRIO_ENABLE_BIT:0x00)
+#define RRIO_TELEOP(x)  ((x)?0x00:RRIO_AUTO_BIT)
 
 // Data Format (sent by personality_3 (aka 4) for both cRIO and roboRIO)
 // cmd     : (starts or stops tele/auto etc.)         : 0
@@ -89,6 +104,7 @@ class RIO
   bool firePlugBT_ID(VDIP *vdip, int usbDev, char **btAddress);
 
  private:
+  byte RIO_xlateTH(byte th, char c);
   byte checksum(byte *msgbuff, int size);
 };
 
