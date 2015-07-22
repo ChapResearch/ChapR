@@ -124,7 +124,6 @@ void Personality_3::Loop(BT *bt, Gamepad *g1, Gamepad *g2)
 
        // first create a packet using the RIO structure
        size = RIO.createPacket(msgbuff,enabled,g1,g2,mode,isRoboRIO);
-
        // then send it over BT, again, operating on the message buffer
        (void)bt->btWrite(msgbuff,size);
 }
@@ -150,9 +149,8 @@ void Personality_3::ChangeButton(BT *bt, bool button)
     if (isMatchActive()){ // normal operation   
       MatchButtonProcess((void *)bt);
     } else {
-      (enabled && bt->connected())?beeper.beep():beeper.boop();
-      // swaps enabled
       enabled = !enabled;
+      (enabled && bt->connected())?beeper.beep():beeper.boop();
     }
   }
 }

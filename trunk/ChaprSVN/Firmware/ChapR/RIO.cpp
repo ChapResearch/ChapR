@@ -8,6 +8,23 @@
 #include "RIO.h"
 #include "settings.h"
 
+byte RIO::RIO_xlateTH(byte th, char c)
+{
+  if (th == 0){
+    return '0xFF'; // special case
+  }
+  th = (th-1)*45;
+  Serial.println(th);
+  switch(c){
+  case 'm': // MSB
+    return th>>4;
+  case 'l': // LSB
+    return th&0x00FF;
+  default:
+    return 0;
+  }
+}
+
 //
 // createPacket() - create the packet to be sent to the RIO.
 //		enable = TRUE will enable the program running on the RIO
@@ -21,7 +38,8 @@ int RIO::createPacket(byte *msgbuff, bool enable, Gamepad *g1, Gamepad *g2, bool
   // mode is defined as true = teleop and false = autonomous
 
   if (isRoboRIO){
-    if ((!enable) && mode){
+    cmd = RRIO_ENABLE(enable) | RRIO_TELEOP(mode);
+    /*if ((!enable) && mode){
       cmd = RRIO_TELE_OFF;
     }
     if (enable && mode){
@@ -29,7 +47,7 @@ int RIO::createPacket(byte *msgbuff, bool enable, Gamepad *g1, Gamepad *g2, bool
     }
     if (enable && !mode){
       cmd = RRIO_AUTO_ON;
-    }
+    }*/
   } else {
     cmd = CRIO_ESTOP(false) | CRIO_ENABLE(enable) | CRIO_TELEOP(mode);
   }
@@ -40,6 +58,8 @@ int RIO::createPacket(byte *msgbuff, bool enable, Gamepad *g1, Gamepad *g2, bool
   msgbuff[size++] = 0xff;
   msgbuff[size++] = 0xff;
   msgbuff[size++] = (byte) cmd;
+  msgbuff[size++] = (short) g1->vid;
+  msgbuff[size++] = (short) g1->pid;
   //  msgbuff[size++] = myEEPROM.getDigitalInputs();
   msgbuff[size++] = 0; // digital Input
   msgbuff[size++] = (short) 0; // TODO - currently sends placeholders as analog and digital values
@@ -47,7 +67,8 @@ int RIO::createPacket(byte *msgbuff, bool enable, Gamepad *g1, Gamepad *g2, bool
   //  msgbuff[size++] = (byte) ((myEEPROM.getAnalogInput(1)>>8)&0x00FF); // MSB
   //  msgbuff[size++] = (byte) (0x00FF&myEEPROM.getAnalogInput(1)); // LSB
   msgbuff[size++] = (short) 0;
-  msgbuff[size++] = g1->tophat;
+  msgbuff[size++] = RIO_xlateTH(g1->tophat,'m'); // MSB
+  msgbuff[size++] = RIO_xlateTH(g1->tophat,'l'); // LSB
   //  msgbuff[size++] = (byte) ((myEEPROM.getAnalogInput(2)>>8)&0x00FF); // MSB
   msgbuff[size++] = (short) 0;
   //  msgbuff[size++] = (byte) (0x00FF&myEEPROM.getAnalogInput(2)); // LSB
@@ -69,15 +90,19 @@ int RIO::createPacket(byte *msgbuff, bool enable, Gamepad *g1, Gamepad *g2, bool
   msgbuff[size++] = (byte) g1->x2;
   msgbuff[size++] = (byte) g1->y2;
   msgbuff[size++] = (byte) (g2->buttons&0xff);                     // joystick 2 B0 to B7
-  msgbuff[size++] = (byte) g1->x3;				   // joystick 2 5th axis (usually x3)
-  msgbuff[size++] = (byte) g1->y3;			           // joystick 2 6th axis (usually y3) 
+  msgbuff[size++] = (byte) g1->x3;				   // joystick 1 5th axis (usually x3)
+  msgbuff[size++] = (byte) g1->y3;			           // joystick 1 6th axis (usually y3) 
+  msgbuff[size++] = 0;
+  msgbuff[size++] = (short) g2->vid;
+  msgbuff[size++] = (short) g2->pid;
   msgbuff[size++] = 0;
   msgbuff[size++] = (byte) g2->x1;			           // joystick 2 (left) X axis
   msgbuff[size++] = (byte) g2->y1;			           // joystick 2 (left) Y axis 
   msgbuff[size++] = (byte) ((g2->buttons>>8)&0xff);                // joystick 2 B8 to B11
   msgbuff[size++] = (byte) g2->x2;
   msgbuff[size++] = (byte) g2->y2;
-  msgbuff[size++] = (byte) g2->tophat;
+  msgbuff[size++] = (byte) RIO_xlateTH(g2->tophat, 'm'); // MSB
+  msgbuff[size++] = (byte) RIO_xlateTH(g2->tophat, 'l'); // LSB
   msgbuff[size++] = (byte) g2->x3;
   msgbuff[size++] = (byte) g2->y3;
   msgbuff[size++] = 0;
