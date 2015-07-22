@@ -12,8 +12,6 @@
 // 17                  personality (numbered based on information from the website)
 // 18 - 23             null-terminated "ChapR" to verify EEPROM has been written
 
-#define TEST
-
 #define EEPROM_NAME             0	// 15 characters + null termination
 #define EEPROM_TIMEOUT         16	// byte
 #define EEPROM_PERSONALITY     17	// byte
@@ -21,14 +19,7 @@
 #define EEPROM_RSTATUS         24	// reset status used for self-rebooting
 #define EEPROM_SPEED           25	// byte (lag)
 #define EEPROM_MODE            26	// byte (bool) - (NXT definition) true(1) is teleop, false(0) is auto
-#ifdef TEST
-#define EEPROM_DIGITALIN       27	// byte
-#define EEPROM_ANALOGIN	       28	// serves as the base for writing analog values
-#define EEPROM_ANALOGIN1       28	// 2 bytes
-#define EEPROM_ANALOGIN2       30	// 2 bytes
-#define EEPROM_ANALOGIN3       32	// 2 bytes
-#define EEPROM_ANALOGIN4       34	// 2 bytes
-#endif
+// there is a long story as to why there are 10 bytes of space here...
 #define EEPROM_AUTOLEN         36	// byte
 #define EEPROM_TELELEN         37	// byte
 #define EEPROM_ENDLEN          38       // byte
@@ -64,20 +55,6 @@ public:
      void boardBringUp();
      void setResetStatus(byte);
      byte getResetStatus();
-#ifdef TEST
-      void setDigitalInputs(byte);
-      byte getDigitalInputs();
-      void setAnalogInput(int,double);
-      short getAnalogInput(int);
-      void setAnalogInput1(double);
-      void setAnalogInput2(double);
-      void setAnalogInput3(double);
-      void setAnalogInput4(double);
-      short getAnalogInput1(); // TODO - convert to return doubles
-      short getAnalogInput2();
-      short getAnalogInput3();
-      short getAnalogInput4();
-#endif
      void setAutoLen(byte);
      void setTeleLen(byte);
      void setEndLen(byte);
@@ -98,20 +75,9 @@ public:
      long autoLen;             
      long teleLen; 
      long endLen;
-#ifdef TEST     
-     byte dgtlIn;
-     short analog[4];		// four "analog" values
-     short analog1;
-     short analog2;
-     short analog3;
-     short analog4;
-#endif
      int matchModeEnable; // 0 is false, 1 is true
 
      void hitReturn();
-#ifdef TEST
-     void SerialPrintAnalog(double,int); 
-#endif
      void doSetting(int,const __FlashStringHelper *, const __FlashStringHelper *,unsigned int,unsigned int,uint8_t);
      void printCurrentValue(int,unsigned int, uint8_t);
      int  getStringFromMonitor(char*, int);
