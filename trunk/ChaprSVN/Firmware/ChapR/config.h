@@ -114,9 +114,4 @@
 #define DEF_FRCAUTOLEN         15 // (secs) defaults set for FRC
 #define DEF_FRCTELELEN         135 // (secs)
 #define DEF_FRCENDLEN          0 // (secs)
-#define DEF_DGTLIN             0
-#define DEF_ANALOG1            0.0
-#define DEF_ANALOG2            0.0
-#define DEF_ANALOG3            0.0
-#define DEF_ANALOG4            0.0
 #define DEF_MATCHMODE	       1	// matchmode is "on" by default

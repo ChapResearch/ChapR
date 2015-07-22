@@ -20,7 +20,6 @@ extern sound beeper;
 
 // turn this on for some useful debugging code
 //#define DEBUG
-#define TEST
 
 #ifdef DEBUG
 void DEBUG_PORT_CONFIG(portConfig *config)
@@ -651,60 +650,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
 	   }
 	 }
        }
-       
-       // TODO - deal with later (these settings can only be changed through the Serial port)
-       // the following code simply took up too much memory
 
-       // contains the settings for the digital I/O pins (for FRC, aka ChapR3 of EEPROM)
- #ifdef TEST
-       if (readFile("dgtlIn.txt", buf, BIGENOUGH)){
-	 byte newNum = 0;
-	 
-	 for (int i = 0, ptr = 0; i < 8; i++){
-	   byte bit = (buf[ptr] == '0')?0:1;
-	   newNum |= bit<<i;
-	   while (buf[ptr] != '\r' && buf[ptr] != '\0' && buf[ptr] != '\n'){
-	     ptr++;
-	   }
-	   while (buf[ptr] == '\r' || buf[ptr] == '\n'){
-	     ptr++;
-	   }
-	   if (buf[ptr] == '\0'){
-	     break;
-	   }
-	 }
-	 
-	 myEEPROM.setDigitalInputs(newNum);
-       }
-
-       // contains the 4 analog inputs (for FRC, aka ChapR3 of EEPROM)
-       
-       if (readFile("analogIn.txt", buf, BIGENOUGH)){
-	 char *ptr = buf;
-	 for (int i = 0; i < 4; i++){
-	   double value = atof(ptr);
-	   if (value >= 0 && value <= 5) {
-		switch(i) {
-		case 0:		myEEPROM.setAnalogInput(1,value); break;
-		case 1:		myEEPROM.setAnalogInput(2,value); break;
-		case 2:		myEEPROM.setAnalogInput(3,value); break;
-		case 3:		myEEPROM.setAnalogInput(4,value); break;
-		}
-	   }
-
-	     // bumping pointer forward to ingore whitespace
-	   while (*ptr != '\r' && *ptr != '\0' && *ptr != '\n'){
-	     ptr++;
-	   }
-	   while (*ptr == '\r' || *ptr == '\n'){
-	     ptr++;
-	   }
-	   if (*ptr == '\0'){
-	     break;
-	   }
-	 }
-       }
-#endif
        // get a target bluetooth connection name/ID AND connect if it is there
        // this MAY need to be changed to do the connection AFTER getting
        // done with the flash drive.  Note that this data IS NOT stored in

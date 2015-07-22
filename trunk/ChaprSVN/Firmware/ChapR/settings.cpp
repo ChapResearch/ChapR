@@ -8,11 +8,6 @@
 #include "BT.h"
 #include "sound.h"
 
-#define FRC_ANALOG_TO_SHORT(a)       ((short) ((a*1023)/5 + 0.5)) // 0.5 makes rounding occur
-#define FRC_SHORT_TO_ANALOG(a)       (((double) a * 5)/1023)
-
-#define TEST
-
 extern button theButton;
 
 extern blinky powerLED;
@@ -190,13 +185,6 @@ void settings::printCurrentValue(int eAddress, unsigned int max, uint8_t type)
        case PROMPT_SHORT:
 	  Serial.print(getShort(eAddress));
 	  break;
-#ifdef TEST
-     case PROMPT_ANALOG:
-       num = getShort(eAddress);
-       Serial.print(FRC_SHORT_TO_ANALOG(num));		// uses 538 bytes extra for this call (27878 to 28416)
-       SerialPrintAnalog(FRC_SHORT_TO_ANALOG(num),3);	// see below for replacement numbers
-          break;
-#endif
 
        case PROMPT_BITS:
 	  for (unsigned int i=0, d=EEPROM.read(eAddress); i < max; i++) {
@@ -205,46 +193,6 @@ void settings::printCurrentValue(int eAddress, unsigned int max, uint8_t type)
 	  }
      }
 }
-
-#ifdef TEST
-//
-// SerialPrintAnalog() - this is a replacement to calling Serial.print() with
-//			a (double).  When calling that, the memory increases
-//			by 538 bytes.  When using this instead, it only
-//			rises by 192 bytes, saving 346 bytes total.
-//
-//			It is interesting to look at the two different implementations
-//			below.  While the first "looks" more efficient because it doesn't
-//			use the temporary variable, it is actually less efficient because
-//			is has more lines of integer conversion code.
-// 
-void settings::SerialPrintAnalog(double value, int precision)
-{
-//
-// This version consumes 206 bytes (27878 to 28084)
-//
-//     Serial.print((int)value);
-//     Serial.print(".");
-//     while(--precision) {
-//	  value = (value - (int)value) * 10;
-//	  Serial.print((int)value);
-//     }
-
-//
-// This version consumes 192 bytes (27878 to 28070)
-//
-     uint8_t	first = false;
-
-     while(precision--) {
-	  Serial.print((int)value);
-	  if(first) {
-	       first = !first;
-	       Serial.print(".");
-	  }
-	  value = (value - (int)value) * 10;
-     }
-}
-#endif
 
 //
 // doSetting() - given a pointer to a particular prompt, present it to the user and write
@@ -373,13 +321,6 @@ void settings::setFromConsole()
      doSetting(EEPROM_PERSONALITY,	F("Personality"),    F("1 - 4"),                  1, 4,     PROMPT_BYTE  );
      doSetting(EEPROM_SPEED,		F("Lag"),            F("0 is none"),              0, 255,   PROMPT_BYTE  );
      doSetting(EEPROM_MODE,		F("Mode"),           F("0 or 1"),                 0, 1,     PROMPT_BYTE  );
-#ifdef TEST
-     doSetting(EEPROM_DIGITALIN,	F("Digital In"),     F("8 bits from LSB to MSB"), 8, 8,     PROMPT_BITS  );
-     doSetting(EEPROM_ANALOGIN1,	F("Analog In 1"),    from00to50,		      0, 1023,  PROMPT_ANALOG );
-     doSetting(EEPROM_ANALOGIN2,	F("Analog In 2"),    from00to50,                  0, 1023,  PROMPT_ANALOG );
-     doSetting(EEPROM_ANALOGIN3,	F("Analog In 3"),    from00to50,                  0, 1023,  PROMPT_ANALOG );
-     doSetting(EEPROM_ANALOGIN4,	F("Analog In 4"),    from00to50,                  0, 1023,  PROMPT_ANALOG );
-#endif
      doSetting(EEPROM_AUTOLEN,		F("Auto Len"),       from0to255secs,              0, 255,   PROMPT_BYTE  );
      doSetting(EEPROM_TELELEN,		F("TeleOp Len"),     from0to255secs,              0, 255,   PROMPT_BYTE  );
      doSetting(EEPROM_ENDLEN,		F("Endgame Len"),    from0to255secs,              0, 255,   PROMPT_BYTE  );
@@ -401,13 +342,6 @@ void settings::setDefaults(char *name,
 			      unsigned int   autoLen,
 			      unsigned int   teleLen,
 			      unsigned int   endLen,
-			   #ifdef TEST
-			      unsigned int   dgtl, 
-			      double	     analog1,
-			      double	     analog2,
-			      double	     analog3,
-			      double	     analog4,	
-			   #endif
                               unsigned int   matchmode)
 {
      setName(name);
@@ -418,13 +352,6 @@ void settings::setDefaults(char *name,
      setAutoLen((byte)autoLen);
      setTeleLen((byte)teleLen);
      setEndLen((byte)endLen);
-#ifdef TEST     
-     setDigitalInputs((byte)dgtl);
-     setAnalogInput(1,analog1);
-     setAnalogInput(2,analog2);
-     setAnalogInput(3,analog3);
-     setAnalogInput(4,analog4);
-#endif
      setMatchModeEnable(matchmode);
 }
 
@@ -544,36 +471,6 @@ byte settings::getMode()
 {
   return (mode);
 }
-
-#ifdef TEST
-void settings::setDigitalInputs(byte d)
-{
-  dgtlIn = d;
-  EEPROM.write(EEPROM_DIGITALIN, d);
-}
-
-byte settings::getDigitalInputs()
-{
-  return (dgtlIn);
-}
-
-//
-// setAnalogInput() - sets/gets the analog value - numbered from 1 to 4
-// getAnalogInput()
-//
-void settings::setAnalogInput(int num, double value)
-{
-     num--;
-     analog[num] = FRC_ANALOG_TO_SHORT(value);
-     setShort(EEPROM_ANALOGIN + ((num-1)*2),analog[num]);
-}
-
-short settings::getAnalogInput(int num)
-{
-     num--;
-     return(analog[num]);
-}
-#endif
 
 void settings::setAutoLen(byte a)
 {
