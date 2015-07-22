@@ -63,19 +63,10 @@
 
 // Data Format (sent by personality_3 (aka 4) for both cRIO and roboRIO)
 // cmd     : (starts or stops tele/auto etc.)         : 0
-// dgtl_in : (each bit is an input)                   : 1 FF
 // zero    : (0)                                      : 2
-// analog1 : (double)                                 : 3 FF
-// analog1 : (continued)                              : 4 FF
 // joy1_TH : (0, 1 to 8)                              : 5
-// analog2 : (double)                                 : 6 FF
-// analog2 : (continued)                              : 7 FF
 // joy1_B1 : (bitmap of B0 to B5, where B0 is bit 0)  : 8
-// analog3 : (continued)                              : 9 FF
-// analog3 : (double)                                 : 10 FF
 // joy1_B2 : (bitmap of B6 to B11, where B6 is bit 0) : 11
-// analog4 : (double)                                 : 12 FF
-// analog4 : (continued)                              : 13 FF
 // zero    : (0)                                      : 14
 // joy1_x1 : (-128 to 127)                            : 15 FF
 // joy1_y1 : (-128 to 127)                            : 16 FF
