@@ -168,7 +168,6 @@ void settings::boardBringUp()
 #define PROMPT_BYTE	1
 #define PROMPT_BITS	2
 #define PROMPT_SHORT	3
-#define PROMPT_ANALOG   4
 void settings::printCurrentValue(int eAddress, unsigned int max, uint8_t type)
 {
   short num;
@@ -200,7 +199,7 @@ void settings::printCurrentValue(int eAddress, unsigned int max, uint8_t type)
 //		given as either a string or int, with interpretation of which one by the
 //		type of the prompt.  The general format for the output is (for example):
 //
-//			Enter ChapR Analog Input 3 (from 0 to 65535) [0]:
+//			Enter ChapR Name [ChapR-7]:
 //
 //		Note that the default is presented in the []'s - assuming that the user
 //		understands that they just hit the RETURN for the default.  In other words,
@@ -248,12 +247,6 @@ void settings::doSetting(int			 eAddress, 	// EEPROM address of this setting
 		 invalid = (num < min || num > max);
 		 break;
 
-		 /*	    case PROMPT_ANALOG:
-	         dnum = atof(lineBuffer);
-                 num = FRC_ANALOG_TO_SHORT(dnum);
-		 invalid = (num < min || num > max);
-	         break;*/
-
 	    case PROMPT_BITS:
 	    case PROMPT_STRING:
 		 invalid = (strlen(lineBuffer) < min || strlen(lineBuffer) > max);
@@ -276,11 +269,6 @@ void settings::doSetting(int			 eAddress, 	// EEPROM address of this setting
 	    case PROMPT_BYTE:
 		 EEPROM.write(eAddress,(byte)num);
 		 break;
-
-	    case PROMPT_SHORT:
-	      /*	    case PROMPT_ANALOG:
-		 setShort(eAddress,(short)num);
-		 break;*/
 
 	    case PROMPT_BITS:
 		 num = 0;
@@ -531,11 +519,6 @@ void settings::loadCache()
   personality =  EEPROM.read(EEPROM_PERSONALITY);
   speed =  EEPROM.read(EEPROM_SPEED);
   mode = EEPROM.read(EEPROM_MODE);
-  //  dgtlIn =  EEPROM.read(EEPROM_DIGITALIN);
-  //  analog[0] = getShort(EEPROM_ANALOGIN1);
-  //  analog[1] = getShort(EEPROM_ANALOGIN2);
-  //  analog[2] = getShort(EEPROM_ANALOGIN3);
-  //  analog[3] = getShort(EEPROM_ANALOGIN4);
   autoLen =  EEPROM.read(EEPROM_AUTOLEN);
   teleLen =  EEPROM.read(EEPROM_TELELEN);
   endLen =  EEPROM.read(EEPROM_ENDLEN);
