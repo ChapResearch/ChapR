@@ -63,8 +63,7 @@ public:
      byte getAutoLen();
      void setMatchModeEnable(int);
      bool matchModeIsEnabled();
-     //     void setDefaults(char *,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int);
-     void setDefaults(char *,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int, unsigned int, double, double, double, double, unsigned int);
+     void setDefaults(char *,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int,unsigned int);
      void loadCache();
      
  private:
