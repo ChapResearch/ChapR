@@ -76,24 +76,11 @@ void Gamepad::deviceUpdate(VDIP *vdip)
 
      // note that we ignore the type - we just match on vid/pid
 
-//     Serial.print("device Update on ");
-//     Serial.print(id-1);
-
      if (vdip->portConnection(id-1,&type,&vid,&pid)) {	// ID is either 0 or 1 (not 1 or 2) in VDIP
-	  driverLookup(vid,pid,&translator,&init);	// may come back as NULL too
-	  this->vid = vid;
-	  this->pid = pid;
-	  Serial.print("   VID:0x");
-	  Serial.print(vid,HEX);
-	  Serial.print("   PID:0x");
-	  Serial.print(pid,HEX);
+          this->type = driverLookup(vid,pid,&translator,&init);	// may come back as NULL too
      } else {
        clear();
 	  translator = NULL;
 	  init = NULL;
      }
-//     if(translator == NULL) {
-//	  Serial.print("  (no translator)");
-//     }
-//     Serial.println("");
 }

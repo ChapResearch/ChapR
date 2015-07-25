@@ -76,7 +76,7 @@ struct usbIDTable {
      { 0x0000, 0x0000, (xlateFn) NULL, (initFn) NULL }	// last one in table must be this
 };
 
-void driverLookup(unsigned int vid, unsigned int pid, xlateFn *xlate, initFn *init)
+int driverLookup(unsigned int vid, unsigned int pid, xlateFn *xlate, initFn *init)
 {
      int	i = 0;
 
@@ -88,6 +88,8 @@ void driverLookup(unsigned int vid, unsigned int pid, xlateFn *xlate, initFn *in
      } 
      *xlate = usbIDTable[i].xlate;
      *init = usbIDTable[i].init;
+
+     return i;
 }
 
 //
@@ -261,23 +263,13 @@ bool driverXbox360(byte *data, int count, Gamepad &target)
      target.buttons |= (data[3] & 0x20)>>3;	// xbox E --> B3
      target.buttons |= (data[3] & 0x40)>>6;	// xbox W --> B1
      target.buttons |= (data[3] & 0x80)>>4;	// xbox N --> B4
-*/
+     */
+
      target.buttons |= (data[3] & 0x03)<<4;	// grab the two near shoulder buttons
 
-     // the two far shoulder buttons on the xbox 360 are analog, so interpret them properly TODO
-     target.x2 = 0; // currently just doesn't use those
-     //     target.x2 = data[4];
-     target.y2 = 0; // currently just ignores the triggers
-     //     target.y2 = data[5]; //^ 0xff
-
-     // old way of translating triggers to buttons    
-
-     /*if(data[4] > 0x7f) {
-	  target.buttons |= 0x40;
-     }
-     if(data[5] > 0x7f) {
-	  target.buttons |= 0x80;
-     }*/
+     // the two far shoulder buttons on the xbox 360 are analog, so interpret them properly
+     target.x2 = data[4]>>1;
+     target.y2 = data[5]>>1; 
 
      target.buttons |= ((int)(data[2] & 0x20)) << 1;	// get back button
      target.buttons |= ((int)(data[2] & 0x10)) << 3;	// get start button

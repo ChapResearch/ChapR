@@ -11,15 +11,14 @@
 byte RIO::RIO_xlateTH(byte th, char c)
 {
   if (th == 0){
-    return '0xFF'; // special case
+    return 0xFF; // special case
   }
-  th = (th-1)*45;
-  Serial.println(th);
+  int th_new  = (th-1)*45;
   switch(c){
   case 'm': // MSB
-    return th>>4;
+    return th_new>>8;
   case 'l': // LSB
-    return th&0x00FF;
+    return th_new&0x00FF;
   default:
     return 0;
   }
@@ -54,43 +53,37 @@ int RIO::createPacket(byte *msgbuff, bool enable, Gamepad *g1, Gamepad *g2, bool
 
   uint8_t size = 0;
 
-  msgbuff[size++] = 0xff;
-  msgbuff[size++] = 0xff;
-  msgbuff[size++] = 0xff;
-  msgbuff[size++] = (byte) cmd;
-  msgbuff[size++] = (short) g1->vid;
-  msgbuff[size++] = (short) g1->pid;
-  msgbuff[size++] = RIO_xlateTH(g1->tophat,'m'); // MSB
-  msgbuff[size++] = RIO_xlateTH(g1->tophat,'l'); // LSB
-  msgbuff[size++] = g1->buttons&0xff;                              // joystick 1 B0 to B7
-  msgbuff[size++] = (g1->buttons>>8)&0xff;                         // joystick 1 B8 to B11
-  msgbuff[size++] = 0;
-  msgbuff[size++] = (byte) g1->x1;				   // joystick 1 (left) X axis
-  msgbuff[size++] = (byte) g1->y1;			           // joystick 1 (left) Y axis 
-  msgbuff[size++] = 0;
-  msgbuff[size++] = (byte) g1->x2;
-  msgbuff[size++] = (byte) g1->y2;
-  msgbuff[size++] = (byte) (g2->buttons&0xff);                     // joystick 2 B0 to B7
-  msgbuff[size++] = (byte) g1->x3;				   // joystick 1 5th axis (usually x3)
-  msgbuff[size++] = (byte) g1->y3;			           // joystick 1 6th axis (usually y3) 
-  msgbuff[size++] = 0;
-  msgbuff[size++] = (short) g2->vid;
-  msgbuff[size++] = (short) g2->pid;
-  msgbuff[size++] = 0;
-  msgbuff[size++] = (byte) g2->x1;			           // joystick 2 (left) X axis
-  msgbuff[size++] = (byte) g2->y1;			           // joystick 2 (left) Y axis 
-  msgbuff[size++] = (byte) ((g2->buttons>>8)&0xff);                // joystick 2 B8 to B11
-  msgbuff[size++] = (byte) g2->x2;
-  msgbuff[size++] = (byte) g2->y2;
-  msgbuff[size++] = (byte) RIO_xlateTH(g2->tophat, 'm'); // MSB
-  msgbuff[size++] = (byte) RIO_xlateTH(g2->tophat, 'l'); // LSB
-  msgbuff[size++] = (byte) g2->x3;
-  msgbuff[size++] = (byte) g2->y3;
-  msgbuff[size++] = 0;
+  msgbuff[size++] = (byte) 0xff;                                  // 1st of 3 sync bytes
+  msgbuff[size++] = (byte) 0xff;                                  // 2nd of 3 sync bytes
+  msgbuff[size++] = (byte) 0xff;                                  // 3rd of 3 sync bytes
+  msgbuff[size++] = (byte) cmd;                                   // auto/tele, enabled etc.
+  msgbuff[size++] = (byte) RIO_xlateTH(g1->tophat,'m');           // MSB of tophat or D-pad, in degrees
+  msgbuff[size++] = (byte) RIO_xlateTH(g1->tophat,'l');           // LSB of tophat or D-pad, in degrees 
+  msgbuff[size++] = (byte) g1->type;                              // (based on index in driver table)
+  msgbuff[size++] = (byte) g1->x1;				  // joystick 1 (left) X axis
+  msgbuff[size++] = (byte) g1->y1;			          // joystick 1 (left) Y axis 
+  msgbuff[size++] = (byte) g1->buttons&0x7f;                      // joystick 1 B0 to B6
+  msgbuff[size++] = (byte) g1->x2;                                // joystick 1 (right) X axis
+  msgbuff[size++] = (byte) g1->y2;                                // joystick 1 (right) X axis
+  msgbuff[size++] = (byte) (g1->buttons>>7)&0xff;                 // joystick 1 B7 to B11
+  msgbuff[size++] = (byte) g1->x3;				  // joystick 1 5th axis (usually x3)
+  msgbuff[size++] = (byte) g1->y3;			          // joystick 1 6th axis (usually y3) 
+  msgbuff[size++] = (byte) 0;
+  msgbuff[size++] = (byte) RIO_xlateTH(g2->tophat, 'm');          // MSB of tophat or D-pad, in degrees 
+  msgbuff[size++] = (byte) RIO_xlateTH(g2->tophat, 'l');          // LSB of tophat or D-pad, in degrees
+  msgbuff[size++] = (byte) g2->type;                              // (based on index in driver table)
+  msgbuff[size++] = (byte) g2->x1;			          // joystick 2 (left) X axis
+  msgbuff[size++] = (byte) g2->y1;			          // joystick 2 (left) Y axis 
+  msgbuff[size++] = (byte) g2->buttons&0x7f;                      // joystick 2 B0 to B6
+  msgbuff[size++] = (byte) g2->x2;                                // joystick 2 (right) X axis
+  msgbuff[size++] = (byte) g2->y2;                                // joystick 2 (right) Y axis
+  msgbuff[size++] = (byte) (g2->buttons>>7)&0xff;                 // joystick 2 B7 to B11
+  msgbuff[size++] = (byte) g2->x3;                                // joystick 2 5th axis (usually x3)
+  msgbuff[size++] = (byte) g2->y3;                                // joystick 2 6th axis (usually y3)
 
   byte cs = checksum(msgbuff + 3, size - 3);
   msgbuff[size++] = cs;
-  
+
   return(size);			// total size of the message going over BT
 }
 
