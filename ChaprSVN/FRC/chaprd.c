@@ -13,48 +13,48 @@
 #include <termios.h>
 #include <arpa/inet.h> 
 #include <signal.h>
+#include <time.h>
 
-#define CHAPR_PCKT_SIZE 33
+#define CHAPR_DATA_SIZE 24
 
 typedef struct chapRPacket{
   int cmd;
-  int digitalIn;
-  int zero1;
-  int analog1; // two bytes
-  int joy1_TH;
-  int analog2; // two bytes
-  int joy1_B1;
-  int analog3; // two bytes
-  int joy1_B2;
-  int analog4; // two bytes
-  int zero2;
+  int joy1_TH_m; // MSB
+  int joy1_TH_l; // LSB
+  int joy1_type;
   int joy1_x1;
   int joy1_y1;
-  int zero;
+  int joy1_B1;
   int joy1_x2;
   int joy1_y2;
-  int joy2_B1;
+  int joy1_B2;
   int joy1_x3;
   int joy1_y3;
-  int zero3;
+  int zero;
+  int joy2_TH_m; // two bytes
+  int joy2_TH_l; // two bytes
+  int joy2_type;
   int joy2_x1;
   int joy2_y1;
-  int joy2_B2;
+  int joy2_B1;
   int joy2_x2;
   int joy2_y2;
-  int joy2_TH;
+  int joy2_B2;
   int joy2_x3;
   int joy2_y3;
 } chapRPacket;
 
-typedef struct dsPacket{
+/* v0_dsPacket -  the experimentally determined, now obsolete packet structure expected 
+                  by roboRIOs from the driver station. v1 is now the system in use.
+*/
+typedef struct v0_dsPacket{
   int indexm;
   int indexl;
-  int zconst1; // TODO - change to 1 (this is the comm version)
+  int zconst1; 
   int control;
-  int zconst2; // request byte (TODO - probably have to read from the RIO about program start  bit 4 etc.)
+  int zconst2; 
   int posally;
-  int nconst3; // tag values 
+  int nconst3; 
   int zconst4;
   int joy1_x1;
   int joy1_y1;
@@ -76,7 +76,7 @@ typedef struct dsPacket{
   int joy2_B1;
   int nconst8;
   int zconst9;
-  int joy3_x1; // TODO - take out all but two joysticks
+  int joy3_x1; 
   int joy3_y1;
   int joy3_x2;
   int joy3_y2;
@@ -114,7 +114,7 @@ typedef struct dsPacket{
   int joy6_y3;
   int joy6_B2;
   int joy6_B1;
-} dsPacket;
+} v0_dsPacket;
 
 // TODO - kill signal, logging
 
@@ -147,10 +147,14 @@ void debug_int(char *msg, int arg)
 #endif
 }
 
-//
-// this define converts the two-byte chapr FRC analogs to an int
-//
-#define ANALOG_CONVERT(buffer,i1,i2)	((buffer[i1]<8)|buffer[i2])
+void debug_dump(char *msg, char *buffer, int size){
+#ifdef DEBUG
+  int i;
+  for (i = 0; i < size; i++){
+    printf("%i:%x\n", i, buffer[i]);
+  }
+#endif
+}
 
 //
 // readChapRPacket() - formats data from the USB into a ChapR packet
@@ -160,10 +164,9 @@ chapRPacket *readChapRPacket(int fd)
 {
 	static chapRPacket cp;
 	unsigned char buf[50]; // overkill, but no one cares
-	struct stat sbuf;
 	unsigned char rawData;
 	int state = 0;
-	int checkSum = 0;
+	unsigned char checkSum = 0;
 	int count = 0;
 
 	while (1){
@@ -176,61 +179,55 @@ chapRPacket *readChapRPacket(int fd)
 	  else if (rval == 0){
 	    return (chapRPacket *) NULL;
 	  }
-	  //	  debug_int("val", (int) rawData);
 		switch (state){
 		case 0:
  		case 1:
 		case 2:
 			if (rawData == 0xff){
-				state++;
-				checkSum = 0;
-				count = 0;
+			  state++;
+			  checkSum = 0;
+			  count = 0;
 			} else {
-				state = 0;
+			  state = 0;
 			}
 			break;
 		case 3:
-			buf[count] = rawData;
-			checkSum += rawData;
-			count++;
-			if (count == CHAPR_PCKT_SIZE){
-				state++;
-			}
-			break;
+		  buf[count] = rawData;
+		  checkSum += rawData;
+		  count++;
+		  if (count == CHAPR_DATA_SIZE){
+		    state++;
+		  }
+		  break;
 
 		case 4:
 			checkSum = checkSum & 0x7f;
-			debug_int("ecs", checkSum);
-			debug_int("rcs", rawData);
 			if (checkSum == rawData){
-			  cp.cmd = (int) buf[0];
-			  cp.digitalIn = (int) buf[1];
+			  cp.cmd        = (int) buf[0];
+			  cp.joy1_TH_m  = (int) buf[1];
+			  cp.joy1_TH_l  = (int) buf[2];
+			  cp.joy1_type  = (int) buf[3];
+			  cp.joy1_x1    = (int) buf[4];
+			  cp.joy1_y1    = (int) buf[5];
+			  cp.joy1_B1    = (int) buf[6];
+			  cp.joy1_x2    = (int) buf[7];
+			  cp.joy1_y2    = (int) buf[8];
+			  cp.joy1_B2    = (int) buf[9];
+			  cp.joy1_x3    = (int) buf[10];
+			  cp.joy1_y3    = (int) buf[11];
 			  // zero
-			  cp.analog1 = ANALOG_CONVERT(buf,3,4);
-			  cp.joy1_TH = (int) buf[5];
-			  cp.analog2 = ANALOG_CONVERT(buf,6,7);
-			  cp.joy1_B1 = (int) buf[8];
-			  cp.analog3 = ANALOG_CONVERT(buf,9,10);
-			  cp.joy1_B2 = (int) buf[11];
-			  cp.analog4 = ANALOG_CONVERT(buf,12,13);
+			  cp.joy2_TH_m  = (int) buf[13];
+			  cp.joy2_TH_l  = (int) buf[14];
+			  cp.joy2_type  = (int) buf[15];
+			  cp.joy2_x1    = (int) buf[16];
+			  cp.joy2_y1    = (int) buf[17];
+			  cp.joy2_B1    = (int) buf[18];
+			  cp.joy2_x2    = (int) buf[19];
+			  cp.joy2_y2    = (int) buf[20];
+			  cp.joy2_B2    = (int) buf[21];
+			  cp.joy2_x3    = (int) buf[22];
+			  cp.joy2_y3    = (int) buf[23];
 			  // zero
-			  cp.joy1_x1 = (int) buf[15];
-			  cp.joy1_y1 = (int) buf[16];
-			  // zero
-			  cp.joy1_x2 = (int) buf[18];
-			  cp.joy1_y2 = (int) buf[19];
-			  cp.joy2_B1 = (int) buf[20];
-			  cp.joy1_x3 = (int) buf[21];
-			  cp.joy1_y3 = (int) buf[22];
-			  // zero
-			  cp.joy2_x1 = (int) buf[24];
-			  cp.joy2_y1 = (int) buf[25];
-			  cp.joy2_B2 = (int) buf[26];
-			  cp.joy2_x2 = (int) buf[27];
-			  cp.joy2_y2 = (int) buf[28];
-			  cp.joy2_TH = (int) buf[29];
-			  cp.joy2_x3 = (int) buf[30];
-			  cp.joy2_y3 = (int) buf[31];
 			  return &cp;
 
 			} else {
@@ -243,12 +240,12 @@ chapRPacket *readChapRPacket(int fd)
 }
 
 // 
-// translateChapRPacket() - translates from a received ChapR packet to a driver's station packet
+// translateChapRPacket_0() - translates from a received ChapR packet to a v0 driver's station packet
 //				for transmission over the ethernet (socket)
 //
-dsPacket *translateChapRPacket(chapRPacket *cp)
+int translateChapRPacket_0(char *buffer, chapRPacket *cp)
 {
-	static dsPacket dsp;
+	static v0_dsPacket dsp;
 	static int index = 0;
 	index++;
 
@@ -319,17 +316,226 @@ dsPacket *translateChapRPacket(chapRPacket *cp)
 	dsp.joy6_B2 = (int) 0;
 	dsp.joy6_B1 = (int) 0;
 
-	// we MAY need to calculate a checksum if they decide that the DS packet needs one
-	// (like it did in the previous) - OR if we decide to support the old protocol on WindRiver
-
-	return &dsp;
+	return flattenDSPacket_0(&buffer, dsp); // returns the size of the packet
 }
 
+int translateHeader_1(char *buffer, chapRPacket *cp)
+{
+  	static int index = 1;
+	int size = 0;
+
+	buffer[size++] = index >> 8; // big endian form of the index
+	buffer[size++] = index & 0x00FF;
+	buffer[size++] = (int) 1; // protocol version
+	buffer[size++] = cp->cmd; // cmd to be sent
+	buffer[size++] = 0x10; // request progStart
+	buffer[size++] = (int) 0; // alliance station ID
+
+	index++;
+	return size;
+}
+
+#define kJoystick1Tag 12
+#define kJoystickDesc1TCPTag 2
+#define DEVTYPE_JOYSTICK 0x14
+
+// 
+// translateChapRPacket_1() - translates from a received ChapR packet to a v1 driver's station packet
+//				for transmission over the ethernet (socket)
 //
-// flattenDSPacket() - take the DS packet structure and flatten to a array of bytes for transmission
+int translateChapRPacket_1(char *buffer, chapRPacket *cp)
+{
+	int size = translateHeader_1(buffer, cp);
+
+	switch(cp->joy1_type){
+	case 3: // Logitech F310
+	default:
+	   buffer[size++] = (uint) 0x0c; // size of data
+	   buffer[size++] = (uint) kJoystick1Tag;
+	   buffer[size++] = (uint) 0x04; // # of axes
+	   buffer[size++] = cp->joy1_x1;
+	   buffer[size++] = cp->joy1_y1;
+	   buffer[size++] = cp->joy1_x2;
+	   buffer[size++] = cp->joy1_y2;
+	   buffer[size++] = (uint) 0x0c; // # of bttns
+	   buffer[size++] = (uint) ((cp->joy1_B2)>>1); // ChapR packet had been offset to prevent 'FF's
+	   buffer[size++] = (uint) (cp->joy1_B1) | ((cp->joy1_B2&0x01)<<7); // moves button from B2 to B1
+	   buffer[size++] = (uint) 0x01; // # of POV's (or D-pad's)
+	   buffer[size++] = cp->joy1_TH_m;
+	   buffer[size++] = cp->joy1_TH_l;
+	   break;
+	case 2:
+	   buffer[size++] = (uint) 0x0e; // size of data
+	   buffer[size++] = (uint) kJoystick1Tag;
+	   buffer[size++] = (uint) 0x06; // # of axes
+	   buffer[size++] = cp->joy1_x1;
+	   buffer[size++] = cp->joy1_y1;
+	   buffer[size++] = cp->joy1_x2;
+	   buffer[size++] = cp->joy1_y2;
+	   buffer[size++] = cp->joy1_x3;
+	   buffer[size++] = cp->joy1_y3;
+	   buffer[size++] = (uint) 0x0a; // # of bttns
+	   buffer[size++] = (uint) ((cp->joy1_B2)>>1); // ChapR packet had been offset to prevent 'FF's
+	   buffer[size++] = (uint) (cp->joy1_B1) | ((cp->joy1_B2&0x01)<<7); // moves button from B2 to B1
+	   buffer[size++] = (uint) 0x01; // # of POV's (or D-pad's)
+	   buffer[size++] = cp->joy1_TH_m;
+	   buffer[size++] = cp->joy1_TH_l;
+	   break;
+	case 5:
+	   buffer[size++] = (uint) 0x09; // size of data
+	   buffer[size++] = (uint) kJoystick1Tag;
+	   buffer[size++] = (uint) 0x03; // # of axes
+	   buffer[size++] = cp->joy1_x1;
+	   buffer[size++] = cp->joy1_y1;
+	   buffer[size++] = cp->joy1_x2;
+	   buffer[size++] = (uint) 0x0b; // # of bttns
+	   buffer[size++] = (uint) ((cp->joy1_B2)>>1); // ChapR packet had been offset to prevent 'FF's
+	   buffer[size++] = (uint) (cp->joy1_B1) | ((cp->joy1_B2&0x01)<<7); // moves button from B2 to B1
+	   buffer[size++] = (uint) 0x00; // # of POV's (or D-pad's)
+	   break;
+	 }
+
+	switch(cp->joy2_type){
+	case 3: // Logitech F310
+	default:
+	   buffer[size++] = (uint) 0x0c; // size of data
+	   buffer[size++] = (uint) kJoystick1Tag;
+	   buffer[size++] = (uint) 0x04; // # of axes
+	   buffer[size++] = cp->joy2_x1;
+	   buffer[size++] = cp->joy2_y1;
+	   buffer[size++] = cp->joy2_x2;
+	   buffer[size++] = cp->joy2_y2;
+	   buffer[size++] = (uint) 0x0c; // # of bttns
+	   buffer[size++] = (uint) ((cp->joy2_B2)>>1); // ChapR packet had been offset to prevent 'FF's
+	   buffer[size++] = (uint) (cp->joy2_B1) | ((cp->joy2_B2&0x01)<<7); // moves button from B2 to B1
+	   buffer[size++] = (uint) 0x01; // # of POV's (or D-pad's)
+	   buffer[size++] = cp->joy2_TH_m;
+	   buffer[size++] = cp->joy2_TH_l;
+	   break;
+	case 2:
+	   buffer[size++] = (uint) 0x0e; // size of data
+	   buffer[size++] = (uint) kJoystick1Tag;
+	   buffer[size++] = (uint) 0x06; // # of axes
+	   buffer[size++] = cp->joy2_x1;
+	   buffer[size++] = cp->joy2_y1;
+	   buffer[size++] = cp->joy2_x2;
+	   buffer[size++] = cp->joy2_y2;
+	   buffer[size++] = cp->joy2_x3;
+	   buffer[size++] = cp->joy2_y3;
+	   buffer[size++] = (uint) 0x0a; // # of bttns
+	   buffer[size++] = (uint) ((cp->joy2_B2)>>1); // ChapR packet had been offset to prevent 'FF's
+	   buffer[size++] = (uint) (cp->joy2_B1) | ((cp->joy2_B2&0x01)<<7); // moves button from B2 to B1
+	   buffer[size++] = (uint) 0x01; // # of POV's (or D-pad's)
+	   buffer[size++] = cp->joy2_TH_m;
+	   buffer[size++] = cp->joy2_TH_l;
+	  break;
+	case 5:
+	   buffer[size++] = (uint) 0x09; // size of data
+	   buffer[size++] = (uint) kJoystick1Tag;
+	   buffer[size++] = (uint) 0x03; // # of axes
+	   buffer[size++] = cp->joy2_x1;
+	   buffer[size++] = cp->joy2_y1;
+	   buffer[size++] = cp->joy2_x2;
+	   buffer[size++] = (uint) 0x0b; // # of bttns
+	   buffer[size++] = (uint) ((cp->joy2_B2)>>1); // ChapR packet had been offset to prevent 'FF's
+	   buffer[size++] = (uint) (cp->joy2_B1) | ((cp->joy2_B2&0x01)<<7); // moves button from B2 to B1
+	   buffer[size++] = (uint) 0x00; // # of POV's (or D-pad's)
+	   break;
+	 }
+	
+	return size;
+}
+
+int formatInfo(int joystick_type, char *buffer, int start_val, int index)
+{
+  int size = start_val;
+  uint numAxes, bttnCount, numPOV, isXbox;
+  char *name;
+  uint axes[10];
+  switch(joystick_type){
+  case 3: // Logitech F310
+  default:
+    isXbox = 0;
+    name = "Logitech Dual Action";
+    numAxes = 4;
+    axes[0] = 0;
+    axes[1] = 1;
+    axes[2] = 2;
+    axes[3] = 5;
+    bttnCount = 12;
+    numPOV = 1;
+    break;
+  case 2: // Xbox 360
+    isXbox = 1;
+    name = "XBOX 360";
+    numAxes = 6;
+    bttnCount = 10;
+    numPOV = 1;
+    break;
+  case 5:
+    isXbox = 0;
+    name = "Logitech Attack 3 USB";
+    numAxes = 3;
+    axes[0] = 0;
+    axes[1] = 1;
+    axes[2] = 2;
+    bttnCount = 11;
+    numPOV = 0;
+    break;
+  }
+
+  buffer[size++] = 0; // placeholder for MSB of size
+  buffer[size++] = 0; // placeholder for LSB of size
+  buffer[size++] = kJoystickDesc1TCPTag; // tag
+  buffer[size++] = index; // index
+  buffer[size++] = isXbox;
+  buffer[size++] = DEVTYPE_JOYSTICK; // type
+  buffer[size++] = (uint) strlen(name); // name length
+  int i;
+  for (i = 0; i < strlen(name); i++){
+    buffer[size++] = name[i];
+  }
+  buffer[size++] = numAxes;
+  for (i = 0; i < numAxes; i++){
+    buffer[size++] = axes[i];
+  }
+  buffer[size++] = bttnCount;
+  buffer[size++] = numPOV;
+  
+  buffer[start_val] = (size - start_val - 2)>>8;
+  buffer[start_val+1] = (size - start_val - 2)&0x00FF;
+
+  return size - start_val;
+}
+
+int translateJoystickDesc(char *buffer, chapRPacket *cp)
+{
+  int size = formatInfo(cp->joy1_type, buffer, 0, 0);
+  size += formatInfo(cp->joy1_type, buffer, size, 1);
+
+  // fills rest of joystick tags with empty values
+  int i;
+  for (i = 2; i < 6; i++){
+    buffer[size++] = (uint) 0x08; // size
+    buffer[size++] = kJoystickDesc1TCPTag; // tag
+    buffer[size++] = (uint) i; // index
+    buffer[size++] = (uint) 0; // isXBox
+    buffer[size++] = (uint) 0xFF; // type is null
+    buffer[size++] = (uint) 0; // name length
+    buffer[size++] = (uint) 0; // axes count
+    buffer[size++] = (uint) 0; // button count
+    buffer[size++] = (uint) 0; // POV count
+      // TODO - add the above casts everywhere
+  }
+  debug_int("size", size);
+  debug_dump("buffer", buffer, size);
+  return size;
+}
+
+// flattenDSPacket_0() - take the v0 DS packet structure and flatten to a array of bytes for transmission
 //		       Returns the number of bytes in there.
 //
-int flattenDSPacket(unsigned char *buffer,dsPacket *dsp)
+int flattenDSPacket_0(unsigned char *buffer,v0_dsPacket *dsp)
 {
 	int i = 0;
 
@@ -404,13 +610,10 @@ int flattenDSPacket(unsigned char *buffer,dsPacket *dsp)
 }
 
 
-// sendPacket() - given the open socket, send a packet to it
-void sendPacket(int sd, struct hostent *hp, dsPacket *dsp)
+// sendPacket_0() - given the open socket, send a packet to it
+void sendPacket_0(int sd, struct hostent *hp, char *buffer, int theSize)
 {
-	unsigned char buffer[1024];
-	int		theSize;
 	int		port = 1110;
-	
 
 	struct sockaddr_in	dest_addr;
 
@@ -418,12 +621,47 @@ void sendPacket(int sd, struct hostent *hp, dsPacket *dsp)
 	dest_addr.sin_port = htons(port);
 	memcpy((void *)&dest_addr.sin_addr, hp->h_addr_list[0], hp->h_length);
 
-	theSize = flattenDSPacket(buffer,dsp);
+	//	theSize = flattenDSPacket_0(buffer,dsp);
 
 	if(sendto(sd, (void *)buffer, (size_t)theSize, 0, (struct sockaddr *)&dest_addr,sizeof(dest_addr)) < 0) {
 		errorMsg("Yikes");
 	} else {
 		printf(".");
+	}
+}
+
+// sendPacket_1() - given the open socket, send a packet to it
+void sendPacket_1(int sd, struct hostent *hp, char *buffer, int theSize)
+{
+  int		port = 1110;
+	
+	struct sockaddr_in	dest_addr;
+
+	dest_addr.sin_family = AF_INET;
+	dest_addr.sin_port = htons(port);
+	memcpy((void *)&dest_addr.sin_addr, hp->h_addr_list[0], hp->h_length);
+
+	if(sendto(sd, (void *)buffer, (size_t)theSize, 0, (struct sockaddr *)&dest_addr,sizeof(dest_addr)) < 0) {
+		errorMsg("Yikes");
+	}
+}
+
+void TCP_send(int sd, struct hostent *hp, char *buffer, int theSize)
+{
+	int port = 1740;
+	
+	struct sockaddr_in dest_addr;
+
+	dest_addr.sin_family = AF_INET;
+	dest_addr.sin_port = htons(port);
+	memcpy((void *)&dest_addr.sin_addr, hp->h_addr_list[0], hp->h_length);
+
+	if(sendto(sd, (void *)buffer, (size_t)theSize, 0, (struct sockaddr *)&dest_addr,sizeof(dest_addr)) < 0) {
+	  debug_int("error3:", errno);
+		errorMsg("Uh oh");
+	} else {
+		printf("!");
+		debug_string("success", "");
 	}
 }
 
@@ -444,15 +682,46 @@ struct hostent *findMe()
 }
 
 //
-// openSocket() - returns an open socket for sending networking packets to the loopback address (127.0.0.1)
+// openUDPSocket() - returns an open socket for sending networking packets to the loopback address (127.0.0.1)
 //			Code taken from http://www.thegeekstuff.com/2011/12/c-socket-programming/
 //
-int openSocket(char *address, int port)
+int openTargetUDPSocket()
 {
 	int fd;
 
 	if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
 		errorMsg("cannot create socket");
+	}
+
+	return(fd);
+}
+
+//
+// openTCPSocket() - returns an open socket for sending networking packets to the loopback address (127.0.0.1)
+//			Code taken from http://www.thegeekstuff.com/2011/12/c-socket-programming/
+//
+int connectTCPSocket(struct hostent *hp)
+{
+	int fd;
+
+	if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+		errorMsg("cannot create socket");
+	}
+
+	int port = 1740;
+	
+	struct sockaddr_in dest_addr;
+
+	dest_addr.sin_family = AF_INET;
+	dest_addr.sin_port = htons(port);
+	memcpy((void *)&dest_addr.sin_addr, hp->h_addr_list[0], hp->h_length);
+
+	if (bind(fd, (struct sockaddr *)&dest_addr, sizeof(dest_addr)) == -1){
+	  debug_int("error1:", errno);
+	}
+
+	if (connect(fd, (struct sockaddr *)&dest_addr, sizeof(dest_addr)) == -1){
+	  debug_int("error2:", errno);
 	}
 
 	return(fd);
@@ -465,7 +734,7 @@ int openSocket(char *address, int port)
 //
 int openUSBPort(){
 	struct stat buf;
-	char *ports[2] = {"/dev/ttyUSB0","/dev/ttyUSB1"}; // TODO - add S1???
+	char *ports[2] = {"/dev/ttyUSB0","/dev/ttyUSB1"}; 
 	int i;
 	int fd;
 	struct termios t;
@@ -477,6 +746,7 @@ int openUSBPort(){
 		for (i = 0; i < 2; i++){
 			// check if ttyUSB0 or 1 is available
 			// TODO - check if it has FirePlug connected
+		  // TODO - do testing of plugging/unplugging and other USB devices
 			if (stat(ports[i], &buf) == 0){
 			  syslog(LOG_INFO, "opened port: %s",ports[i]);
 			  fd = open(ports[i], O_RDONLY);				
@@ -488,6 +758,14 @@ int openUSBPort(){
 		// loop every x seconds, waiting patiently
 		sleep(10);
 	}
+}
+
+void TCP_ping(int sd, struct hostent *hp)
+{
+  unsigned char buf[2];
+  buf[0] = buf[1] = 0;
+  TCP_send(sd, hp, buf, sizeof(buf));
+  debug_string("*","");
 }
 
 int daemonize(){
@@ -538,26 +816,22 @@ int main(void) {
 	pid = daemonize();
 #endif
 	(void) signal(SIGHUP, signalHandler);
+	(void) signal(SIGPIPE, signalHandler); // can also use SIG_IGN to ignore the signal errno EPIPE
 
 	openlog("ChapR", LOG_PID, LOG_DAEMON);
 	syslog(LOG_INFO, "Daemonized");
 
+	int sd = openTargetUDPSocket();
+
+	// TODO - do the ping stuff
 	struct hostent *hp = findMe();
+	int tcp_sd = connectTCPSocket(hp);
 
-	// get a socket connection to the roboRIO process that is
-	//   listening for driver's station packets
+	static int joy1_type = 0; // indiates if a new joystick has been inputted
+	static int joy2_type = 0; // indicates if a new joystick has been inputted
 
-	char *address = "127.0.0.1";
-	int  port = 1110;
-	int  sd;
+	int testing = 1;
 
-	sd = openSocket(address,port);
-
-	// while (!present) {
-	// check for ttyUSB0 (or 1)
-        // check for the FirePlug
-	// }
-	// open it for reading
         /* The Big Loop */
         while (1) {
 		int fd = -1;
@@ -565,21 +839,53 @@ int main(void) {
 			fd = openUSBPort();
 			debug_int("fd thingy: ", fd);	
 		}
+		time_t start, end;
+	        time(&start);
 		while (1){
 			chapRPacket *cp;
-			dsPacket *dsp;
-			/* Do some task here ... */
-			// check for ERROR, break and close if possible
-			// translate ChapR packet
+			v0_dsPacket *dsp;
+
+			// TODO - ChapR packet could only send packets when necessary,
+			//        relying upon the daemon to continuously send stuff
+			//	debug_string("reading...","");
 			cp = readChapRPacket(fd);
+			//			debug_string("read","");
 			if (cp == NULL){
 			  break; // the USB port was closed somehow
-			}		
-			debug_string(".","");
-			dsp = translateChapRPacket(cp);
-			if (dsp != NULL){
-				sendPacket(sd,hp,dsp);
 			}
+			if (testing){
+			  unsigned char test[1024];
+			  int size2 = 0;
+			  test[size2++] = 0;
+			  test[size2++] = 6;
+			  test[size2++] = 7;
+			  test[size2++] = 0;
+			  test[size2++] = 0;
+			  test[size2++] = 0;
+			  test[size2++] = 0;
+			  test[size2++] = 0;
+			  TCP_send(tcp_sd, hp, test, size2); // inform roboRIO of new type
+			  testing = 0;
+			}
+			time(&end);
+			if ((int) (difftime(end, start))%2 == 0){
+			  TCP_ping(sd, hp);
+			  //time(&start);
+			}
+			if (cp->joy1_type != joy1_type || cp->joy2_type != joy2_type){ // new joystick plugged in
+			  unsigned char tcp_buffer[1024];
+			  int size = translateJoystickDesc(tcp_buffer, cp);
+			  TCP_send(tcp_sd, hp, tcp_buffer, size); // inform roboRIO of new type
+			  debug_string("sent", "");
+			  joy1_type = cp->joy1_type;
+			  joy2_type = cp->joy2_type;
+			}
+			unsigned char udp_buffer[1024]; 
+			int size = translateChapRPacket_1(udp_buffer, cp);
+			//			if (dsp != NULL){
+			sendPacket_1(sd,hp,udp_buffer,size);
+			debug_string(".",""); // indicates everything is working
+			  //			}
 		}	
 		close(fd);
 		syslog(LOG_INFO, "just closed port: %d", fd);
