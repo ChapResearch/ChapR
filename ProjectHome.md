@@ -1,0 +1,1 @@
+This project is for an Arduino-based hardware device that allows control of FTC robots without a PC.
