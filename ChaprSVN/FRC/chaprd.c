@@ -511,12 +511,13 @@ int formatInfo(int joystick_type, char *buffer, int start_val, int index)
 int translateJoystickDesc(char *buffer, chapRPacket *cp)
 {
   int size = formatInfo(cp->joy1_type, buffer, 0, 0);
-  size += formatInfo(cp->joy1_type, buffer, size, 1);
+  size += formatInfo(cp->joy2_type, buffer, size, 1);
 
   // fills rest of joystick tags with empty values
   int i;
   for (i = 2; i < 6; i++){
-    buffer[size++] = (uint) 0x08; // size
+    buffer[size++] = (uint) 0x00; // MSB of size
+    buffer[size++] = (uint) 0x08; // LSB of size
     buffer[size++] = kJoystickDesc1TCPTag; // tag
     buffer[size++] = (uint) i; // index
     buffer[size++] = (uint) 0; // isXBox
@@ -527,8 +528,6 @@ int translateJoystickDesc(char *buffer, chapRPacket *cp)
     buffer[size++] = (uint) 0; // POV count
       // TODO - add the above casts everywhere
   }
-  debug_int("size", size);
-  debug_dump("buffer", buffer, size);
   return size;
 }
 
@@ -630,8 +629,8 @@ void sendPacket_0(int sd, struct hostent *hp, char *buffer, int theSize)
 	}
 }
 
-// sendPacket_1() - given the open socket, send a packet to it
-void sendPacket_1(int sd, struct hostent *hp, char *buffer, int theSize)
+// UDP_send() - given the open socket, send a packet to it
+void UDP_send(int sd, struct hostent *hp, char *buffer, int theSize)
 {
   int		port = 1110;
 	
@@ -643,6 +642,7 @@ void sendPacket_1(int sd, struct hostent *hp, char *buffer, int theSize)
 
 	if(sendto(sd, (void *)buffer, (size_t)theSize, 0, (struct sockaddr *)&dest_addr,sizeof(dest_addr)) < 0) {
 		errorMsg("Yikes");
+		debug_int("UDP_SEND_ERRNO", errno);
 	}
 }
 
@@ -660,8 +660,7 @@ void TCP_send(int sd, struct hostent *hp, char *buffer, int theSize)
 	  debug_int("error3:", errno);
 		errorMsg("Uh oh");
 	} else {
-		printf("!");
-		debug_string("success", "");
+	  debug_string("TCP packet sent", "");
 	}
 }
 
@@ -683,7 +682,6 @@ struct hostent *findMe()
 
 //
 // openUDPSocket() - returns an open socket for sending networking packets to the loopback address (127.0.0.1)
-//			Code taken from http://www.thegeekstuff.com/2011/12/c-socket-programming/
 //
 int openTargetUDPSocket()
 {
@@ -697,11 +695,31 @@ int openTargetUDPSocket()
 }
 
 //
+// TODO
+//
+void sendHelloPackets(int sd, struct hostent *hp)
+{
+  unsigned char hello[6];
+  hello[0] = 0;
+  hello[2] = 1;
+  hello[3] = 0;
+  hello[4] = 0;
+  hello[5] = 0;
+  int i;
+  for (i = 0; i < 3; i++){
+    hello[1] = i; // set the index of the packet
+    UDP_send(sd, hp, hello, 6);
+    sleep(1);
+  }
+}
+
+//
 // openTCPSocket() - returns an open socket for sending networking packets to the loopback address (127.0.0.1)
 //			Code taken from http://www.thegeekstuff.com/2011/12/c-socket-programming/
 //
 int connectTCPSocket(struct hostent *hp)
 {
+        debug_string("connecting", "");
 	int fd;
 
 	if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -710,18 +728,15 @@ int connectTCPSocket(struct hostent *hp)
 
 	int port = 1740;
 	
-	struct sockaddr_in dest_addr;
+	static struct sockaddr_in dest_addr;
 
 	dest_addr.sin_family = AF_INET;
 	dest_addr.sin_port = htons(port);
 	memcpy((void *)&dest_addr.sin_addr, hp->h_addr_list[0], hp->h_length);
 
-	if (bind(fd, (struct sockaddr *)&dest_addr, sizeof(dest_addr)) == -1){
-	  debug_int("error1:", errno);
-	}
-
-	if (connect(fd, (struct sockaddr *)&dest_addr, sizeof(dest_addr)) == -1){
-	  debug_int("error2:", errno);
+	while (connect(fd, (struct sockaddr *)&dest_addr, sizeof(dest_addr)) == -1){
+	  debug_int("TCP_connect_error:", errno);
+	  sleep(1);
 	}
 
 	return(fd);
@@ -765,7 +780,6 @@ void TCP_ping(int sd, struct hostent *hp)
   unsigned char buf[2];
   buf[0] = buf[1] = 0;
   TCP_send(sd, hp, buf, sizeof(buf));
-  debug_string("*","");
 }
 
 int daemonize(){
@@ -821,16 +835,19 @@ int main(void) {
 	openlog("ChapR", LOG_PID, LOG_DAEMON);
 	syslog(LOG_INFO, "Daemonized");
 
-	int sd = openTargetUDPSocket();
-
-	// TODO - do the ping stuff
 	struct hostent *hp = findMe();
-	int tcp_sd = connectTCPSocket(hp);
+
+	int udp_sd = openTargetUDPSocket();
+	sendHelloPackets(udp_sd, hp);
+
+	int tcp_sd; 
+	tcp_sd = connectTCPSocket(hp);
 
 	static int joy1_type = 0; // indiates if a new joystick has been inputted
 	static int joy2_type = 0; // indicates if a new joystick has been inputted
 
-	int testing = 1;
+	int testing = 0;
+	long loopcount = 0;
 
         /* The Big Loop */
         while (1) {
@@ -839,23 +856,23 @@ int main(void) {
 			fd = openUSBPort();
 			debug_int("fd thingy: ", fd);	
 		}
-		time_t start, end;
-	        time(&start);
 		while (1){
 			chapRPacket *cp;
 			v0_dsPacket *dsp;
 
 			// TODO - ChapR packet could only send packets when necessary,
 			//        relying upon the daemon to continuously send stuff
-			//	debug_string("reading...","");
 			cp = readChapRPacket(fd);
-			//			debug_string("read","");
+			debug_string("just read", "");
 			if (cp == NULL){
 			  break; // the USB port was closed somehow
 			}
 			if (testing){
+			  unsigned char tcp_buffer[1024];
+			  int size3 = translateJoystickDesc(tcp_buffer, cp);
+			  TCP_send(tcp_sd, hp, tcp_buffer, size3); // inform roboRIO of new type
 			  unsigned char test[1024];
-			  int size2 = 0;
+			  int size2 = translateJoystickDesc(test, cp);
 			  test[size2++] = 0;
 			  test[size2++] = 6;
 			  test[size2++] = 7;
@@ -865,12 +882,11 @@ int main(void) {
 			  test[size2++] = 0;
 			  test[size2++] = 0;
 			  TCP_send(tcp_sd, hp, test, size2); // inform roboRIO of new type
+			  debug_dump("test", test, size2);
 			  testing = 0;
 			}
-			time(&end);
-			if ((int) (difftime(end, start))%2 == 0){
-			  TCP_ping(sd, hp);
-			  //time(&start);
+			if (loopcount%50 == 1){
+			  //	  TCP_ping(tcp_sd, hp);
 			}
 			if (cp->joy1_type != joy1_type || cp->joy2_type != joy2_type){ // new joystick plugged in
 			  unsigned char tcp_buffer[1024];
@@ -883,12 +899,17 @@ int main(void) {
 			unsigned char udp_buffer[1024]; 
 			int size = translateChapRPacket_1(udp_buffer, cp);
 			//			if (dsp != NULL){
-			sendPacket_1(sd,hp,udp_buffer,size);
+			UDP_send(udp_sd,hp,udp_buffer,size);
 			debug_string(".",""); // indicates everything is working
 			  //			}
+			loopcount++;
 		}	
-		close(fd);
+		close(fd); // close fd to FirePlug
 		syslog(LOG_INFO, "just closed port: %d", fd);
+		close(tcp_sd); // close TCP socket
+		syslog(LOG_INFO, "just closed port: %d", tcp_sd);
+		close(udp_sd); // close UDP socket
+		syslog(LOG_INFO, "just closed port: %d", udp_sd);
 		sleep(10);
 	}
 
