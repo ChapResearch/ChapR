@@ -1,4 +1,5 @@
 These are instructions for using github!
-
-Open
-
+*First Time*
+sudo apt-get install git
+git config user.name "Your Name"
+git config user.email"Your Email"
