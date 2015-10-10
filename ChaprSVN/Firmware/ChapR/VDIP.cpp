@@ -609,8 +609,7 @@ void VDIP::processDisk(portConfig *portConfigBuffer)
        // get the lag time
 
        if(readFile("lag.txt", buf, BIGENOUGH)){
-	 Serial.println("getting lag!");
-	   myEEPROM.setSpeed((byte) atoi(buf));
+	 myEEPROM.setSpeed((byte) atoi(buf));
        }
 
        // get the user mode
