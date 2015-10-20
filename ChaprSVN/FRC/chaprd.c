@@ -205,7 +205,7 @@ chapRPacket *readChapRPacket(int fd)
 	break;
       } // end of switch
     } // end of else
-    nanosleep(&sleepTime, &timeLeft);
+    //    nanosleep(&sleepTime, &timeLeft);
   } // end of while
 }
 
@@ -228,8 +228,6 @@ int translateHeader(char *buffer, chapRPacket *cp)
 #define kJoystick1Tag 12
 #define kJoystickDesc1TCPTag 2
 #define DEVTYPE_JOYSTICK 0x14
-
-<<<<<<< HEAD
 
 /* translateChapRPacket() - translates from a received ChapR packet to a v1 driver's station packet
 			    for transmission over UDP
