@@ -198,7 +198,6 @@ chapRPacket *readChapRPacket(int fd)
 	  cp.joy2_y3    = (int) buf[23];
 	  // zero
 	  return &cp;
-
 	} else {
 	  debug_string("g", "");
 	  state = 0;
@@ -230,6 +229,7 @@ int translateHeader(char *buffer, chapRPacket *cp)
 #define kJoystickDesc1TCPTag 2
 #define DEVTYPE_JOYSTICK 0x14
 
+<<<<<<< HEAD
 
 /* translateChapRPacket() - translates from a received ChapR packet to a v1 driver's station packet
 			    for transmission over UDP
@@ -633,6 +633,7 @@ int daemonize(){
 }
 
 int main(void) {
+
   int pid;
 
   openlog("ChapR", LOG_PID | LOG_NOWAIT | LOG_CONS | LOG_NDELAY, LOG_DAEMON);
