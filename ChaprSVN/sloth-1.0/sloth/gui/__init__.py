@@ -1,1 +1,0 @@
-from .labeltool import MainWindow
