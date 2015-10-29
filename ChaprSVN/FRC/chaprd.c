@@ -110,7 +110,7 @@ chapRPacket *readChapRPacket(int fd)
   static struct timeval begin, end, diff; // used for timeout of connection
   static struct timespec sleepTime;
   sleepTime.tv_sec = 0;
-  sleepTime.tv_nsec = 0L; // operate at 5K BAUD (a little slower, because of processing time)
+  sleepTime.tv_nsec = 200000L; // operate at 5K BAUD (a little slower, because of processing time)
   // used to be 200000L
   struct timespec timeLeft; // not used, but still needed as a parameter
   static int connected = 0; 
@@ -118,7 +118,9 @@ chapRPacket *readChapRPacket(int fd)
 
 
   while (1){
+    debug_string("about to read", "");
     int rval = read(fd, (void *) &rawData, 1);
+    debug_string("just read", "");
     if (rval < 0){
       syslog(LOG_CRIT, "read failed (rval < 0, errno %d)...exiting", errno);
       debug_string("read failed", "");
@@ -141,6 +143,7 @@ chapRPacket *readChapRPacket(int fd)
 	  }
 	}
       }
+      debug_string("not connected", "");
     } else {
       firstZero = 0; // looks like there isn't a problem after all
       if (connected == 0){
@@ -177,13 +180,12 @@ chapRPacket *readChapRPacket(int fd)
 	  cp.joy1_x1    = (int) buf[4];
 	  cp.joy1_y1    = (int) buf[5];
 	  cp.joy1_B1    = (int) buf[6];
-	  cp.joy1_x2    = (int) buf[7];
-	  cp.joy1_y2    = (int) buf[8];
+	  cp.joy1_x2    = (int) buf[7]; //was 7
+	  cp.joy1_y2    = (int) buf[8]; //was 8
 	  cp.joy1_B2    = (int) buf[9];
-	  cp.joy1_x3    = (int) buf[10];
-	  cp.joy1_y3    = (int) buf[11];
-	  debug_int("First receiving packets ",cp.joy1_x2);
-	  debug_int("Moving the joystick ", cp.joy1_x3);
+	  cp.joy1_x3    = (int) buf[10]; //was 10
+	  cp.joy1_y3    = (int) buf[11]; //was 11
+
 // zero
 	  cp.joy2_TH_m  = (int) buf[13];
 	  cp.joy2_TH_l  = (int) buf[14];
@@ -229,8 +231,6 @@ int translateHeader(char *buffer, chapRPacket *cp)
 #define kJoystickDesc1TCPTag 2
 #define DEVTYPE_JOYSTICK 0x14
 
-<<<<<<< HEAD
-
 /* translateChapRPacket() - translates from a received ChapR packet to a v1 driver's station packet
 			    for transmission over UDP
 */
@@ -240,23 +240,9 @@ int translateChapRPacket(char *buffer, chapRPacket *cp)
 
   // -----------------------------------------1st joystick--------------------------------------------
   switch(cp->joy1_type){
-  case 3: // Logitech F310
-  default:
-    buffer[size++] = (uint) 0x0c; // size of data
-    buffer[size++] = (uint) kJoystick1Tag;
-    buffer[size++] = (uint) 0x04; // # of axes
-    buffer[size++] = cp->joy1_x1;
-    buffer[size++] = cp->joy1_y1;
-    buffer[size++] = cp->joy1_x2;
-    buffer[size++] = cp->joy1_y2;
-    buffer[size++] = (uint) 0x0c; // # of bttns
-    buffer[size++] = (uint) ((cp->joy1_B2)>>1); // ChapR packet had been offset to prevent 'FF's
-    buffer[size++] = (uint) (cp->joy1_B1) | ((cp->joy1_B2&0x01)<<7); // moves button from B2 to B1
-    buffer[size++] = (uint) 0x01; // # of POV's (or D-pad's)
-    buffer[size++] = cp->joy1_TH_m;
-    buffer[size++] = cp->joy1_TH_l;
-    break;
-  case 2:
+  case 0: // Gamestop Xbox 360 
+  case 1: // Afterglow Xbox 360 
+  case 2: // Microsoft Xbox 360 
     buffer[size++] = (uint) 0x0e; // size of data
     buffer[size++] = (uint) kJoystick1Tag;
     buffer[size++] = (uint) 0x06; // # of axes
@@ -267,6 +253,22 @@ int translateChapRPacket(char *buffer, chapRPacket *cp)
     buffer[size++] = cp->joy1_x3;
     buffer[size++] = cp->joy1_y3;
     buffer[size++] = (uint) 0x0a; // # of bttns
+    buffer[size++] = (uint) ((cp->joy1_B2)>>1); // ChapR packet had been offset to prevent 'FF's
+    buffer[size++] = (uint) (cp->joy1_B1) | ((cp->joy1_B2&0x01)<<7); // moves button from B2 to B1
+    buffer[size++] = (uint) 0x01; // # of POV's (or D-pad's)
+    buffer[size++] = cp->joy1_TH_m;
+    buffer[size++] = cp->joy1_TH_l;
+    break;
+  case 3: // Logitech F310
+  default:
+    buffer[size++] = (uint) 0x0c; // size of data
+    buffer[size++] = (uint) kJoystick1Tag;
+    buffer[size++] = (uint) 0x04; // # of axes
+    buffer[size++] = cp->joy1_x1;
+    buffer[size++] = cp->joy1_y1;
+    buffer[size++] = cp->joy1_x2;
+    buffer[size++] = cp->joy1_y2;
+    buffer[size++] = (uint) 0x0c; // # of bttns
     buffer[size++] = (uint) ((cp->joy1_B2)>>1); // ChapR packet had been offset to prevent 'FF's
     buffer[size++] = (uint) (cp->joy1_B1) | ((cp->joy1_B2&0x01)<<7); // moves button from B2 to B1
     buffer[size++] = (uint) 0x01; // # of POV's (or D-pad's)
@@ -289,23 +291,9 @@ int translateChapRPacket(char *buffer, chapRPacket *cp)
 
   // -------------------------------------------2nd joystick -----------------------------------------------
   switch(cp->joy2_type){
-  case 3: // Logitech F310
-  default:
-    buffer[size++] = (uint) 0x0c; // size of data
-    buffer[size++] = (uint) kJoystick1Tag;
-    buffer[size++] = (uint) 0x04; // # of axes
-    buffer[size++] = cp->joy2_x1;
-    buffer[size++] = cp->joy2_y1;
-    buffer[size++] = cp->joy2_x2;
-    buffer[size++] = cp->joy2_y2;
-    buffer[size++] = (uint) 0x0c; // # of bttns
-    buffer[size++] = (uint) ((cp->joy2_B2)>>1); // ChapR packet had been offset to prevent 'FF's
-    buffer[size++] = (uint) (cp->joy2_B1) | ((cp->joy2_B2&0x01)<<7); // moves button from B2 to B1
-    buffer[size++] = (uint) 0x01; // # of POV's (or D-pad's)
-    buffer[size++] = cp->joy2_TH_m;
-    buffer[size++] = cp->joy2_TH_l;
-    break;
-  case 2:
+  case 0: // Gamestop Xbox 360 
+  case 1: // Afterglow Xbox 360 
+  case 2: // Microsoft Xbox 360 
     buffer[size++] = (uint) 0x0e; // size of data
     buffer[size++] = (uint) kJoystick1Tag;
     buffer[size++] = (uint) 0x06; // # of axes
@@ -316,6 +304,22 @@ int translateChapRPacket(char *buffer, chapRPacket *cp)
     buffer[size++] = cp->joy2_x3;
     buffer[size++] = cp->joy2_y3;
     buffer[size++] = (uint) 0x0a; // # of bttns
+    buffer[size++] = (uint) ((cp->joy2_B2)>>1); // ChapR packet had been offset to prevent 'FF's
+    buffer[size++] = (uint) (cp->joy2_B1) | ((cp->joy2_B2&0x01)<<7); // moves button from B2 to B1
+    buffer[size++] = (uint) 0x01; // # of POV's (or D-pad's)
+    buffer[size++] = cp->joy2_TH_m;
+    buffer[size++] = cp->joy2_TH_l;
+    break;
+  case 3: // Logitech F310
+  default:
+    buffer[size++] = (uint) 0x0c; // size of data
+    buffer[size++] = (uint) kJoystick1Tag;
+    buffer[size++] = (uint) 0x04; // # of axes
+    buffer[size++] = cp->joy2_x1;
+    buffer[size++] = cp->joy2_y1;
+    buffer[size++] = cp->joy2_x2;
+    buffer[size++] = cp->joy2_y2;
+    buffer[size++] = (uint) 0x0c; // # of bttns
     buffer[size++] = (uint) ((cp->joy2_B2)>>1); // ChapR packet had been offset to prevent 'FF's
     buffer[size++] = (uint) (cp->joy2_B1) | ((cp->joy2_B2&0x01)<<7); // moves button from B2 to B1
     buffer[size++] = (uint) 0x01; // # of POV's (or D-pad's)
@@ -350,6 +354,15 @@ int formatInfo(int joystick_type, char *buffer, int start_val, int index)
   char *name;
   uint axes[10];
   switch(joystick_type){
+  case 0: // Gamestop Xbox 360 
+  case 1: // Afterglow Xbox 360 
+  case 2: // Microsoft Xbox 360 
+    isXbox = 1;
+    name = "XBOX 360";
+    numAxes = 6;
+    bttnCount = 10;
+    numPOV = 1;
+    break;
   case 3: // Logitech F310
   default:
     isXbox = 0;
@@ -360,13 +373,6 @@ int formatInfo(int joystick_type, char *buffer, int start_val, int index)
     axes[2] = 2;
     axes[3] = 5;
     bttnCount = 12;
-    numPOV = 1;
-    break;
-  case 2: // Xbox 360
-    isXbox = 1;
-    name = "XBOX 360";
-    numAxes = 6;
-    bttnCount = 10;
     numPOV = 1;
     break;
   case 5:
