@@ -105,7 +105,7 @@ void setup()
      if (!myEEPROM.isInitialized()){
      	  myEEPROM.boardBringUp();
 	  myEEPROM.setDefaults(DEF_NAME, DEF_TIMEOUT, DEF_PERSON, DEF_LAG, DEF_MODE,
-			       DEF_FTCAUTOLEN, DEF_FTCTELELEN, DEF_FTCENDLEN, DEF_MATCHMODE);
+			       DEF_FRCAUTOLEN, DEF_FRCTELELEN, DEF_FRCENDLEN, DEF_MATCHMODE);
 	  myEEPROM.setFromConsole();
      }		
 

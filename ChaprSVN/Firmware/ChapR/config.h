@@ -104,14 +104,14 @@
 // default settings for EEPROM values that are used during board bringup.
 
 #define DEF_NAME               "ChapRX"
-#define DEF_TIMEOUT            10 // ten minutes
-#define DEF_PERSON             3 // corresponds to LabView personality
-#define DEF_LAG                35
-#define DEF_MODE               1 // teleOp mode
-#define DEF_FTCAUTOLEN         30 // (secs) defaults set for FTC
-#define DEF_FTCTELELEN         90 // (secs)
-#define DEF_FTCENDLEN          30 // (secs)
-#define DEF_FRCAUTOLEN         15 // (secs) defaults set for FRC
+#define DEF_TIMEOUT            10  // ten minutes
+#define DEF_PERSON             4   // corresponds to LabView personality
+#define DEF_LAG                0
+#define DEF_MODE               1   // teleOp mode
+#define DEF_FTCAUTOLEN         30  // (secs) defaults set for FTC
+#define DEF_FTCTELELEN         90  // (secs)
+#define DEF_FTCENDLEN          30  // (secs)
+#define DEF_FRCAUTOLEN         15  // (secs) defaults set for FRC
 #define DEF_FRCTELELEN         135 // (secs)
-#define DEF_FRCENDLEN          0 // (secs)
-#define DEF_MATCHMODE	       1	// matchmode is "on" by default
+#define DEF_FRCENDLEN          20   // (secs)
+#define DEF_MATCHMODE	       1   // matchmode is "on" by default
