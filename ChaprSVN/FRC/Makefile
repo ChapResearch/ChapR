@@ -29,6 +29,9 @@ cdebug: chaprd.c
 readUSB: read_USB.c
 	$(CC) -o readUSB read_USB.c
 
+resetUSB: reset_USB.c
+	$(CC) -o resetUSB reset_USB.c
+
 install_chaprd:	inst_template.sh chaprd.sh.uu chaprd.uu
 	sed -e '1,/^---- cut here ----/d' \
 	    -e '/\[CHAPRBINARY\]/ r chaprd.uu' \
@@ -58,6 +61,10 @@ cdebug-transfer: cdebug
 
 readUSB-transfer: readUSB
 	sshpass -p "" scp readUSB admin@172.22.11.2:/tmp
+
+
+resetUSB-transfer: resetUSB
+	sshpass -p "" scp resetUSB admin@172.22.11.2:/tmp
 
 clean:
 	rm -f chaprd cdebug install_chaprd chaprd.uu chaprd.sh.uu chaprd.stripped install_chaprd
