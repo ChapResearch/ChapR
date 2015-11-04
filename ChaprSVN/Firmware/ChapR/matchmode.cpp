@@ -121,6 +121,13 @@ void MatchMode::MatchButtonProcess(void *rock_incoming)
 	  enterState(MM_TELEOP_START);
 	  break;
 
+     case MM_AUTO_START:
+     case MM_TELEOP_START:
+     case MM_ENDGAME_START:
+          enterState(MM_KILL);
+	  beeper.kill();
+          break;
+
      default:
 	  break;
      }
@@ -170,6 +177,7 @@ void MatchMode::MatchKillProcess(void *rock_incoming)
        // in any other state, the kill is issued
        else {
 	 enterState(MM_KILL);
+	 beeper.kill();
        }
        //     }
 }
