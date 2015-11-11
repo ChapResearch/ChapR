@@ -14,8 +14,10 @@
 #include <arpa/inet.h> 
 #include <signal.h>
 #include <sys/time.h>
+#include <time.h>
 
 #define CHAPR_DATA_SIZE 24
+#define WATCHDOG_TIMEOUT 3 // in seconds
 
 typedef struct chapRPacket{
 int cmd;
@@ -118,9 +120,7 @@ chapRPacket *readChapRPacket(int fd)
 
 
   while (1){
-    debug_string("about to read", "");
     int rval = read(fd, (void *) &rawData, 1);
-    debug_string("just read", "");
     if (rval < 0){
       syslog(LOG_CRIT, "read failed (rval < 0, errno %d)...exiting", errno);
       debug_string("read failed", "");
@@ -597,6 +597,98 @@ void TCP_ping(int sd, struct hostent *hp)
   TCP_send(sd, hp, buf, sizeof(buf));
 }
 
+
+#define CLOCKID CLOCK_REALTIME
+#define SIG SIGRTMIN
+
+#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); } while (0)
+
+static void print_siginfo(siginfo_t *si)
+{
+  timer_t *tidp;
+  int or;
+
+  tidp = si->si_value.sival_ptr;
+
+  printf("    sival_ptr = %p; ", si->si_value.sival_ptr);
+  printf("    *sival_ptr = 0x%lx\n", (long) *tidp);
+
+  or = timer_getoverrun(*tidp);
+  if (or == -1)
+    errExit("timer_getoverrun");
+  else
+    printf("    overrun count = %d\n", or);
+}
+
+static void handler(int sig, siginfo_t *si, void *uc)
+{
+  char *const args[] = { "chaprd" };
+  
+  printf("Caught signal %d\n", sig);
+  print_siginfo(si);
+  signal(sig, SIG_IGN);
+  /*  int i;
+  for (i = 0; i < sysconf(_SC_OPEN_MAX); i++){
+    close(i);
+  }
+  closelog();
+  execv("/proc/self/exe", args);*/
+}
+
+void initWatchDog(timer_t *timerid)
+{
+  struct sigevent sev;
+  struct itimerspec its;
+  long long freq_nanosecs;
+  sigset_t mask;
+  struct sigaction sa;
+
+  /* Establish handler for timer signal */
+
+  debug_int("Establishing handler for signal ", SIG);
+  sa.sa_flags = SA_SIGINFO;
+  sa.sa_sigaction = handler;
+  sigemptyset(&sa.sa_mask);
+  if (sigaction(SIG, &sa, NULL) == -1)
+    errExit("sigaction");
+
+  /* Block timer signal temporarily */
+
+  debug_int("Blocking signal ", SIG);
+  sigemptyset(&mask);
+  sigaddset(&mask, SIG);
+  if (sigprocmask(SIG_SETMASK, &mask, NULL) == -1)
+    errExit("sigprocmask");
+
+  /* Create the timer */
+
+  sev.sigev_notify = SIGEV_SIGNAL;
+  sev.sigev_signo = SIG;
+  sev.sigev_value.sival_ptr = timerid;
+  if (timer_create(CLOCKID, &sev, timerid) == -1)
+    errExit("timer_create");
+
+  debug_int("Unblocking signal ", SIG);
+  if (sigprocmask(SIG_UNBLOCK, &mask, NULL) == -1)
+    errExit("sigprocmask");
+
+}
+
+void feedWatchDog(timer_t timerid)
+{
+  struct itimerspec its;
+  long long freq_nanosecs;
+
+  freq_nanosecs = ((long long)(WATCHDOG_TIMEOUT))*1000000000;
+  its.it_value.tv_sec = freq_nanosecs / 1000000000;
+  its.it_value.tv_nsec = freq_nanosecs % 1000000000;
+  its.it_interval.tv_sec = its.it_value.tv_sec;
+  its.it_interval.tv_nsec = its.it_value.tv_nsec;
+
+  if (timer_settime(timerid, 0, &its, NULL) == -1)
+    errExit("timer_settime");
+}
+
 int daemonize(){
         
   /* Our process ID and Session ID */
@@ -665,16 +757,17 @@ int main(void) {
     static int joy1_type = 0; // indicates if a new joystick has been inputted
     static int joy2_type = 0; // indicates if a new joystick has been inputted
 
-    int fd = -1;
-    while (fd == -1){
-      fd = openUSBPort();
-      debug_int("fd of USB: ", fd);	
+    int usb_fd = -1;
+    while (usb_fd == -1){
+      usb_fd = openUSBPort();
+      debug_int("usb_fd of USB: ", usb_fd);	
     }
+    timer_t timerid;
+    initWatchDog(&timerid);
     while (1){
       chapRPacket *cp;
 
-      cp = readChapRPacket(fd);
-      debug_string("read packet!", "");
+      cp = readChapRPacket(usb_fd);
       if (cp == NULL){
 	debug_string("USB Port was closed somehow", "");
 	break; // the USB port was closed somehow
@@ -691,19 +784,21 @@ int main(void) {
       int size = translateChapRPacket(udp_buffer, cp);
       UDP_send(udp_sd,hp,udp_buffer,size);
       debug_string("sent UDP packet",""); 
+      feedWatchDog(timerid);
     }	
-    close(fd); // close fd to FirePlug
-    syslog(LOG_INFO, "just closed port: %d", fd);
+    close(usb_fd); // close fd to FirePlug
+    syslog(LOG_INFO, "just closed port: %d", usb_fd);
     joy1_type = 0; // reset joy1
     joy2_type = 0; // reset joy2
-
+  
     // while it may be unneccessary to close the TCP/UDP ports, there is
     // no reason to let them simply time out; might as well close and reopen them
     close(tcp_sd); // close TCP socket
     syslog(LOG_INFO, "just closed port: %d", tcp_sd);
     close(udp_sd); // close UDP socket
     syslog(LOG_INFO, "just closed port: %d", udp_sd);
-    sleep(5);
+    //  sleep(5);
+
   }
 
   exit(EXIT_SUCCESS);
