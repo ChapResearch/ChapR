@@ -46,6 +46,8 @@ int joy1_TH_m; // MSB
   int joy2_y3;
 } chapRPacket;
 
+int watchDogByte = 0;
+
 // TODO - kill signal, logging
 
 void signalHandler(int signal)
@@ -120,12 +122,22 @@ chapRPacket *readChapRPacket(int fd)
 
 
   while (1){
-    int rval = read(fd, (void *) &rawData, 1);
+    int rval;
+    if (watchDogByte){
+      rval = -1;
+    } else {
+      rval = read(fd, (void *) &rawData, 1);
+    }
     if (rval < 0){
       syslog(LOG_CRIT, "read failed (rval < 0, errno %d)...exiting", errno);
       debug_string("read failed", "");
+      char *const args[] = { "chaprd", NULL };
+      int i;
+      for (i = 0; i < sysconf(_SC_OPEN_MAX); i++){
+	close(i);
+      }
       closelog();
-      exit(1);
+      execv("/proc/self/exe", args);
     }
     else if (rval == 0){
       debug_string("read 0", "");
@@ -537,7 +549,10 @@ int TCP_init(struct hostent *hp)
 
   if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
     errorMsg("cannot create socket");
+    debug_string("cannot create TCP socket", "");
   }
+
+  debug_int("tcp_sd: ", fd);
 
   int port = 1740;
 	
@@ -549,6 +564,7 @@ int TCP_init(struct hostent *hp)
 
   while (connect(fd, (struct sockaddr *)&dest_addr, sizeof(dest_addr)) == -1){
     debug_int("TCP_connect_error:", errno);
+    syslog(LOG_INFO, "TCP_connect_error");
     sleep(1);
   }
 
@@ -599,7 +615,7 @@ void TCP_ping(int sd, struct hostent *hp)
 
 
 #define CLOCKID CLOCK_REALTIME
-#define SIG SIGRTMIN
+#define SIG SIGPIPE
 
 #define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
@@ -622,17 +638,9 @@ static void print_siginfo(siginfo_t *si)
 
 static void handler(int sig, siginfo_t *si, void *uc)
 {
-  char *const args[] = { "chaprd" };
-  
   printf("Caught signal %d\n", sig);
   print_siginfo(si);
-  signal(sig, SIG_IGN);
-  /*  int i;
-  for (i = 0; i < sysconf(_SC_OPEN_MAX); i++){
-    close(i);
-  }
-  closelog();
-  execv("/proc/self/exe", args);*/
+  watchDogByte = 1;
 }
 
 void initWatchDog(timer_t *timerid)
@@ -764,6 +772,7 @@ int main(void) {
     }
     timer_t timerid;
     initWatchDog(&timerid);
+    debug_string("Just init watchdog", "");
     while (1){
       chapRPacket *cp;
 
