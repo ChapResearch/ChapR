@@ -111,15 +111,11 @@ chapRPacket *readChapRPacket(int fd)
   unsigned char checkSum = 0;
   int count = 0;
 
-  static struct timeval begin, end, diff; // used for timeout of connection
   static struct timespec sleepTime;
   sleepTime.tv_sec = 0;
   sleepTime.tv_nsec = 200000L; // operate at 5K BAUD (a little slower, because of processing time)
   // used to be 200000L
   struct timespec timeLeft; // not used, but still needed as a parameter
-  static int connected = 0; 
-  static int firstZero = 0;
-
 
   while (1){
     int rval;
@@ -138,29 +134,7 @@ chapRPacket *readChapRPacket(int fd)
       }
       closelog();
       execv("/proc/self/exe", args);
-    }
-    else if (rval == 0){
-      debug_string("read 0", "");
-      if (connected){ // if we think we are still connected
-	if (firstZero == 0){ // if this is the first indication of a problem
-	  firstZero = 1;
-	  gettimeofday(&begin, NULL);
-	} else {
-	  gettimeofday(&end, NULL);
-	  timeval_subtract(&diff, &end, &begin);
-	  printf("elapsed time%ld\n", diff.tv_sec);
-	  if (diff.tv_sec > 5){
-	    connected = 0;
-	    return (chapRPacket *) NULL;
-	  }
-	}
-      }
-      debug_string("not connected", "");
     } else {
-      firstZero = 0; // looks like there isn't a problem after all
-      if (connected == 0){
-	connected = 1;
-      }
       switch (state){
       case 0:
       case 1:
@@ -564,7 +538,7 @@ int TCP_init(struct hostent *hp)
 
   while (connect(fd, (struct sockaddr *)&dest_addr, sizeof(dest_addr)) == -1){
     debug_int("TCP_connect_error:", errno);
-    syslog(LOG_INFO, "TCP_connect_error");
+    syslog(LOG_INFO, "TCP_connect_error %d", errno);
     sleep(1);
   }
 
