@@ -129,10 +129,17 @@ chapRPacket *readChapRPacket(int fd)
       debug_string("read failed", "");
       char *const args[] = { "chaprd", NULL };
       int i;
-      for (i = 0; i < sysconf(_SC_OPEN_MAX); i++){
+#ifdef DEBUG
+      i = 3;
+#endif
+#ifndef DEBUG
+      i = 0;
+#endif
+      for (i; i < sysconf(_SC_OPEN_MAX); i++){
 	close(i);
       }
       closelog();
+      sleep(2);
       execv("/proc/self/exe", args);
     } else {
       switch (state){
