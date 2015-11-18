@@ -11,13 +11,14 @@
 ### END INIT INFO
 
 CHAPRD=/usr/sbin/chaprd
+#CHAPRD=/usr/sbin/cdebug
 
 [ -x $CHAPRD ] || exit 1
 
 case "$1" in
 	start)
 		echo -n "Starting chaprd... "
-        	start-stop-daemon -S -n $(basename ${CHAPRD}) -a $CHAPRD
+		start-stop-daemon -S -b -n $(basename ${CHAPRD}) -a $CHAPRD
 		echo "done."
 	;;
 	stop)

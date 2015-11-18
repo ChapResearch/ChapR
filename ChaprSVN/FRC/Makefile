@@ -19,7 +19,7 @@ LIBS=-lrt
 all: install_chaprd
 
 chaprd: chaprd.c
-	$(CC) -o chaprd chaprd.c
+	$(CC) -o chaprd $(LIBS) chaprd.c
 
 chaprd.stripped: chaprd
 	cp -f chaprd chaprd.stripped

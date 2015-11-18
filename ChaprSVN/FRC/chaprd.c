@@ -60,11 +60,6 @@ void logMsg(char *msg)
 	
 }
 
-void errorMsg(char *msg)
-{
-  fprintf(stderr,"ERROR: %s\n",msg);
-}
-
 void debug_string(char *msg, char *arg)
 {
 #ifdef DEBUG 
@@ -114,7 +109,7 @@ chapRPacket *readChapRPacket(int fd)
   static struct timespec sleepTime;
   sleepTime.tv_sec = 0;
   sleepTime.tv_nsec = 200000L; // operate at 5K BAUD (a little slower, because of processing time)
-  // used to be 200000L
+  // started as 200000
   struct timespec timeLeft; // not used, but still needed as a parameter
 
   while (1){
@@ -141,7 +136,7 @@ chapRPacket *readChapRPacket(int fd)
       closelog();
       sleep(2);
       execv("/proc/self/exe", args);
-    } else {
+    } else if (rval > 0){
       switch (state){
       case 0:
       case 1:
@@ -204,6 +199,8 @@ chapRPacket *readChapRPacket(int fd)
   } // end of while
 }
 
+/* translateHeader() - create the header for a packet using the appropriate command
+ */
 int translateHeader(char *buffer, chapRPacket *cp)
 {
   static int index = 1;
@@ -434,7 +431,8 @@ int translateJoystickDesc(char *buffer, chapRPacket *cp)
   return size;
 }
 
-// returns the number of bytes sent (-1 on error)
+/* send_packet() - simple function to send packets (used by UDP and TCP specific functions). It returns the number of bytes sent (-1 on error).
+ */
 int send_packet (int port, int sd, struct hostent *hp, char *buffer, int theSize)
 {
   struct sockaddr_in	dest_addr;
@@ -446,53 +444,53 @@ int send_packet (int port, int sd, struct hostent *hp, char *buffer, int theSize
   return sendto(sd, (void *)buffer, (size_t)theSize, 0, (struct sockaddr *)&dest_addr,sizeof(dest_addr));
 }	
 
-// UDP_send() - given the open UDP socket, send a packet to it
-//
+/* UDP_send() - given the open UDP socket, send a packet to it (using port 1110).
+*/
 void UDP_send(int sd, struct hostent *hp, char *buffer, int theSize)
 {
   int port = 1110;
   
   if (send_packet(port, sd, hp, buffer, theSize) == -1){
+    syslog(LOG_INFO, "UDP_ernno: ", errno);
     debug_int("UDP_errno: ", errno);
   }
 }
 
-// TCP_send() - given the open TCP socket, send a packet to it
-//
+/* TCP_send() - given the open TCP socket, send a packet to it (using port 1740).
+ */
 void TCP_send(int sd, struct hostent *hp, char *buffer, int theSize)
 {
   int port = 1740;
 
   if (send_packet(port, sd, hp, buffer, theSize) == -1){
+    syslog(LOG_INFO, "TCP_ernno: ", errno);
     debug_int("TCP_errno: ", errno);
   }
 }
 
-//
-// findMe() - go find my local loopback address.  I know, I know, it is 127.0.0.1, but the host
-//			table REALLY should be consulted.
+/* findMe() - go find my local loopback address.  I know, I know, it is 127.0.0.1, but the host	table REALLY should be consulted.
+*/
 struct hostent *findMe()
 {
   struct hostent *hp;
 
   hp = gethostbyname("localhost");
   if (!hp) {
-    errorMsg("could not find ME!");
+    syslog(LOG_INFO, "could not find ME!");
     return (struct hostent *)NULL;
   }
 
   return(hp);
 }
 
-//
-// UDP_init() - returns an open socket for sending networking packets to the loopback address (127.0.0.1)
-//
+/* UDP_init() - returns an open UDP socket for sending networking packets to the loopback address (127.0.0.1)
+*/
 int UDP_init()
 {
   int fd;
 
   if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-    errorMsg("cannot create socket");
+    syslog(LOG_INFO, "cannot create socket");
     debug_int("UDP init errno", errno);
   }
 
@@ -500,9 +498,8 @@ int UDP_init()
   return(fd);
 }
 
-//
-// TODO
-//
+/* sendHelloPackets() - send UDP packets to convince the roboRIO to open the TCP port.
+ */
 void sendHelloPackets(int sd, struct hostent *hp)
 {
   unsigned char hello[6];
@@ -519,21 +516,16 @@ void sendHelloPackets(int sd, struct hostent *hp)
   }
 }
 
-//
-// TCP_init() - returns an open socket for sending networking packets to the loopback address (127.0.0.1)
-//			Code taken from http://www.thegeekstuff.com/2011/12/c-socket-programming/
-//
+/* TCP_init() - returns an open socket for sending networking packets to the loopback address. Code taken from http://www.thegeekstuff.com/2011/12/c-socket-programming/
+*/
 int TCP_init(struct hostent *hp)
 {
-  debug_string("connecting", "");
   int fd;
 
   if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-    errorMsg("cannot create socket");
+    syslog(LOG_INFO, "cannot create socket");
     debug_string("cannot create TCP socket", "");
   }
-
-  debug_int("tcp_sd: ", fd);
 
   int port = 1740;
 	
@@ -552,11 +544,9 @@ int TCP_init(struct hostent *hp)
   return(fd);
 }
 
-//
-// openUSBPort() - opens the appropriate USB port (the one with the FirePlug).
-//                 Returns an open file descriptor (read-only) for the USB port.
-//                 Blocks while waiting for an appropriate USB port.
-//
+
+/* openUSBPort() - opens the appropriate USB port (the one with the FirePlug). Returns an open file descriptor (read-only) for the USB port. Blocks while waiting for an appropriate USB port.
+*/
 int openUSBPort(){
   struct stat buf;
   char *ports[2] = {"/dev/ttyUSB0","/dev/ttyUSB1"}; 
@@ -571,7 +561,6 @@ int openUSBPort(){
     for (i = 0; i < 2; i++){
       // check if ttyUSB0 or 1 is available
       // TODO - check if it has FirePlug connected
-      // TODO - do testing of plugging/unplugging and other USB devices
       if (stat(ports[i], &buf) == 0){
 	syslog(LOG_INFO, "opened port: %s",ports[i]);
 	fd = open(ports[i], O_RDONLY);				
@@ -587,43 +576,22 @@ int openUSBPort(){
   }
 }
 
-void TCP_ping(int sd, struct hostent *hp)
-{
-  unsigned char buf[2];
-  buf[0] = buf[1] = 0;
-  TCP_send(sd, hp, buf, sizeof(buf));
-}
-
-
 #define CLOCKID CLOCK_REALTIME
-#define SIG SIGPIPE
+#define SIG SIGPIPE // the signal sent when the watchdog bites (chosen in order to interrupt the read)
 
 #define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
-static void print_siginfo(siginfo_t *si)
-{
-  timer_t *tidp;
-  int or;
-
-  tidp = si->si_value.sival_ptr;
-
-  printf("    sival_ptr = %p; ", si->si_value.sival_ptr);
-  printf("    *sival_ptr = 0x%lx\n", (long) *tidp);
-
-  or = timer_getoverrun(*tidp);
-  if (or == -1)
-    errExit("timer_getoverrun");
-  else
-    printf("    overrun count = %d\n", or);
-}
-
+/* handler() - sets the global variable to indicate to the rest of the program that the watch dog went off so that it can safely close and exec itself.
+ */
 static void handler(int sig, siginfo_t *si, void *uc)
 {
-  printf("Caught signal %d\n", sig);
-  print_siginfo(si);
+  debug_int("Caught signal %d\n", sig);
+  syslog(LOG_INFO, "Caught signal %d\n", sig);
   watchDogByte = 1;
 }
 
+/* initWatchDog() - set up the timer to be used for the watch dog. Note that this is heavily borrowed from the manpage example code.
+ */
 void initWatchDog(timer_t *timerid)
 {
   struct sigevent sev;
@@ -663,6 +631,8 @@ void initWatchDog(timer_t *timerid)
 
 }
 
+/* feedWatchDog() - reset the watchdog so that the timer will restart
+ */
 void feedWatchDog(timer_t timerid)
 {
   struct itimerspec its;
@@ -678,60 +648,16 @@ void feedWatchDog(timer_t timerid)
     errExit("timer_settime");
 }
 
-int daemonize(){
-        
-  /* Our process ID and Session ID */
-  pid_t pid, sid;
-        
-  /* Fork off the parent process */
-  pid = fork();
-  if (pid < 0) {
-    exit(EXIT_FAILURE);
-  }
-  /* If we got a good PID, then
-     we can exit the parent process. */
-  if (pid > 0) {
-    exit(EXIT_SUCCESS);
-  }
-
-  /* Change the file mode mask */
-  umask(0);
-                
-  /* Open any logs here */        
-                
-  /* Create a new SID for the child process */
-  sid = setsid();
-  if (sid < 0) {
-    /* Log the failure */
-    exit(EXIT_FAILURE);
-  }
-        
-  /* Change the current working directory */
-  if ((chdir("/")) < 0) {
-    /* Log the failure */
-    exit(EXIT_FAILURE);
-  }
-        
-  /* Close out the standard file descriptors */
-  close(STDIN_FILENO);
-  close(STDOUT_FILENO);
-  close(STDERR_FILENO);
-  return pid;
-}
-
 int main(void) {
-
   int pid;
 
   openlog("ChapR", LOG_PID | LOG_NOWAIT | LOG_CONS | LOG_NDELAY, LOG_DAEMON);
   syslog(LOG_INFO, "chaprd running...");
 
-#ifndef DEBUG
-  pid = daemonize(); // initializes the daemon
-  syslog(LOG_INFO, "Daemonized");
-#endif
   (void) signal(SIGHUP, signalHandler);
   (void) signal(SIGPIPE, signalHandler); // can also use SIG_IGN to ignore the signal errno EPIPE
+
+  sleep(2);
 
   /* The Big Loop */
   while (1) {
@@ -754,6 +680,7 @@ int main(void) {
     timer_t timerid;
     initWatchDog(&timerid);
     debug_string("Just init watchdog", "");
+    syslog(LOG_INFO, "Just init watchdog");
     while (1){
       chapRPacket *cp;
 
@@ -774,6 +701,7 @@ int main(void) {
       int size = translateChapRPacket(udp_buffer, cp);
       UDP_send(udp_sd,hp,udp_buffer,size);
       debug_string("sent UDP packet",""); 
+      // used to imitate the time take to print the debug info
       feedWatchDog(timerid);
     }	
     close(usb_fd); // close fd to FirePlug
@@ -787,9 +715,6 @@ int main(void) {
     syslog(LOG_INFO, "just closed port: %d", tcp_sd);
     close(udp_sd); // close UDP socket
     syslog(LOG_INFO, "just closed port: %d", udp_sd);
-    //  sleep(5);
-
   }
-
   exit(EXIT_SUCCESS);
 }

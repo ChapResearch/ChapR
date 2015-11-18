@@ -300,4 +300,4 @@ chown admin.administrators /usr/sbin/chaprd /etc/init.d/chaprd.sh
 chmod 750 /usr/sbin/chaprd /etc/init.d/chaprd.sh
 
 echo "Creating init links..."
-ln -s /etc/init.d/chaprd.sh /etc/rc5.d/S37chaprd
+ln -s /etc/init.d/chaprd.sh /etc/rc5.d/S99chaprd
