@@ -55,11 +55,6 @@ void signalHandler(int signal)
   syslog(LOG_INFO, "received signal: %d", signal);
 }
 
-void logMsg(char *msg)
-{
-	
-}
-
 void debug_string(char *msg, char *arg)
 {
 #ifdef DEBUG 
@@ -109,7 +104,6 @@ chapRPacket *readChapRPacket(int fd)
   static struct timespec sleepTime;
   sleepTime.tv_sec = 0;
   sleepTime.tv_nsec = 200000L; // operate at 5K BAUD (a little slower, because of processing time)
-  // started as 200000
   struct timespec timeLeft; // not used, but still needed as a parameter
 
   while (1){
@@ -168,12 +162,11 @@ chapRPacket *readChapRPacket(int fd)
 	  cp.joy1_x1    = (int) buf[4];
 	  cp.joy1_y1    = (int) buf[5];
 	  cp.joy1_B1    = (int) buf[6];
-	  cp.joy1_x2    = (int) buf[7]; //was 7
-	  cp.joy1_y2    = (int) buf[8]; //was 8
+	  cp.joy1_x2    = (int) buf[7];
+	  cp.joy1_y2    = (int) buf[8]; 
 	  cp.joy1_B2    = (int) buf[9];
-	  cp.joy1_x3    = (int) buf[10]; //was 10
-	  cp.joy1_y3    = (int) buf[11]; //was 11
-
+	  cp.joy1_x3    = (int) buf[10];
+	  cp.joy1_y3    = (int) buf[11];
 // zero
 	  cp.joy2_TH_m  = (int) buf[13];
 	  cp.joy2_TH_l  = (int) buf[14];
@@ -563,7 +556,7 @@ int openUSBPort(){
       // TODO - check if it has FirePlug connected
       if (stat(ports[i], &buf) == 0){
 	syslog(LOG_INFO, "opened port: %s",ports[i]);
-	fd = open(ports[i], O_RDONLY);				
+	fd = open(ports[i], O_RDONLY, O_NOCTTY);				
 	debug_int("open USB errno: ", errno);
 	debug_int("stat: ", buf.st_dev);
 	tcsetattr(fd, TCSANOW, &t);
@@ -701,7 +694,6 @@ int main(void) {
       int size = translateChapRPacket(udp_buffer, cp);
       UDP_send(udp_sd,hp,udp_buffer,size);
       debug_string("sent UDP packet",""); 
-      // used to imitate the time take to print the debug info
       feedWatchDog(timerid);
     }	
     close(usb_fd); // close fd to FirePlug
