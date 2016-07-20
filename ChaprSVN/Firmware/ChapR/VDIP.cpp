@@ -19,7 +19,7 @@ extern sound beeper;
 //#define HAVE_JOY2	(_p2 && _p2_dev != -1 && !(_p2_devtype & CLASS_BOMS) )
 
 // turn this on for some useful debugging code
-//#define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
 void DEBUG_PORT_CONFIG(portConfig *config)
@@ -32,12 +32,12 @@ void DEBUG_PORT_CONFIG(portConfig *config)
      Serial.print(config->type);
      Serial.println("");
 }
-
+/*
 void VDIP::debug_port_config()
 {
      DEBUG_PORT_CONFIG(&ports[0]);
      DEBUG_PORT_CONFIG(&ports[1]);
-}
+}*/
 
 void DEBUG_HEX_BYTE(unsigned char c)
 {
@@ -125,7 +125,7 @@ bool VDIP::deviceUpdate()
      portConfig		portConfigBuffer;
      int		i;
      bool		changed = false;
-
+     
      // mark the two ports so we know when they've been assigned
 
      for(i=2; i--; ) {
@@ -189,13 +189,20 @@ bool VDIP::deviceUpdate()
 			 processNXT(&portConfigBuffer);
 			 watchdogOn();
 		    }
-
+  Serial.println(portConfigBuffer.type);
 		    if(portConfigBuffer.type == DEVICE_FIREPLUG) {
 			 watchdogOff();
 			 processFirePlug(&portConfigBuffer);
 			 watchdogOn();
 		    }
-	       }
+
+        if(portConfigBuffer.type == DEVICE_KC_4134) {
+          watchdogOff();
+          Serial.println("About to process");
+          processKC4134(&portConfigBuffer);
+          watchdogOn();
+        }
+	    }
 	  }
      }
 
@@ -262,15 +269,17 @@ void VDIP::mapDevice(int dev, char *deviceReport, portConfig *returnPortConfig)
      returnPortConfig->pid = (deviceReport[DEV_PID+1] << 8) | (deviceReport[DEV_PID]&0x00ff);
 
      if(returnPortConfig->vid == (unsigned short)0x0694) {
-	  returnPortConfig->type = DEVICE_NXT;
+	     returnPortConfig->type = DEVICE_NXT;
      } else if(returnPortConfig->vid == (unsigned short)0x403) {
        returnPortConfig->type = DEVICE_FIREPLUG;
+     } else if(returnPortConfig->vid == (unsigned short)0x10C4) {
+       returnPortConfig->type = DEVICE_KC_4134;
      } else if(deviceReport[DEV_TYPE] == '\x08') {
-	  returnPortConfig->type = DEVICE_CONTROLLER;
+	     returnPortConfig->type = DEVICE_CONTROLLER;
      } else if(deviceReport[DEV_TYPE] == '\x20') {
-	  returnPortConfig->type = DEVICE_DISK;
+	     returnPortConfig->type = DEVICE_DISK;
      } else {
-	  returnPortConfig->type = DEVICE_UNKNOWN;
+	     returnPortConfig->type = DEVICE_UNKNOWN;
      }
 
      #ifdef DEBUG
@@ -784,6 +793,79 @@ int VDIP::tryFirePlugBaud(portConfig *portConfigBuffer, int rate)
      return( (r!=0) && (strncmp("CMD",cbuf,3) == 0));
 }
 
+void VDIP::processKC4134(portConfig *portConfigBuffer)
+{
+     char    cbuf[50];   // arbritarily large buffer for command and response
+     int    i;
+
+  Serial.println("now processing");
+
+     if (myEEPROM.getResetStatus() != (byte) 0){
+    // if we are being reset, then don't REprocess the FirePlug
+    return;
+     }
+
+     delay(100);  // let things setting for a small bit
+
+     cmd(VDIP_SC,NULL,100,portConfigBuffer->usbDev);  // set the current VDIP port to the KC4134
+    Serial.println(portConfigBuffer->usbDev);
+     // we're going to try to get the Bluetooth ID and set the baud rate
+     // for the FirePlug, so when we plug it into the roboRIO, it will
+     // just connect.  We do a software reset at the end of a successful
+     // setting, so we can deal with the potential for being in "pairing"
+     // mode.  Otherwise, the main code would do this, and the FirePlug
+     // would try to be processed again.
+
+     delay(100);
+
+     flush();
+
+    //115200;
+    cbuf[0] =  '\x1A';
+    cbuf[1] = '\x00';
+     cmd(VDIP_FBD,cbuf,100,portConfigBuffer->usbDev);
+
+     delay(100);  // give it time to get the baud rate in there
+
+     flush();
+
+     // Found baud rate, Yippie!
+     // now ask it for the bluetooth ID
+
+     cmd(VDIP_DSD,"AT BtAddr\r",100,10);
+     delay(100);
+     if(cmd(VDIP_DRD,cbuf,100)<12) {
+       Serial.println(cbuf);
+    beeper.icky();
+    return; // couldn't get a useful BT address, so, again, don't do anything useful
+     }
+
+     cbuf[12] = '\0'; // terminate after 12 chars
+  
+ 
+
+     //bt.setRemoteAddress(cbuf); // and feed straight to local RN42
+
+     // now go ahead and set the baud rate to match the ChapR normal operating mode
+     // it will take effect at the NEXT booting...like when the FirePlug is
+     // removed from the ChapR and plugged into something else.
+
+     //cmd(VDIP_DSD,BT_SU_BAUD_STRING,100,strlen(BT_SU_BAUD_STRING));
+
+     // and then we're done!  So take it out of command mode
+     delay(100);
+     //cmd(VDIP_DSD,"---\r",100,4);
+
+     // at this point we've done some useful stuff, so prepare for a software reset
+     // that will not cause us to try to process the FirePlug again.
+
+     myEEPROM.setResetStatus(1); // increments the "status" so that the ChapR knows it has been reset
+
+     delay(100);
+     software_Reset();
+
+     return;
+}
 
 void VDIP::processFirePlug(portConfig *portConfigBuffer)
 {

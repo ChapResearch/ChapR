@@ -78,6 +78,7 @@ typedef enum _deviceType {
      DEVICE_CONTROLLER,
      DEVICE_DISK,
      DEVICE_FIREPLUG,
+     DEVICE_KC_4134, // a Bluetooth to USB Serial adapter like the Fireplug
      DEVICE_NXT
 } deviceType;
 
@@ -126,6 +127,7 @@ private:
      void processDisk(portConfig *portConfigBuffer);
      void ejectDisk();
      void processFirePlug(portConfig *portConfigBuffer);
+     void processKC4134(portConfig *portConfigBuffer);
      void ejectFirePlug();
      void processNXT(portConfig *);
      void ejectNXT();
