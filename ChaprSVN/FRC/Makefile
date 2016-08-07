@@ -37,10 +37,11 @@ resetUSB: reset_USB.c
 timerTest: timer_test.c
 	$(CC) -o timerTest $(LIBS) timer_test.c
 
-install_chaprd:	inst_template.sh chaprd.sh.uu chaprd.uu
+install_chaprd:	inst_template.sh chaprd.sh.uu chaprd.uu configUSB.uu
 	sed -e '1,/^---- cut here ----/d' \
 	    -e '/\[CHAPRBINARY\]/ r chaprd.uu' \
 	    -e '/\[CHAPRINIT\]/ r chaprd.sh.uu' \
+	    -e '/\[PAIRINGUTIL\]/ r configUSB.uu' \
 	    -e '/\[CHAPRBINARY\]/d' \
 	    -e '/\[CHAPRINIT\]/d' < inst_template.sh > install_chaprd
 
@@ -74,7 +75,20 @@ timerTest-transfer: timerTest
 	sshpass -p "" scp timerTest admin@172.22.11.2:/tmp
 
 clean:
-	rm -f chaprd cdebug install_chaprd chaprd.uu chaprd.sh.uu chaprd.stripped install_chaprd
+	rm -f chaprd cdebug install_chaprd chaprd.uu chaprd.sh.uu chaprd.stripped install_chaprd configUSB configUSB.stripped configUSB.uu
 
 realclean: clean
 	rm -f *~
+
+configUSB.stripped: configUSB
+	cp -f configUSB configUSB.stripped
+	$(STRIP) configUSB.stripped
+
+configUSB.uu: configUSB.stripped
+	uuencode configUSB < configUSB.stripped > configUSB.uu
+
+configUSB: configureUSBDongle.c
+	$(CC) -o configUSB $(LIBS) configureUSBDongle.c
+
+configUSB-transfer: configUSB	
+	sshpass -p "" scp configUSB admin@172.22.11.2:/tmp

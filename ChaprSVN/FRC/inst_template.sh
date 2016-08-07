@@ -37,3 +37,14 @@ chmod 750 /usr/sbin/chaprd /etc/init.d/chaprd.sh
 
 echo "Creating init links..."
 ln -s /etc/init.d/chaprd.sh /etc/rc5.d/S99chaprd
+
+cd /home/admin
+
+echo "Unpacking pairing utility into /home/admin..."
+uudecode <<""EOF
+[PAIRINGUTIL]
+EOF
+
+echo "Running pairing utility..."
+chmod 744 configUSB
+./configUSB
