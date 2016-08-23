@@ -43,7 +43,7 @@ install_chaprd:	inst_template.sh chaprd.sh.uu chaprd.uu configUSB.uu
 	    -e '/\[CHAPRINIT\]/ r chaprd.sh.uu' \
 	    -e '/\[PAIRINGUTIL\]/ r configUSB.uu' \
 	    -e '/\[CHAPRBINARY\]/d' \
-	    -e '/\[CHAPRINIT\]/d' < inst_template.sh > install_chaprd
+	    -e '/\[CHAPRINIT\]/d' < inst_template.sh > install_chaprd.sh
 
 chaprd.uu: chaprd.stripped
 	uuencode chaprd < chaprd.stripped > chaprd.uu
@@ -75,7 +75,7 @@ timerTest-transfer: timerTest
 	sshpass -p "" scp timerTest admin@172.22.11.2:/tmp
 
 clean:
-	rm -f chaprd cdebug install_chaprd chaprd.uu chaprd.sh.uu chaprd.stripped install_chaprd configUSB configUSB.stripped configUSB.uu
+	rm -f chaprd cdebug install_chaprd.sh chaprd.uu chaprd.sh.uu chaprd.stripped configUSB configUSB.stripped configUSB.uu
 
 realclean: clean
 	rm -f *~

@@ -46,5 +46,6 @@ uudecode <<""EOF
 EOF
 
 echo "Running pairing utility..."
+echo "----------------------------------------------------------"
 chmod 744 configUSB
 ./configUSB

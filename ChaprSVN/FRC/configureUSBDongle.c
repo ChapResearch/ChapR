@@ -140,14 +140,16 @@ int openUSBPort(int baudRate)
 
 int main(void)
 {
+  sleep(3);
   printf("This program will walk you through pairing your ChapR to your Bluetooth dongle. You will need a powered roboRIO and ChapR, as well as a flash drive and the KC4134 Bluetooth USB Serial Adapter.\n");
   fflush(stdout); // make sure the message is printed immediately
-  sleep(2);
+  sleep(3);
 
   // stop the ChapR daemon (if running)
   system("/etc/init.d/chaprd.sh stop");
 
-  printf("Please plug in the KC4134 Bluetooth USB Serial Adapter\n");
+  printf("Please plug the KC4134 Bluetooth USB Serial Adapter into one of the roboRIO's USB ports.\n");
+  fflush(stdout); // make sure the message is printed immediately
 
   // begin communications w/ KC4134
   int fd;
@@ -177,9 +179,8 @@ int main(void)
 
   sleep(2); // give user time to read messages
 
-  printf("Now remove the USB stick from the roboRIO and insert it into the second USB port of the ChapR (be sure the ChapR is on and has sufficient battery.)\n");
-  printf("The ChapR should make a confirm tone. If not, you are using the wrong USB port.\n");
-  printf("Now reboot the ChapR and the roboRIO, plugging the KC4134 back in if necessary.\n");
-  printf("The ChapR should now connect automatically. You will hear a noise, and the blue light on the ChapR will turn solid after several seconds.\n");
-  printf("If this pairing process was unsuccessful, please visit our website, www.TheChapR.com for troubleshooting tips.\n");
+  printf("1. Now remove the USB stick from the roboRIO and insert it into the second USB port of the ChapR (be sure the ChapR is on and has sufficient battery.)\n\n");
+  printf("2. Now reboot the ChapR and the roboRIO, plugging the KC4134 back in if necessary.\n\n");
+  printf("3. The ChapR should now connect automatically. You will hear a noise, and the blue light on the ChapR will turn solid after several seconds.\n\n");
+  printf("If this pairing process was unsuccessful, please visit our website, www.TheChapR.com, for troubleshooting tips.\n");
 }
